@@ -27,7 +27,7 @@ func cronStatus(w http.ResponseWriter, r *http.Request) {
 
 
 // Insert or update a cron entry in the database
-func updateDatabase(cron string, email string, time string, tolerance int32) {
+func updateDatabase(cron string, email string, ipaddress string, time string, tolerance int32) {
       // TODO
       // Read in config file
       //
