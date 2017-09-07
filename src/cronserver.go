@@ -7,6 +7,11 @@ import (
 )
 
 
+// TODO
+// Build yaml config file that contains the following
+// - database connection string (host, port, user, pass)
+
+
 // Start HTTP Server
 func main() {
       http.HandleFunc("/", cronStatus)
@@ -24,6 +29,8 @@ func cronStatus(w http.ResponseWriter, r *http.Request) {
 // Insert or update a cron entry in the database
 func updateDatabase(cron string, email string, time string, tolerance int32) {
       // TODO
+      // Read in config file
+      //
       // Check the database for the existing cron (primary key)
       // If the cron exists, update its lastRun column with the current time
       //
@@ -53,4 +60,7 @@ func checkCronStatus() {
 func alert(recipient string, subject string, message string) {
       // TODO
       // Send an email alert
+
+      // TODO
+      // Add optional slack alerts
 }
