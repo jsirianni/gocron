@@ -1,17 +1,14 @@
 package main
-
 import (
       "fmt"
+      "time"
+      "strings"
+      "strconv"
       "os/user"
-      //"io"
       "net/http"
       "io/ioutil"
       "gopkg.in/yaml.v2"
-      "database/sql"
-      _ "github.com/lib/pq"
-      "time"
-      "strconv"
-      "strings"
+      "database/sql"; _ "github.com/lib/pq";
 )
 
 // Structs
@@ -76,14 +73,19 @@ func cronStatus(w http.ResponseWriter, r *http.Request) {
       cronJob.tolerance = r.URL.Query().Get("tolerance")
       cronJob.lastRunTime = strconv.Itoa(currentTime)
 
-
       updateDatabase(cronJob)
 }
 
 
 // Insert or update a cron entry in the database
 func updateDatabase(c Cron) {
-      var connectionString = "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron?sslmode=disable"
+      // Build postgres connection string
+      var connectionString = "postgres://" +
+      config.Dbuser + ":" +
+      config.Dbpass + "@" +
+      config.Dbfqdn +
+      "/gocron" +
+      "?sslmode=disable"
 
 
       // Check the database for the existing cron (primary key)
@@ -94,6 +96,7 @@ func updateDatabase(c Cron) {
       }
 
       _, err = db.Query("SELECT cronName FROM gocron WHERE account = " + c.account)
+
 
       // If the cron does not exist, create a table entry and record lastRun with the current time
       // Send an email alert notifying the user that the entry has been made
