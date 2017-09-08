@@ -1,0 +1,14 @@
+# This configuration file should be kept secret
+# as it includes sensitive information such as passwords.
+# Please 'chmod 700' this configuration file.
+
+
+Config:
+      dbhostname: "localhost"
+      dbport: "5432"
+      dbusername: "postgres"
+      dbpassword: "password"
+      smtpserver: ""
+      smtpport: ""
+      smtpaddress: ""
+      smtppassword: ""
