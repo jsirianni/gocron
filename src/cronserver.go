@@ -136,7 +136,14 @@ func checkCronStatus() {
 
       for rows.Next() {
             var c Cron
-            rows.Scan(&c.cronname, &c.account, &c.email, &c.ipaddress, &c.frequency, &c.tolerance, &c.lastruntime, &c.alerted)
+            rows.Scan(&c.cronname,
+                        &c.account,
+                        &c.email,
+                        &c.ipaddress,
+                        &c.frequency,
+                        &c.tolerance,
+                        &c.lastruntime,
+                        &c.alerted)
 
             var currentTime = int(time.Now().Unix())
             var lastRunTime, _ = strconv.Atoi(c.lastruntime)
@@ -152,7 +159,7 @@ func checkCronStatus() {
                                 "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
 
                   } else {
-                        log("Alert for " + c.cronname + ": " + c.account + " has been supressed. Already alerted." )
+                        log("Alert for " + c.cronname + ": " + c.account + " has been supressed. Already alerted" )
                   }
 
             } else {
@@ -166,11 +173,16 @@ func checkCronStatus() {
 
 func alert(recipient string, c Cron) {
       var port, _ = strconv.Atoi(config.Smtpport)
-      var d = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
-      var m = gomail.NewMessage()
-      var subject = "Cron failed to run: " + c.cronname + "\n"
-      var message = "The cronjob " + c.cronname + " for account " + c.account + " has not checked in on time."
 
+      var d = gomail.NewDialer(config.Smtpserver,
+                                    port,
+                                    config.Smtpaddress,
+                                    config.Smtppassword)
+
+      var subject = "Cron failed to run: " + c.cronname + "\n"
+      var message = "The cronjob " + c.cronname + " for account " + c.account + " has not checked in on time"
+
+      var m = gomail.NewMessage()
       m.SetHeader("From", config.Smtpaddress)
       m.SetHeader("To", recipient)
       m.SetHeader("Subject", subject)
@@ -181,9 +193,6 @@ func alert(recipient string, c Cron) {
       }
 
       log("Alert for " + c.cronname + " sent to " + recipient)
-
-      // TODO
-      // Add optional slack alerts
 }
 
 
@@ -195,18 +204,17 @@ func checkError(err error) {
 
 
 func log(message string) {
-      fmt.Println("\n" + message)
+      fmt.Println(message)
 }
 
 
 func databaseString() string {
-      var connectionString string
-      connectionString = "postgres://" +
-      config.Dbuser + ":" +
-      config.Dbpass + "@" +
-      config.Dbfqdn +
-      "/gocron" +
-      "?sslmode=disable"
+      var connectionString string = "postgres://" +
+            config.Dbuser + ":" +
+            config.Dbpass + "@" +
+            config.Dbfqdn +
+            "/gocron" +
+            "?sslmode=disable"
 
       return connectionString
 }
