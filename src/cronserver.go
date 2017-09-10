@@ -33,7 +33,7 @@ type Cron struct {
       frequency string
       tolerance string
       lastruntime string  // Unix timestamp
-      alerted bool // set to true if an alert has already been thrown
+      alerted bool        // set to true if an alert has already been thrown
 }
 
 var config Config
@@ -111,7 +111,12 @@ func updateDatabase(c Cron) {
             checkError(err)
             panic(err)
       }
+
       _, err = db.Exec(query)
+      if err != nil {
+            checkError(err)
+            panic(err)
+      }
 }
 
 
