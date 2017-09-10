@@ -8,6 +8,7 @@ import (
       "net/http"
       "io/ioutil"
       "gopkg.in/yaml.v2"
+      "gopkg.in/gomail.v2"
       "database/sql"; _ "github.com/lib/pq";
 )
 
@@ -25,13 +26,13 @@ type Config struct {
 }
 
 type Cron struct {
-      cronName string
+      cronname string
       account string
       email string
-      ipAddress string
-      cronTime string
+      ipaddress string
+      frequency string
       tolerance string
-      lastRunTime string  // Unix timestamp
+      lastruntime string  // Unix timestamp
 }
 
 var config Config
@@ -39,69 +40,71 @@ var config Config
 
 func main() {
       user, err := user.Current()
-
       yamlFile, err := ioutil.ReadFile(user.HomeDir + "/.config/gocron/.config.yml")
       if err != nil {
             panic(err)
       }
-
       err = yaml.Unmarshal(yamlFile, &config)
       if err != nil {
             panic(err)
       }
+
+      go timer()
 
       http.HandleFunc("/", cronStatus)
       http.ListenAndServe(":8080", nil)
 }
 
 
+func timer() {
+      for {
+            time.Sleep((20 * time.Second))
+            log("Checking for missed jobs.")
+            go checkCronStatus()
+      }
+}
+
 
 func cronStatus(w http.ResponseWriter, r *http.Request) {
+      var cronJob Cron
       var currentTime = int(time.Now().Unix())
       var socket = strings.Split(r.RemoteAddr, ":")
 
-      var cronJob Cron
-      cronJob.cronName = r.URL.Query().Get("cronName")
+      cronJob.cronname = r.URL.Query().Get("cronname")
       cronJob.account = r.URL.Query().Get("account")
       cronJob.email = r.URL.Query().Get("email")
-      cronJob.ipAddress = socket[0]
-      cronJob.cronTime = r.URL.Query().Get("time")
+      cronJob.ipaddress = socket[0]
+      cronJob.frequency = r.URL.Query().Get("frequency")
       cronJob.tolerance = r.URL.Query().Get("tolerance")
-      cronJob.lastRunTime = strconv.Itoa(currentTime)
-
+      cronJob.lastruntime = strconv.Itoa(currentTime)
 
       go updateDatabase(cronJob)
 }
 
 
 func updateDatabase(c Cron) {
-      var connectionString string
       var query string
-
-      connectionString = "postgres://" +
-      config.Dbuser + ":" +
-      config.Dbpass + "@" +
-      config.Dbfqdn +
-      "/gocron" +
-      "?sslmode=disable"
-
-      query = "INSERT INTO gocron (cronname, account, email, ipaddress, crontime, tolerance, lastruntime) VALUES ('" +
-             c.cronName + "','" +
+      query = "INSERT INTO gocron (cronname, account, email, ipaddress, frequency, tolerance, lastruntime) VALUES ('" +
+             c.cronname + "','" +
              c.account + "','" +
              c.email + "','" +
-             c.ipAddress + "','" +
-             c.cronTime + "','" +
+             c.ipaddress + "','" +
+             c.frequency + "','" +
              c.tolerance + "','" +
-             c.lastRunTime + "') " +
+             c.lastruntime + "') " +
              "ON CONFLICT (cronname, account) DO UPDATE " +
-             "SET lastruntime = " + "'" + c.lastRunTime + "'" +
+             "SET email = " + "'" + c.email + "'," +
+             "ipaddress = " + "'" + c.ipaddress + "'," +
+             "frequency = " + "'" + c.frequency + "'," +
+             "tolerance = " + "'" + c.tolerance + "'," +
+             "lastruntime = " + "'" + c.lastruntime + "'" +
              ";"
 
-      go log("Cron update from " + c.account + " at " + c.ipAddress + "\n" +
-      "Job: " + c.cronName + "\n" +
-      "Time: " + c.lastRunTime + "\n" + query + "\n")
+      go log("Cron update from " + c.account + " at " + c.ipaddress + "\n" +
+      "Job: " + c.cronname + "\n" +
+      "Time: " + c.lastruntime + "\n" + query)
 
-      db, err := sql.Open("postgres", connectionString)
+      db, err := sql.Open("postgres", databaseString())
       defer db.Close()
       if err != nil {
             checkError(err)
@@ -110,41 +113,84 @@ func updateDatabase(c Cron) {
       _, err = db.Exec(query)
 }
 
-// Check for missed cron updateDatabase
+
 func checkCronStatus() {
-      // TODO
-      // Check the database for entries that have
-      // not ran at their scheduled time + their tolerance
-      //
-      // Example: 1_*_*_*_* 30 should run at least every 1.5 hours
-      //          Every hour with 30 minutes of tolerance
-      //
-      // Example: 0_19_*_*_* 120 should run at 7pm every day
-      //          with 2 hours of tolerance (7-9pm)
-      //
-      // TODO Run this function every 10 minutes ??
-      //
-      // Send email alerts for any entries that have not checked in on time
+      db, err := sql.Open("postgres", databaseString())
+      defer db.Close()
+      if err != nil {
+            checkError(err)
+            panic(err)
+      }
+
+      rows, err := db.Query("SELECT * FROM gocron;")
+      defer rows.Close()
+      if err != nil {
+            checkError(err)
+      }
+
+      for rows.Next() {
+            var c Cron
+            rows.Scan(&c.cronname, &c.account, &c.email, &c.ipaddress, &c.frequency, &c.tolerance, &c.lastruntime)
+
+            var currentTime = int(time.Now().Unix())
+            var lastRunTime, _ = strconv.Atoi(c.lastruntime)
+            var frequency, _ = strconv.Atoi(c.frequency)
+            var tolerance, _ = strconv.Atoi(c.tolerance)
+            var maxTime = frequency + tolerance
+
+            if currentTime - lastRunTime > maxTime {
+                  alert(c.email, c)
+
+            } else {
+                  log("Job: " + c.cronname + ": " + c.account + " has checked in recently.")
+            }
+      }
 }
 
-// Send emails
-func alert(recipient string, subject string, message string) {
-      // TODO
-      // Send an email alert
+
+func alert(recipient string, c Cron) {
+      var port, _ = strconv.Atoi(config.Smtpport)
+      var d = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
+      var m = gomail.NewMessage()
+      var subject = "Cron failed to run: " + c.cronname + "\n"
+      var message = "The cronjob " + c.cronname + " for account " + c.account + " has not checked in on time."
+
+      m.SetHeader("From", config.Smtpaddress)
+      m.SetHeader("To", recipient)
+      m.SetHeader("Subject", subject)
+      m.SetBody("text/html", message)
+
+      if err := d.DialAndSend(m); err != nil {
+            checkError(err)
+      }
+
+      log("Alert for " + c.cronname + " sent to " + recipient)
 
       // TODO
       // Add optional slack alerts
 }
 
 
-// Handle errors that do not require the program to stop
 func checkError(err error) {
   if err != nil {
-    log(err.Error())
+    log("Error: \n" + err.Error())
   }
 }
 
-// log the output
+
 func log(message string) {
-      fmt.Println(message)
+      fmt.Println("\n" + message)
+}
+
+
+func databaseString() string {
+      var connectionString string
+      connectionString = "postgres://" +
+      config.Dbuser + ":" +
+      config.Dbpass + "@" +
+      config.Dbfqdn +
+      "/gocron" +
+      "?sslmode=disable"
+
+      return connectionString
 }
