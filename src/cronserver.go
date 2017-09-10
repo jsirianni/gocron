@@ -33,6 +33,7 @@ type Cron struct {
       frequency string
       tolerance string
       lastruntime string  // Unix timestamp
+      alerted bool // set to true if an alert has already been thrown
 }
 
 var config Config
@@ -101,8 +102,8 @@ func updateDatabase(c Cron) {
              ";"
 
       go log("Cron update from " + c.account + " at " + c.ipaddress + "\n" +
-      "Job: " + c.cronname + "\n" +
-      "Time: " + c.lastruntime + "\n" + query)
+            "Job: " + c.cronname + "\n" +
+            "Time: " + c.lastruntime + "\n" + query)
 
       db, err := sql.Open("postgres", databaseString())
       defer db.Close()
@@ -130,7 +131,7 @@ func checkCronStatus() {
 
       for rows.Next() {
             var c Cron
-            rows.Scan(&c.cronname, &c.account, &c.email, &c.ipaddress, &c.frequency, &c.tolerance, &c.lastruntime)
+            rows.Scan(&c.cronname, &c.account, &c.email, &c.ipaddress, &c.frequency, &c.tolerance, &c.lastruntime, &c.alerted)
 
             var currentTime = int(time.Now().Unix())
             var lastRunTime, _ = strconv.Atoi(c.lastruntime)
@@ -138,11 +139,21 @@ func checkCronStatus() {
             var tolerance, _ = strconv.Atoi(c.tolerance)
             var maxTime = frequency + tolerance
 
-            if currentTime - lastRunTime > maxTime {
-                  alert(c.email, c)
+            if (currentTime - lastRunTime) > maxTime {
+                  log(c.cronname + " for account " + c.account + " has not checked in on time")
+                  if c.alerted != true {
+                        alert(c.email, c)
+                        db.Exec("UPDATE gocron SET alerted = true " +
+                                "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
+
+                  } else {
+                        log("Alert for " + c.cronname + ": " + c.account + " has been supressed. Already alerted." )
+                  }
 
             } else {
                   log("Job: " + c.cronname + ": " + c.account + " has checked in recently.")
+                  db.Exec("UPDATE gocron SET alerted = false " +
+                          "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
             }
       }
 }
