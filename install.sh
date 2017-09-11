@@ -10,7 +10,6 @@
 
 
 # Adjustable values
-user=gocron
 password=$1
 
 
@@ -23,15 +22,15 @@ sudo systemctl start postgresql
 
 # Configure postgres
 sudo -u postgres psql -c "CREATE DATABASE gocron;"
-sudo -u postgres psql -c "CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, tolerance int, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));"
-sudo -u postgres psql -c "CREATE USER $user WITH PASSWORD '$password';"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON gocron TO $user;"
+sudo -u postgres psql gocron -c "CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, tolerance int, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));"
+sudo -u postgres psql -c "CREATE USER gocron WITH PASSWORD '$password';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON gocron TO gocron;"
 
 
 # Get gocron binary
 sudo mkdir /usr/local/bin
 wget -O /usr/local/bin/gocron https://github.com/jsirianni/gocron/blob/master/bin/cronserver?raw=true
-
+sudo chmod +x /usr/local/bin/gocron
 
 # Get gocron config and configure it
 sudo mkdir -p ~/.config/gocron

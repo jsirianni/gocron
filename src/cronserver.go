@@ -5,6 +5,7 @@ import (
       "strings"
       "strconv"
       "os/user"
+      "os/exec"
       "net/http"
       "io/ioutil"
       "gopkg.in/yaml.v2"
@@ -60,7 +61,7 @@ func main() {
 func timer() {
       for {
             time.Sleep((20 * time.Second))
-            log("Checking for missed jobs.")
+            cronLog("Checking for missed jobs.")
             go checkCronStatus()
       }
 }
@@ -101,7 +102,7 @@ func updateDatabase(c Cron) {
              "lastruntime = " + "'" + c.lastruntime + "'" +
              ";"
 
-      go log("Cron update from " + c.account + " at " + c.ipaddress + "\n" +
+      go cronLog("Cron update from " + c.account + " at " + c.ipaddress + "\n" +
             "Job: " + c.cronname + "\n" +
             "Time: " + c.lastruntime + "\n" + query)
 
@@ -152,18 +153,18 @@ func checkCronStatus() {
             var maxTime = frequency + tolerance
 
             if (currentTime - lastRunTime) > maxTime {
-                  log(c.cronname + " for account " + c.account + " has not checked in on time")
+                  cronLog(c.cronname + " for account " + c.account + " has not checked in on time")
                   if c.alerted != true {
                         alert(c.email, c)
                         db.Exec("UPDATE gocron SET alerted = true " +
                                 "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
 
                   } else {
-                        log("Alert for " + c.cronname + ": " + c.account + " has been supressed. Already alerted" )
+                        cronLog("Alert for " + c.cronname + ": " + c.account + " has been supressed. Already alerted" )
                   }
 
             } else {
-                  log("Job: " + c.cronname + ": " + c.account + " has checked in recently.")
+                  cronLog("Job: " + c.cronname + ": " + c.account + " has checked in recently.")
                   db.Exec("UPDATE gocron SET alerted = false " +
                           "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
             }
@@ -192,18 +193,22 @@ func alert(recipient string, c Cron) {
             checkError(err)
       }
 
-      log("Alert for " + c.cronname + " sent to " + recipient)
+      cronLog("Alert for " + c.cronname + " sent to " + recipient)
 }
 
 
 func checkError(err error) {
   if err != nil {
-    log("Error: \n" + err.Error())
+    cronLog("Error: \n" + err.Error())
   }
 }
 
 
-func log(message string) {
+func cronLog(message string) {
+      err := exec.Command("logger", message).Run()
+      if err != nil {
+            fmt.Println("Failed to write to syslog")
+      }
       fmt.Println(message)
 }
 
