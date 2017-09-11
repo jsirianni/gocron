@@ -102,10 +102,6 @@ func updateDatabase(c Cron) {
              "lastruntime = " + "'" + c.lastruntime + "'" +
              ";"
 
-      go cronLog("Cron update from " + c.account + " at " + c.ipaddress + "\n" +
-            "Job: " + c.cronname + "\n" +
-            "Time: " + c.lastruntime + "\n" + query)
-
       db, err := sql.Open("postgres", databaseString())
       defer db.Close()
       if err != nil {
