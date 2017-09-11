@@ -208,8 +208,8 @@ func cronLog(message string) {
       err := exec.Command("logger", message).Run()
       if err != nil {
             fmt.Println("Failed to write to syslog")
+            fmt.Println(message)
       }
-      fmt.Println(message)
 }
 
 
