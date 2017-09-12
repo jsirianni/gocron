@@ -118,7 +118,7 @@ func updateDatabase(c Cron) {
             checkError(err)
 
       } else {
-            cronLog("Job update from " + c.email + " at " + c.ipaddress + "\n" +
+            cronLog("Job update from " + c.email + " at " + c.ipaddress + " \n" +
                     "Account: " + c.account + " Job " + c.cronname)
       }
 }
