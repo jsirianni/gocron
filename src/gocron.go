@@ -10,6 +10,7 @@ import (
       "io/ioutil"
       "gopkg.in/yaml.v2"
       "gopkg.in/gomail.v2"
+      "unicode/utf8"
       "database/sql"; _ "github.com/lib/pq";
 )
 
@@ -230,25 +231,25 @@ func databaseString() string {
 
 
 func checkLength(c Cron, length int) bool {
-      if len(c.account) < length {
+      if utf8.RuneCountInString(c.account) < length {
             return false
 
-      } else if len(c.cronname) < length {
+      } else if utf8.RuneCountInString(c.cronname) < length {
             return false
 
-      } else if len(c.email) < length {
+      } else if utf8.RuneCountInString(c.email) < length {
             return false
 
-      } else if len(c.frequency) < length {
+      } else if utf8.RuneCountInString(c.frequency) < length {
             return false
 
-      } else if len(c.ipaddress) < length {
+      } else if utf8.RuneCountInString(c.ipaddress) < length {
             return false
 
-      } else if len(c.lastruntime) < length {
+      } else if utf8.RuneCountInString(c.lastruntime) < length {
             return false
 
-      } else if len(c.tolerance) < length {
+      } else if utf8.RuneCountInString(c.tolerance) < length {
             return false
 
       } else {
