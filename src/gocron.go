@@ -259,7 +259,6 @@ func checkLength(c Cron) bool {
             return false
 
       } else {
-            cronLog("Validation passed.")
             return true
       }
 }
