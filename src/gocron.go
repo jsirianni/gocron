@@ -116,6 +116,10 @@ func updateDatabase(c Cron) {
       _, err = db.Exec(query)
       if err != nil {
             checkError(err)
+
+      } else {
+            cronLog("Job update from " + c.email + " at " + c.ipaddress + "\n" +
+                    "Account: " + c.account + " Job " + c.cronname)
       }
 }
 
