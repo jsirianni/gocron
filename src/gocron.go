@@ -231,24 +231,31 @@ func databaseString() string {
 
 func checkLength(c Cron) bool {
       if len(c.account) == 0 {
+            cronLog(c.account + " is not valid")
             return false
 
       } else if len(c.cronname) == 0 {
+            cronLog(c.cronname + " is not valid")
             return false
 
       } else if len(c.email) == 0 {
+            cronLog(c.email + " is not valid")
             return false
 
       } else if len(c.frequency) == 0 {
+            cronLog(c.frequency + " is not valid")
             return false
 
       } else if len(c.ipaddress) == 0 {
+            cronLog(c.ipaddress + " is not valid")
             return false
 
       } else if len(c.lastruntime) == 0 {
+            cronLog(c.lastruntime + " is not valid")
             return false
 
       } else if len(c.tolerance) == 0 {
+            cronLog(c.tolerance + " is not valid")
             return false
 
       } else {
