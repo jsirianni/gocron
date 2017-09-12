@@ -80,7 +80,7 @@ func cronStatus(w http.ResponseWriter, r *http.Request) {
       cronJob.lastruntime = strconv.Itoa(currentTime)
       cronJob.ipaddress = socket[0]
 
-      if checkLength(cronJob, 0) == true {
+      if checkLength(cronJob, 1) == true {
             go updateDatabase(cronJob)
 
       } else {
