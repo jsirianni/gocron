@@ -62,7 +62,7 @@ func timer() {
       for {
             time.Sleep((120 * time.Second))
             cronLog("Checking for missed jobs.")
-            go checkCronStatus()
+            checkCronStatus()
       }
 }
 
@@ -235,31 +235,24 @@ func databaseString() string {
 
 func checkLength(c Cron) bool {
       if len(c.account) == 0 {
-            cronLog("Account is not valid")
             return false
 
       } else if len(c.cronname) == 0 {
-            cronLog("Cronname is not valid")
             return false
 
       } else if len(c.email) == 0 {
-            cronLog("Email is not valid")
             return false
 
       } else if len(c.frequency) == 0 {
-            cronLog("Frequency is not valid")
             return false
 
       } else if len(c.ipaddress) == 0 {
-            cronLog("IP Address is not valid")
             return false
 
       } else if len(c.lastruntime) == 0 {
-            cronLog("Runtime is not valid")
             return false
 
       } else if len(c.tolerance) == 0 {
-            cronLog("Tolerance is not valid")
             return false
 
       } else {
