@@ -10,7 +10,6 @@ import (
       "io/ioutil"
       "gopkg.in/yaml.v2"
       "gopkg.in/gomail.v2"
-      "unicode/utf8"
       "database/sql"; _ "github.com/lib/pq";
 )
 
@@ -81,7 +80,7 @@ func cronStatus(w http.ResponseWriter, r *http.Request) {
       cronJob.lastruntime = strconv.Itoa(currentTime)
       cronJob.ipaddress = socket[0]
 
-      if checkLength(cronJob, 1) == true {
+      if checkLength(cronJob) == true {
             go updateDatabase(cronJob)
 
       } else {
@@ -230,26 +229,26 @@ func databaseString() string {
 }
 
 
-func checkLength(c Cron, length int) bool {
-      if utf8.RuneCountInString(c.account) < length == true {
+func checkLength(c Cron) bool {
+      if len(c.account) == 0 {
             return false
 
-      } else if utf8.RuneCountInString(c.cronname) < length == true {
+      } else if len(c.cronname) == 0 {
             return false
 
-      } else if utf8.RuneCountInString(c.email) < length == true {
+      } else if len(c.email) == 0 {
             return false
 
-      } else if utf8.RuneCountInString(c.frequency) < length == true {
+      } else if len(c.frequency) == 0 {
             return false
 
-      } else if utf8.RuneCountInString(c.ipaddress) < length == true {
+      } else if len(c.ipaddress) == 0 {
             return false
 
-      } else if utf8.RuneCountInString(c.lastruntime) < length == true {
+      } else if len(c.lastruntime) == 0 {
             return false
 
-      } else if utf8.RuneCountInString(c.tolerance) < length == true {
+      } else if len(c.tolerance) == 0 {
             return false
 
       } else {
