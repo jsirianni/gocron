@@ -230,6 +230,7 @@ func databaseString() string {
 
 
 func checkLength(c Cron) bool {
+      cronLog("Starting validation")
       if len(c.account) == 0 {
             cronLog(c.account + " is not valid")
             return false
