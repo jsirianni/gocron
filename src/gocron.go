@@ -231,25 +231,25 @@ func databaseString() string {
 
 
 func checkLength(c Cron, length int) bool {
-      if utf8.RuneCountInString(c.account) < length {
+      if utf8.RuneCountInString(c.account) < length == true {
             return false
 
-      } else if utf8.RuneCountInString(c.cronname) < length {
+      } else if utf8.RuneCountInString(c.cronname) < length == true {
             return false
 
-      } else if utf8.RuneCountInString(c.email) < length {
+      } else if utf8.RuneCountInString(c.email) < length == true {
             return false
 
-      } else if utf8.RuneCountInString(c.frequency) < length {
+      } else if utf8.RuneCountInString(c.frequency) < length == true {
             return false
 
-      } else if utf8.RuneCountInString(c.ipaddress) < length {
+      } else if utf8.RuneCountInString(c.ipaddress) < length == true {
             return false
 
-      } else if utf8.RuneCountInString(c.lastruntime) < length {
+      } else if utf8.RuneCountInString(c.lastruntime) < length == true {
             return false
 
-      } else if utf8.RuneCountInString(c.tolerance) < length {
+      } else if utf8.RuneCountInString(c.tolerance) < length == true {
             return false
 
       } else {
