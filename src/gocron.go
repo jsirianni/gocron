@@ -10,7 +10,6 @@ import (
       "io/ioutil"
       "gopkg.in/yaml.v2"
       "gopkg.in/gomail.v2"
-      "gopkg.in/validator.v2"
       "database/sql"; _ "github.com/lib/pq";
 )
 
@@ -28,13 +27,13 @@ type Config struct {
 }
 
 type Cron struct {
-      cronname string `validate:"nonzero"`
-      account string `validate:"nonzero"`
-      email string `validate:"nonzero"`
-      ipaddress string `validate:"nonzero"`
-      frequency string `validate:"nonzero"`
-      tolerance string `validate:"nonzero"`
-      lastruntime string  `validate:"nonzero"` // Unix timestamp
+      cronname string
+      account string
+      email string
+      ipaddress string
+      frequency string
+      tolerance string
+      lastruntime string  // Unix timestamp
       alerted bool        // set to true if an alert has already been thrown
 }
 
@@ -61,7 +60,7 @@ func main() {
 
 func timer() {
       for {
-            time.Sleep((20 * time.Second))
+            time.Sleep((120 * time.Second))
             cronLog("Checking for missed jobs.")
             go checkCronStatus()
       }
@@ -69,23 +68,23 @@ func timer() {
 
 
 func cronStatus(w http.ResponseWriter, r *http.Request) {
-      var cronJob Cron
-      var currentTime = int(time.Now().Unix())
+      var currentTime int = int(time.Now().Unix())
       var socket = strings.Split(r.RemoteAddr, ":")
+      var cronJob Cron
 
       cronJob.cronname = r.URL.Query().Get("cronname")
       cronJob.account = r.URL.Query().Get("account")
-      cronJob.email = r.URL.Query().Get("email")
-      cronJob.ipaddress = socket[0]
-      cronJob.frequency = r.URL.Query().Get("frequency")
-      cronJob.tolerance = r.URL.Query().Get("tolerance")
+      cronJob.cronname = r.URL.Query().Get("email")
+      cronJob.cronname = r.URL.Query().Get("frequency")
+      cronJob.cronname = r.URL.Query().Get("tolerance")
       cronJob.lastruntime = strconv.Itoa(currentTime)
+      cronJob.ipaddress = socket[0]
 
-      if err := validator.Validate(cronJob); err != nil {
-            checkError(err)
-            cronLog("Probably a bot. Dropping request.")
-      } else {
+      if checkLength(cronJob, 0) == true {
             go updateDatabase(cronJob)
+
+      } else {
+            cronLog("GET request not valid. Dropping.")
       }
 }
 
@@ -227,4 +226,32 @@ func databaseString() string {
             "?sslmode=disable"
 
       return connectionString
+}
+
+
+func checkLength(c Cron, length int) bool {
+      if len(c.account) < length {
+            return false
+
+      } else if len(c.cronname) < length {
+            return false
+
+      } else if len(c.email) < length {
+            return false
+
+      } else if len(c.frequency) < length {
+            return false
+
+      } else if len(c.ipaddress) < length {
+            return false
+
+      } else if len(c.lastruntime) < length {
+            return false
+
+      } else if len(c.tolerance) < length {
+            return false
+
+      } else {
+            return true
+      }
 }
