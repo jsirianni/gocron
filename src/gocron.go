@@ -74,9 +74,9 @@ func cronStatus(w http.ResponseWriter, r *http.Request) {
 
       cronJob.cronname = r.URL.Query().Get("cronname")
       cronJob.account = r.URL.Query().Get("account")
-      cronJob.cronname = r.URL.Query().Get("email")
-      cronJob.cronname = r.URL.Query().Get("frequency")
-      cronJob.cronname = r.URL.Query().Get("tolerance")
+      cronJob.email = r.URL.Query().Get("email")
+      cronJob.frequency = r.URL.Query().Get("frequency")
+      cronJob.tolerance = r.URL.Query().Get("tolerance")
       cronJob.lastruntime = strconv.Itoa(currentTime)
       cronJob.ipaddress = socket[0]
 
@@ -230,33 +230,32 @@ func databaseString() string {
 
 
 func checkLength(c Cron) bool {
-      cronLog("Starting validation")
       if len(c.account) == 0 {
-            cronLog(c.account + " is not valid")
+            cronLog("Account is not valid")
             return false
 
       } else if len(c.cronname) == 0 {
-            cronLog(c.cronname + " is not valid")
+            cronLog("Cronname is not valid")
             return false
 
       } else if len(c.email) == 0 {
-            cronLog(c.email + " is not valid")
+            cronLog("Email is not valid")
             return false
 
       } else if len(c.frequency) == 0 {
-            cronLog(c.frequency + " is not valid")
+            cronLog("Frequency is not valid")
             return false
 
       } else if len(c.ipaddress) == 0 {
-            cronLog(c.ipaddress + " is not valid")
+            cronLog("IP Address is not valid")
             return false
 
       } else if len(c.lastruntime) == 0 {
-            cronLog(c.lastruntime + " is not valid")
+            cronLog("Runtime is not valid")
             return false
 
       } else if len(c.tolerance) == 0 {
-            cronLog(c.tolerance + " is not valid")
+            cronLog("Tolerance is not valid")
             return false
 
       } else {
