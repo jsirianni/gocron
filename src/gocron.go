@@ -60,7 +60,8 @@ func main() {
 
 func timer() {
       for {
-            time.Sleep((120 * time.Second))
+            // Check for missed jobs every five minutes
+            time.Sleep((300 * time.Second))
             cronLog("Checking for missed jobs.")
             checkCronStatus()
       }
