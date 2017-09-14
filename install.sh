@@ -15,30 +15,37 @@ password=$1
 
 # Install postgres
 sudo apt-get update
-sudo apt-get install postgresql-9.6 wget nano -y
+sudo apt-get install postgresql-9.6 nano -y
 sudo systemctl enable postgresql
 sudo systemctl start postgresql
 
 
 # Configure postgres
+echo "CREATE DATABASE gocron;"
 sudo -u postgres psql -c "CREATE DATABASE gocron;"
 sudo -u postgres psql gocron -c "CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, tolerance int, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));"
+echo "CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, tolerance int, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));"
 sudo -u postgres psql gocron -c "CREATE USER gocron WITH PASSWORD '$password';"
+echo "CREATE USER gocron WITH PASSWORD '$password';"
 sudo -u postgres psql gocron -c "GRANT ALL PRIVILEGES ON gocron TO gocron;"
+echo "GRANT ALL PRIVILEGES ON gocron TO gocron;"
+sleep 10
 
+# Pull newest Build
+sudo git pull
 
 # Get gocron binary
 sudo mkdir /usr/local/bin
-wget -O /usr/local/bin/gocron https://github.com/jsirianni/gocron/blob/master/bin/cronserver?raw=true
+sudo cp ./bin/gocron /usr/local/bin
 sudo chmod +x /usr/local/bin/gocron
 
 # Get gocron config and configure it
 # "/etc/gocron/.config.yml"
 sudo mkdir -p /etc/gocron/
-wget -O /etc/gocron/.config.yml https://raw.githubusercontent.com/jsirianni/gocron/master/src/.example.config.yml
+sudo cp ./src/.example.config.yml /etc/gocron/.config.yml
 sudo chmod 600 /etc/gocron/.config.yml
 sudo nano /etc/gocron/.config.yml
-
+sleep 5
 
 # Build systemd service
 sudo touch /etc/systemd/system/gocron.service
@@ -52,7 +59,7 @@ echo "ExecStart=/usr/local/bin/gocron" >> /etc/systemd/system/gocron.service
 
 echo "[Install]" >> /etc/systemd/system/gocron.service
 echo "WantedBy=multi-user.target" >> /etc/systemd/system/gocron.service
-
+sleep 5
 
 # Enable the gocron service
 sudo systemctl enable gocron.service
