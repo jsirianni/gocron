@@ -10,7 +10,6 @@
 
 
 # Adjustable values
-user=gocron
 password=$1
 
 
@@ -23,21 +22,22 @@ sudo systemctl start postgresql
 
 # Configure postgres
 sudo -u postgres psql -c "CREATE DATABASE gocron;"
-sudo -u postgres psql -c "CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, tolerance int, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));"
-sudo -u postgres psql -c "CREATE USER $user WITH PASSWORD '$password';"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON gocron TO $user;"
+sudo -u postgres psql gocron -c "CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, tolerance int, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));"
+sudo -u postgres psql gocron -c "CREATE USER gocron WITH PASSWORD '$password';"
+sudo -u postgres psql gocron -c "GRANT ALL PRIVILEGES ON gocron TO gocron;"
 
 
 # Get gocron binary
 sudo mkdir /usr/local/bin
 wget -O /usr/local/bin/gocron https://github.com/jsirianni/gocron/blob/master/bin/cronserver?raw=true
-
+sudo chmod +x /usr/local/bin/gocron
 
 # Get gocron config and configure it
-sudo mkdir -p ~/.config/gocron
-wget -O ~/.config/gocron/.config.yml https://raw.githubusercontent.com/jsirianni/gocron/master/src/.example.config.yml
-sudo chmod 600 ~/.config/gocron/.config.yml
-sudo nano ~/.config/gocron/.config.yml
+# "/etc/gocron/.config.yml"
+sudo mkdir -p /etc/gocron/
+wget -O /etc/gocron/.config.yml https://raw.githubusercontent.com/jsirianni/gocron/master/src/.example.config.yml
+sudo chmod 600 /etc/gocron/.config.yml
+sudo nano /etc/gocron/.config.yml
 
 
 # Build systemd service
