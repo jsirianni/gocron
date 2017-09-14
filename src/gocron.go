@@ -4,7 +4,6 @@ import (
       "time"
       "strings"
       "strconv"
-      "os/user"
       "os/exec"
       "net/http"
       "io/ioutil"
@@ -41,8 +40,7 @@ var config Config
 
 
 func main() {
-      user, err := user.Current()
-      yamlFile, err := ioutil.ReadFile(user.HomeDir + "/.config/gocron/.config.yml")
+      yamlFile, err := ioutil.ReadFile("/etc/gocron/.config.yml")
       if err != nil {
             checkError(err)
       }
