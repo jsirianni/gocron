@@ -23,6 +23,16 @@ Append to an existing crontab entry with:
 
 The above examples will notify the server every hour with a tolerance of 2 minutes. If the job does not check in within 2 hours and 2 minutes, an email alert is sent. Future notifications are suppressed until the job checks in again.
 
+## Sizing
+A single Google Compute Engine f1-micro instance has been proven to handle 50,000 jobs
+that check in at a rate of 10,000 jobs per 90 seconds. At this rate, the load was less than
+15%. The CPU would max out every 5 minutes when the service would check the entire database
+for jobs that have not checked in.
+
+If this kind of load is expected, running multiple servers behind a load balancer would be
+recommended, however, this ability is not yet available. Please see the TODO section.
+
+
 ## Installing
 
 ### Postgresql must be installed and listening on localhost
@@ -47,4 +57,6 @@ The main purpose of this project is to gain familiarity with golang. If you have
 
 Make compatible with Docker
 
-Build a Web front end for easy manegment
+Build a Web front end for easy management
+
+Split code base up into multiple micro services (Front end job service, email service, web ui service)
