@@ -107,10 +107,10 @@ func updateDatabase(c Cron) {
              ";"
 
       db, err := sql.Open("postgres", databaseString())
-      defer db.Close()
       if err != nil {
             checkError(err)
       }
+      defer db.Close()
 
       _, err = db.Exec(query)
       if err != nil {
@@ -124,6 +124,9 @@ func updateDatabase(c Cron) {
 
 
 func checkCronStatus() {
+      var subject string
+      var message string
+
       db, err := sql.Open("postgres", databaseString())
       if err != nil {
             checkError(err)
@@ -138,14 +141,10 @@ func checkCronStatus() {
 
       for rows.Next() {
             var c Cron
-            rows.Scan(&c.cronname,
-                        &c.account,
-                        &c.email,
-                        &c.ipaddress,
-                        &c.frequency,
-                        &c.tolerance,
-                        &c.lastruntime,
-                        &c.alerted)
+            rows.Scan(&c.cronname, &c.account,
+                        &c.email, &c.ipaddress,
+                        &c.frequency, &c.tolerance,
+                        &c.lastruntime, &c.alerted)
 
             var currentTime = int(time.Now().Unix())
             var lastRunTime, _ = strconv.Atoi(c.lastruntime)
@@ -153,44 +152,51 @@ func checkCronStatus() {
             var tolerance, _ = strconv.Atoi(c.tolerance)
             var maxTime = frequency + tolerance
 
+            // If not checked in on time
             if (currentTime - lastRunTime) > maxTime {
-                  cronLog(c.cronname + " for account " + c.account + " has not checked in on time")
+                  subject = c.cronname + ": " + c.account + " failed to check in" + "\n"
+                  message = "The cronjob " + c.cronname + " for account " + c.account + " has not checked in on time"
                   if c.alerted != true {
-                        alert(c.email, c)
                         _, err = db.Exec("UPDATE gocron SET alerted = true " +
                                 "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
                         if err != nil {
                               checkError(err)
                         }
+                        alert(c.email, c, subject, message)
+                        cronLog(subject)
 
                   } else {
                         cronLog("Alert for " + c.cronname + ": " + c.account + " has been supressed. Already alerted" )
                   }
 
-            } else {
-                  cronLog("Job: " + c.cronname + ": " + c.account + " has checked in recently.")
+            // If checked in on time but previously not
+            } else if ((currentTime - lastRunTime) < maxTime) && c.alerted == true {
                   _, err = db.Exec("UPDATE gocron SET alerted = false " +
-                          "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
+                              "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
                   if err != nil {
                         checkError(err)
+
+                  } else {
+                        subject = c.cronname + ": " + c.account + " is back online" + "\n"
+                        message = "The cronjob " + c.cronname + " for account " + c.account + " is back online"
+                        alert(c.email, c, subject, message)
+                        cronLog(subject)
                   }
+
+            // Job in a good state
+            } else {
+                  subject = c.cronname + ": " + c.account + " is online" + "\n"
+                  cronLog(subject)
             }
       }
 }
 
 
-func alert(recipient string, c Cron) {
+func alert(recipient string, c Cron, subject string, message string) {
       var port, _ = strconv.Atoi(config.Smtpport)
-
-      var d = gomail.NewDialer(config.Smtpserver,
-                                    port,
-                                    config.Smtpaddress,
-                                    config.Smtppassword)
-
-      var subject = "Cron failed to run: " + c.cronname + "\n"
-      var message = "The cronjob " + c.cronname + " for account " + c.account + " has not checked in on time"
-
+      var d = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
       var m = gomail.NewMessage()
+
       m.SetHeader("From", config.Smtpaddress)
       m.SetHeader("To", recipient)
       m.SetHeader("Subject", subject)
@@ -205,9 +211,9 @@ func alert(recipient string, c Cron) {
 
 
 func checkError(err error) {
-  if err != nil {
-    cronLog("Error: \n" + err.Error())
-  }
+      if err != nil {
+            cronLog("Error: \n" + err.Error())
+      }
 }
 
 
