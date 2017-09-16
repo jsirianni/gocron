@@ -1,5 +1,7 @@
 #!/bin/bash
 cd $(dirname $0)
 
-go build src/gocron.go
-mv gocron  bin/
+rm bin/gocron
+cd ./src
+go build
+mv src  ../bin/gocron
