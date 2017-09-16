@@ -53,11 +53,6 @@ func main() {
             }
       }
 
-
-
-
-
-
       yamlFile, err := ioutil.ReadFile("/etc/gocron/.config.yml")
       if err != nil {
             checkError(err)
