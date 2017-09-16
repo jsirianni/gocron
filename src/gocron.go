@@ -73,7 +73,7 @@ func cronStatus(w http.ResponseWriter, r *http.Request) {
             go updateDatabase(cronJob)
 
       } else {
-            cronLog("GET request not valid. Dropping.")
+            cronLog("GET request from " + cronJob.ipaddress + " not valid. Dropping.")
       }
 }
 
