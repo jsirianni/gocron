@@ -102,10 +102,3 @@ func alert(recipient string, c Cron, subject string, message string) {
 
       cronLog("Alert for " + c.cronname + " sent to " + recipient)
 }
-
-
-func checkError(err error) {
-      if err != nil {
-            cronLog("Error: \n" + err.Error())
-      }
-}

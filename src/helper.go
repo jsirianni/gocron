@@ -5,15 +5,6 @@ import (
 )
 
 
-func cronLog(message string) {
-      err := exec.Command("logger", message).Run()
-      if err != nil {
-            fmt.Println("Failed to write to syslog")
-            fmt.Println(message)
-      }
-}
-
-
 func databaseString() string {
       var connectionString string = "postgres://" +
             config.Dbuser + ":" +
@@ -50,5 +41,21 @@ func checkLength(c Cron) bool {
 
       } else {
             return true
+      }
+}
+
+
+func cronLog(message string) {
+      err := exec.Command("logger", message).Run()
+      if err != nil {
+            fmt.Println("Failed to write to syslog")
+            fmt.Println(message)
+      }
+}
+
+
+func checkError(err error) {
+      if err != nil {
+            cronLog("Error: \n" + err.Error())
       }
 }
