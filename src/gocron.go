@@ -3,6 +3,7 @@
 
 package main
 import (
+      "os"
       "time"
       "strings"
       "strconv"
@@ -11,6 +12,9 @@ import (
       "gopkg.in/yaml.v2"
       "database/sql"; _ "github.com/lib/pq";
 )
+
+
+var version string = "1.0.0"
 
 
 type Config struct {
@@ -40,6 +44,20 @@ var config Config
 
 
 func main() {
+      // Provide version number if requested
+      var args []string = os.Args
+      if len(args) > 0 {
+            if strings.Contains(args[1], "version") {
+                  println(version)
+                  return
+            }
+      }
+
+
+
+
+
+
       yamlFile, err := ioutil.ReadFile("/etc/gocron/.config.yml")
       if err != nil {
             checkError(err)
