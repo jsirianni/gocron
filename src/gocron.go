@@ -45,8 +45,8 @@ var config Config
 
 func main() {
       // Provide version number if requested
-      var args []string = os.Args
-      if len(args) > 0 {
+      if len(os.Args) > 1 {
+            var args []string = os.Args
             if strings.Contains(args[1], "version") {
                   println(version)
                   return
