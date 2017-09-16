@@ -1,3 +1,6 @@
+// Version 1.0.0
+// Debian 9 Officially supported
+
 package main
 import (
       "time"
