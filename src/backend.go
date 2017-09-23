@@ -82,15 +82,6 @@ func checkCronStatus() {
 
             // Job in a good state
             } else {
-                  // Set alerted to false if null
-                  if c.alerted != true && c.alerted != false  {
-                        _, err = db.Exec("UPDATE gocron SET alerted = false " +
-                                    "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
-                        if err != nil {
-                              checkError(err)
-                        }
-                  }
-
                   subject = c.cronname + ": " + c.account + " is online" + "\n"
                   cronLog(subject)
             }
