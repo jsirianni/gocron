@@ -50,6 +50,8 @@ func checkCronStatus() {
             if (currentTime - lastRunTime) > maxTime {
                   subject = c.cronname + ": " + c.account + " failed to check in" + "\n"
                   message = "The cronjob " + c.cronname + " for account " + c.account + " has not checked in on time"
+
+                  // Mark row as alerted
                   if c.alerted != true {
                         _, err = db.Exec("UPDATE gocron SET alerted = true " +
                                 "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
@@ -59,11 +61,12 @@ func checkCronStatus() {
                         alert(c.email, c, subject, message)
                         cronLog(subject)
 
+                  // If alerted already marked true
                   } else {
                         cronLog("Alert for " + c.cronname + ": " + c.account + " has been supressed. Already alerted" )
                   }
 
-            // If checked in on time but previously not
+            // If checked in on time but previously not (alerted == true)
             } else if ((currentTime - lastRunTime) < maxTime) && c.alerted == true {
                   _, err = db.Exec("UPDATE gocron SET alerted = false " +
                               "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
@@ -79,6 +82,15 @@ func checkCronStatus() {
 
             // Job in a good state
             } else {
+                  // Set alerted to false if null
+                  if c.alerted != true && c.alerted != false  {
+                        _, err = db.Exec("UPDATE gocron SET alerted = false " +
+                                    "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
+                        if err != nil {
+                              checkError(err)
+                        }
+                  }
+
                   subject = c.cronname + ": " + c.account + " is online" + "\n"
                   cronLog(subject)
             }
