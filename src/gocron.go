@@ -14,7 +14,7 @@ import (
 )
 
 
-var version string = "1.0.0"
+var version string = "1.0.1"
 
 
 type Config struct {
@@ -93,14 +93,15 @@ func cronStatus(w http.ResponseWriter, r *http.Request) {
 
 func updateDatabase(c Cron) {
       var query string
-      query = "INSERT INTO gocron (cronname, account, email, ipaddress, frequency, tolerance, lastruntime) VALUES ('" +
+      query = "INSERT INTO gocron (cronname, account, email, ipaddress, frequency, tolerance, lastruntime, alerted) VALUES ('" +
              c.cronname + "','" +
              c.account + "','" +
              c.email + "','" +
              c.ipaddress + "','" +
              c.frequency + "','" +
              c.tolerance + "','" +
-             c.lastruntime + "') " +
+             c.lastruntime + "','" +
+             "false" + "') " +
              "ON CONFLICT (cronname, account) DO UPDATE " +
              "SET email = " + "'" + c.email + "'," +
              "ipaddress = " + "'" + c.ipaddress + "'," +
