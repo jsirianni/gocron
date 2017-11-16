@@ -1,4 +1,4 @@
-// Version 1.0.1
+// Version 1.0.2
 // Debian 9 Officially supported
 
 package main
@@ -14,7 +14,7 @@ import (
 )
 
 
-var version string = "1.0.1"
+var version string = "1.0.2"
 
 
 type Config struct {
@@ -53,17 +53,22 @@ func main() {
             }
       }
 
+      // Read in the config file
       yamlFile, err := ioutil.ReadFile("/etc/gocron/.config.yml")
       if err != nil {
             checkError(err)
       }
+
+      // Set the global config var
       err = yaml.Unmarshal(yamlFile, &config)
       if err != nil {
             checkError(err)
       }
 
+      // Start the status checking timer on a new thread
       go timer()
 
+      // Start the web server on port 8080
       http.HandleFunc("/", cronStatus)
       http.ListenAndServe(":8080", nil)
 }
