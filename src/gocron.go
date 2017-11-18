@@ -1,4 +1,3 @@
-// Version 1.0.2
 // Debian 9 Officially supported
 
 package main
@@ -41,7 +40,7 @@ type Cron struct {
 
 // Global variables
 var config Config             // Stores configuration values in a Cron struct
-var version string = "1.0.3"  // Current version
+var version string = "1.0.4"  // Current version
 var verbose bool = false      // Flag enabling / disabling verbosity
 
 
@@ -134,7 +133,7 @@ func cronStatus(w http.ResponseWriter, req *http.Request) {
       }
 
 
-      if checkLength(cronJob) == true {
+      if validateArgs(cronJob) == true {
             go updateDatabase(cronJob)
 
       } else {

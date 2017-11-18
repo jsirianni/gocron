@@ -102,6 +102,7 @@ func checkCronStatus() {
 }
 
 
+
 func alert(recipient string, c Cron, subject string, message string) {
       var port, _ = strconv.Atoi(config.Smtpport)
       var d = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
