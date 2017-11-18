@@ -14,59 +14,75 @@ import (
 )
 
 
-var version string = "1.0.2"
-
-
 type Config struct {
-      Dbfqdn string
-      Dbport string
-      Dbuser string
-      Dbpass string
-      Dbdatabase string
-      Smtpserver string
-      Smtpport string
-      Smtpaddress string
+      Dbfqdn       string
+      Dbport       string
+      Dbuser       string
+      Dbpass       string
+      Dbdatabase   string
+      Smtpserver   string
+      Smtpport     string
+      Smtpaddress  string
       Smtppassword string
 }
 
 type Cron struct {
-      cronname string
-      account string
-      email string
-      ipaddress string
-      frequency string
-      tolerance string
-      lastruntime string  // Unix timestamp
-      alerted bool        // set to true if an alert has already been thrown
+      cronname    string   // Name of the cronjob
+      account     string   // Account the job belongs to
+      email       string   // Address to send alerts to
+      ipaddress   string   // Source IP address
+      frequency   string   // How often a job should check in
+      tolerance   string   // Additional time before an alert is thrown
+      lastruntime string   // Unix timestamp
+      alerted     bool     // set to true if an alert has already been thrown
 }
 
-var config Config
+
+
+// Global variables
+var config Config             // Stores configuration values in a Cron struct
+var version string = "1.0.3"  // Current version
+var verbose bool = false      // Flag enabling / disabling verbosity
+
 
 
 func main() {
-      // Provide version number if requested
+      // Handle optional command line args
       if len(os.Args) > 1 {
             var args []string = os.Args
-            if strings.Contains(args[1], "version") {
+
+            // Return the current version --version
+            if strings.Contains(args[1], "--version") {
                   println(version)
                   return
+
+            // Enable verbose logging. All syslog will be printed standard out
+            } else if strings.Contains(args[1], "--verbose") {
+                  verbose = true
+                  cronLog("gocron started with --verbose.")
             }
       }
+
 
       // Read in the config file
       yamlFile, err := ioutil.ReadFile("/etc/gocron/.config.yml")
       if err != nil {
             checkError(err)
+            return
       }
+
 
       // Set the global config var
       err = yaml.Unmarshal(yamlFile, &config)
       if err != nil {
             checkError(err)
+            return
       }
+
 
       // Start the status checking timer on a new thread
       go timer()
+
 
       // Start the web server on port 8080
       http.HandleFunc("/", cronStatus)
@@ -74,29 +90,61 @@ func main() {
 }
 
 
-func cronStatus(w http.ResponseWriter, r *http.Request) {
-      var currentTime int = int(time.Now().Unix())
-      var socket = strings.Split(r.RemoteAddr, ":")
-      var cronJob Cron
 
-      cronJob.cronname = r.URL.Query().Get("cronname")
-      cronJob.account = r.URL.Query().Get("account")
-      cronJob.email = r.URL.Query().Get("email")
-      cronJob.frequency = r.URL.Query().Get("frequency")
-      cronJob.tolerance = r.URL.Query().Get("tolerance")
-      cronJob.lastruntime = strconv.Itoa(currentTime)
-      cronJob.ipaddress = socket[0]
+// Called from main. Parses a GET / POST into a cron sctruct
+// and then passes them to the updateDatabase() function
+func cronStatus(w http.ResponseWriter, req *http.Request) {
+      // Method agnostic vars
+      var currentTime int = int(time.Now().Unix())
+      var socket = strings.Split(req.RemoteAddr, ":")
+      var cronJob Cron
+      var method string = ""
+
+
+      // Handle GET / POST methods
+      switch req.Method {
+      case "GET":
+            method = "GET"
+            cronJob.cronname = req.URL.Query().Get("cronname")
+            cronJob.account = req.URL.Query().Get("account")
+            cronJob.email = req.URL.Query().Get("email")
+            cronJob.frequency = req.URL.Query().Get("frequency")
+            cronJob.tolerance = req.URL.Query().Get("tolerance")
+            cronJob.lastruntime = strconv.Itoa(currentTime)
+            cronJob.ipaddress = socket[0]
+
+      case "POST":
+            // TODO: Actually handle a POST request
+            method = "POST"
+            cronJob.cronname = ""
+            cronJob.account = ""
+            cronJob.email = ""
+            cronJob.frequency = ""
+            cronJob.tolerance = ""
+            cronJob.lastruntime = strconv.Itoa(currentTime)
+            cronJob.ipaddress = socket[0]
+
+            cronLog("POST from " + cronJob.ipaddress + " dropped. Not currently supported")
+            return  // TODO Remove after POST is handled
+
+      default:
+            // Log an error
+            cronLog("Incoming request from " + cronJob.ipaddress + " is not a GET or POST.")
+            return
+      }
+
 
       if checkLength(cronJob) == true {
             go updateDatabase(cronJob)
 
       } else {
-            cronLog("GET request from " + cronJob.ipaddress + " not valid. Dropping.")
+            cronLog(method + " from " + cronJob.ipaddress + " not valid. Dropping.")
       }
 }
 
 
 func updateDatabase(c Cron) {
+      // Build the database query
       var query string
       query = "INSERT INTO gocron (cronname, account, email, ipaddress, frequency, tolerance, lastruntime, alerted) VALUES ('" +
              c.cronname + "','" +
@@ -115,11 +163,13 @@ func updateDatabase(c Cron) {
              "lastruntime = " + "'" + c.lastruntime + "'" +
              ";"
 
+
       db, err := sql.Open("postgres", databaseString())
       if err != nil {
             checkError(err)
       }
       defer db.Close()
+
 
       _, err = db.Exec(query)
       if err != nil {

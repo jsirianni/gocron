@@ -7,6 +7,7 @@ import (
 )
 
 
+
 func timer() {
       for {
             // Check for missed jobs every five minutes
@@ -17,9 +18,11 @@ func timer() {
 }
 
 
+
 func checkCronStatus() {
       var subject string
       var message string
+
 
       db, err := sql.Open("postgres", databaseString())
       if err != nil {
@@ -27,24 +30,32 @@ func checkCronStatus() {
       }
       defer db.Close()
 
+
       rows, err := db.Query("SELECT * FROM gocron;")
       if err != nil {
             checkError(err)
       }
       defer rows.Close()
 
+
       for rows.Next() {
             var c Cron
-            rows.Scan(&c.cronname, &c.account,
-                        &c.email, &c.ipaddress,
-                        &c.frequency, &c.tolerance,
-                        &c.lastruntime, &c.alerted)
+            rows.Scan(&c.cronname,
+                        &c.account,
+                        &c.email,
+                        &c.ipaddress,
+                        &c.frequency,
+                        &c.tolerance,
+                        &c.lastruntime,
+                        &c.alerted)
+
 
             var currentTime = int(time.Now().Unix())
             var lastRunTime, _ = strconv.Atoi(c.lastruntime)
             var frequency, _ = strconv.Atoi(c.frequency)
             var tolerance, _ = strconv.Atoi(c.tolerance)
             var maxTime = frequency + tolerance
+
 
             // If not checked in on time
             if (currentTime - lastRunTime) > maxTime {
@@ -66,6 +77,7 @@ func checkCronStatus() {
                         cronLog("Alert for " + c.cronname + ": " + c.account + " has been supressed. Already alerted" )
                   }
 
+
             // If checked in on time but previously not (alerted == true)
             } else if ((currentTime - lastRunTime) < maxTime) && c.alerted == true {
                   _, err = db.Exec("UPDATE gocron SET alerted = false " +
@@ -79,6 +91,7 @@ func checkCronStatus() {
                         alert(c.email, c, subject, message)
                         cronLog(subject)
                   }
+
 
             // Job in a good state
             } else {
@@ -94,14 +107,17 @@ func alert(recipient string, c Cron, subject string, message string) {
       var d = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
       var m = gomail.NewMessage()
 
+
       m.SetHeader("From", config.Smtpaddress)
       m.SetHeader("To", recipient)
       m.SetHeader("Subject", subject)
       m.SetBody("text/html", message)
 
+
       if err := d.DialAndSend(m); err != nil {
             checkError(err)
       }
+
 
       cronLog("Alert for " + c.cronname + " sent to " + recipient)
 }

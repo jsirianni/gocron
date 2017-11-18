@@ -5,6 +5,8 @@ import (
 )
 
 
+
+//Return a Postgres connection string
 func databaseString() string {
       var connectionString string = "postgres://" +
             config.Dbuser + ":" +
@@ -17,6 +19,8 @@ func databaseString() string {
 }
 
 
+
+// Validate that parameters are present
 func checkLength(c Cron) bool {
       if len(c.account) == 0 {
             return false
@@ -45,15 +49,22 @@ func checkLength(c Cron) bool {
 }
 
 
+
+// Function writes messages to syslog and (optionally) to standard out
 func cronLog(message string) {
       err := exec.Command("logger", message).Run()
       if err != nil {
             fmt.Println("Failed to write to syslog")
             fmt.Println(message)
       }
+      if verbose == true {
+            fmt.Println(message)
+      }
 }
 
 
+
+// Function passes error messages to the cronLog() function
 func checkError(err error) {
       if err != nil {
             cronLog("Error: \n" + err.Error())
