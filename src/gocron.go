@@ -27,19 +27,22 @@ type Config struct {
 }
 
 type Cron struct {
-      cronname    string  // Name of the cronjob
-      account     string  // Account the job belongs to
-      email       string  // Address to send alerts to
-      ipaddress   string  // Source IP address
-      frequency   string  // How often a job should check in
-      tolerance   string  // Additional time before an alert is thrown TODO Depricate
-      lastruntime string  // Unix timestamp
-      alerted     bool    // set to true if an alert has already been thrown
+      cronname    string   // Name of the cronjob
+      account     string   // Account the job belongs to
+      email       string   // Address to send alerts to
+      ipaddress   string   // Source IP address
+      frequency   string   // How often a job should check in
+      tolerance   string   // Additional time before an alert is thrown
+      lastruntime string   // Unix timestamp
+      alerted     bool     // set to true if an alert has already been thrown
 }
 
-var config Config
-var version string = "1.0.2"
-var verbose bool = false
+
+
+// Global variables
+var config Config             // Stores configuration values in a Cron struct
+var version string = "1.0.3"  // Current version
+var verbose bool = false      // Flag enabling / disabling verbosity
 
 
 
@@ -56,6 +59,7 @@ func main() {
             // Enable verbose logging. All syslog will be printed standard out
             } else if strings.Contains(args[1], "--verbose") {
                   verbose = true
+                  cronLog("gocron started with --verbose.")
             }
       }
 
@@ -110,7 +114,7 @@ func cronStatus(w http.ResponseWriter, req *http.Request) {
             cronJob.ipaddress = socket[0]
 
       case "POST":
-            // POST not supported currently
+            // TODO: Actually handle a POST request
             method = "POST"
             cronJob.cronname = ""
             cronJob.account = ""
@@ -120,7 +124,8 @@ func cronStatus(w http.ResponseWriter, req *http.Request) {
             cronJob.lastruntime = strconv.Itoa(currentTime)
             cronJob.ipaddress = socket[0]
 
-            return  // TODO Remove the return once POST is handled
+            cronLog("POST from " + cronJob.ipaddress + " dropped. Not currently supported")
+            return  // TODO Remove after POST is handled
 
       default:
             // Log an error

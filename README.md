@@ -36,14 +36,14 @@ recommended, however, this ability is not yet available. Please see the TODO sec
 ## Installing
 
 ### Postgresql must be installed and listening on localhost
-`"CREATE DATABASE gocron;"`
-`"CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, tolerance int, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));"`
-`"CREATE USER gocron WITH PASSWORD 'password';"`
-`"GRANT ALL PRIVILEGES ON gocron TO gocron;"`
+- `"CREATE DATABASE gocron;"`
+- `"CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, tolerance int, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));"`
+- `"CREATE USER gocron WITH PASSWORD 'password';"`
+- `"GRANT ALL PRIVILEGES ON gocron TO gocron;"`
 
 ### Run install.sh
-`chmod +x install.sh`
-`sudo ./install.sh`
+- `chmod +x install.sh`
+- `sudo ./install.sh`
 
 This script will:
 - Copy the gocron binary to `/usr/local/bin`
@@ -60,3 +60,5 @@ Make compatible with Docker
 Build a Web front end for easy management
 
 Split code base up into multiple micro services (Front end job service, email service, web ui service)
+
+Support SSL connections
