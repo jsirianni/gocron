@@ -7,11 +7,14 @@ import (
 )
 
 
+const checkInterval int   = 300  // Time in seconds to check for missed jobs
+const selectAll string    = "SELECT * FROM gocron;"
+
 
 func timer() {
       for {
             // Check for missed jobs every five minutes
-            time.Sleep((300 * time.Second))
+            time.Sleep((time.Duration(checkInterval) * time.Second))
             cronLog("Checking for missed jobs.")
             checkCronStatus()
       }
@@ -31,7 +34,7 @@ func checkCronStatus() {
       defer db.Close()
 
 
-      rows, err := db.Query("SELECT * FROM gocron;")
+      rows, err := db.Query(selectAll)
       if err != nil {
             checkError(err)
       }
@@ -57,7 +60,8 @@ func checkCronStatus() {
             // If not checked in on time
             if (currentTime - lastRunTime) > frequency {
                   subject = c.cronname + ": " + c.account + " failed to check in" + "\n"
-                  message = "The cronjob " + c.cronname + " for account " + c.account + " has not checked in on time"
+                  message = "The cronjob " + c.cronname + " for account " + c.account +
+                        " has not checked in on time"
 
                   // Mark row as alerted
                   if c.alerted != true {
@@ -71,7 +75,8 @@ func checkCronStatus() {
 
                   // If alerted already marked true
                   } else {
-                        cronLog("Alert for " + c.cronname + ": " + c.account + " has been supressed. Already alerted" )
+                        cronLog("Alert for " + c.cronname + ": " + c.account +
+                              " has been supressed. Already alerted" )
                   }
 
 
@@ -84,7 +89,9 @@ func checkCronStatus() {
 
                   } else {
                         subject = c.cronname + ": " + c.account + " is back online" + "\n"
-                        message = "The cronjob " + c.cronname + " for account " + c.account + " is back online"
+                        message = "The cronjob " + c.cronname + " for account " +
+                              c.account + " is back online"
+
                         alert(c.email, c, subject, message)
                         cronLog(subject)
                   }

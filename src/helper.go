@@ -5,6 +5,8 @@ import (
 )
 
 
+const sslmode string = "disable"
+
 
 //Return a Postgres connection string
 func databaseString() string {
@@ -13,7 +15,7 @@ func databaseString() string {
             config.Dbpass + "@" +
             config.Dbfqdn +
             "/gocron" +
-            "?sslmode=disable"
+            "?sslmode=" + sslmode
 
       return connectionString
 }
