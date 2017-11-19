@@ -38,7 +38,7 @@ func validateArgs(c Cron) bool {
             if valid == true {
                   cronLog("Parameters from " + c.ipaddress + " passed validation")
                   return true
-                  
+
             } else {
                   cronLog("Parameters from " + c.ipaddress + " failed validation!")
                   return false
@@ -69,9 +69,6 @@ func checkLength(c Cron) bool {
             return false
 
       } else if len(c.lastruntime) == 0 {
-            return false
-
-      } else if len(c.tolerance) == 0 {
             return false
 
       } else {

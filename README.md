@@ -12,16 +12,15 @@ Send a GET request with the following parameters in the query string
 - account
 - email
 - frequency (seconds)
-- tolerance (seconds)
 
 Test with
-`curl -v "localhost:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600&tolerance=120"`
+`curl -v "localhost:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"`
 
 Append to an existing crontab entry with:
-`&& curl -v "localhost:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600&tolerance=120"`
+`&& curl -v "localhost:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"`
 
 
-The above examples will notify the server every hour with a tolerance of 2 minutes. If the job does not check in within 2 hours and 2 minutes, an email alert is sent. Future notifications are suppressed until the job checks in again.
+The above examples will notify the server to expect a notification every hour. If the job does not check in within 1 hour, an email alert is sent. Future notifications are suppressed until the job checks in again.
 
 ## Sizing
 A single Google Compute Engine f1-micro instance has been proven to handle 50,000 jobs
@@ -37,7 +36,7 @@ recommended, however, this ability is not yet available. Please see the TODO sec
 
 ### Postgresql must be installed and listening on localhost
 - `CREATE DATABASE gocron;`
-- `CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, tolerance int, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));`
+- `CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));`
 - `CREATE USER gocron WITH PASSWORD 'password';`
 - `GRANT ALL PRIVILEGES ON gocron TO gocron;`
 
