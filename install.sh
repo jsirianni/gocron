@@ -9,9 +9,9 @@ sudo chmod +x /usr/local/bin/gocron
 # Get gocron config and configure it
 # "/etc/gocron/.config.yml"
 sudo mkdir -p /etc/gocron/
-sudo cp ./src/.example.config.yml /etc/gocron/.config.yml
-sudo chmod 600 /etc/gocron/.config.yml
-sudo vi /etc/gocron/.config.yml
+sudo cp ./src/example.config.yml /etc/gocron/config.yml
+sudo chmod 600 /etc/gocron/config.yml
+sudo vi /etc/gocron/config.yml
 
 # Build systemd service
 sudo touch /etc/systemd/system/gocron.service
