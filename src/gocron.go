@@ -29,7 +29,6 @@ type Cron struct {
       email       string   // Address to send alerts to
       ipaddress   string   // Source IP address
       frequency   string   // How often a job should check in
-      tolerance   string   // Additional time before an alert is thrown
       lastruntime string   // Unix timestamp
       alerted     bool     // set to true if an alert has already been thrown
 }
@@ -38,7 +37,7 @@ type Cron struct {
 
 // Global variables
 var config Config             // Stores configuration values in a Cron struct
-var version string = "1.0.5"  // Current version
+var version string = "1.0.6"  // Current version
 var verbose bool = false      // Flag enabling / disabling verbosity
 
 
@@ -106,7 +105,6 @@ func cronStatus(w http.ResponseWriter, req *http.Request) {
             cronJob.account = req.URL.Query().Get("account")
             cronJob.email = req.URL.Query().Get("email")
             cronJob.frequency = req.URL.Query().Get("frequency")
-            cronJob.tolerance = req.URL.Query().Get("tolerance")
             cronJob.lastruntime = strconv.Itoa(currentTime)
             cronJob.ipaddress = socket[0]
 
@@ -117,7 +115,6 @@ func cronStatus(w http.ResponseWriter, req *http.Request) {
             cronJob.account = ""
             cronJob.email = ""
             cronJob.frequency = ""
-            cronJob.tolerance = ""
             cronJob.lastruntime = strconv.Itoa(currentTime)
             cronJob.ipaddress = socket[0]
 
@@ -143,20 +140,18 @@ func cronStatus(w http.ResponseWriter, req *http.Request) {
 func updateDatabase(c Cron) {
       // Build the database query
       var query string
-      query = "INSERT INTO gocron (cronname, account, email, ipaddress, frequency, tolerance, lastruntime, alerted) VALUES ('" +
+      query = "INSERT INTO gocron (cronname, account, email, ipaddress, frequency, lastruntime, alerted) VALUES ('" +
              c.cronname + "','" +
              c.account + "','" +
              c.email + "','" +
              c.ipaddress + "','" +
              c.frequency + "','" +
-             c.tolerance + "','" +
              c.lastruntime + "','" +
              "false" + "') " +
              "ON CONFLICT (cronname, account) DO UPDATE " +
              "SET email = " + "'" + c.email + "'," +
              "ipaddress = " + "'" + c.ipaddress + "'," +
              "frequency = " + "'" + c.frequency + "'," +
-             "tolerance = " + "'" + c.tolerance + "'," +
              "lastruntime = " + "'" + c.lastruntime + "'" +
              ";"
 

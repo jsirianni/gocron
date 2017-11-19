@@ -45,7 +45,6 @@ func checkCronStatus() {
                         &c.email,
                         &c.ipaddress,
                         &c.frequency,
-                        &c.tolerance,
                         &c.lastruntime,
                         &c.alerted)
 
@@ -53,12 +52,10 @@ func checkCronStatus() {
             var currentTime = int(time.Now().Unix())
             var lastRunTime, _ = strconv.Atoi(c.lastruntime)
             var frequency, _ = strconv.Atoi(c.frequency)
-            var tolerance, _ = strconv.Atoi(c.tolerance)
-            var maxTime = frequency + tolerance
 
 
             // If not checked in on time
-            if (currentTime - lastRunTime) > maxTime {
+            if (currentTime - lastRunTime) > frequency {
                   subject = c.cronname + ": " + c.account + " failed to check in" + "\n"
                   message = "The cronjob " + c.cronname + " for account " + c.account + " has not checked in on time"
 
@@ -79,7 +76,7 @@ func checkCronStatus() {
 
 
             // If checked in on time but previously not (alerted == true)
-            } else if ((currentTime - lastRunTime) < maxTime) && c.alerted == true {
+            } else if ((currentTime - lastRunTime) < frequency) && c.alerted == true {
                   _, err = db.Exec("UPDATE gocron SET alerted = false " +
                               "WHERE cronname = '" + c.cronname + "' AND account = '" + c.account + "';")
                   if err != nil {
