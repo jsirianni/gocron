@@ -38,7 +38,6 @@ type Cron struct {
 const version string     = "1.0.7"
 const confPath string    = "/etc/gocron/config.yml"
 const socket string      = ":8080"
-const okResp string      = "Update received\n"
 const errorResp string   = "Internal Server Error\n"
 const contentType string = "plain/text"
 
@@ -126,7 +125,6 @@ func cronStatus(w http.ResponseWriter, req *http.Request) {
 func returnCreated(w http.ResponseWriter) {
       w.Header().Set("Content-Type", contentType)
       w.WriteHeader(http.StatusCreated)
-      w.Write([]byte(okResp))
 }
 
 // Return a 500 Server Error
