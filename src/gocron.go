@@ -34,37 +34,28 @@ type Cron struct {
 }
 
 
+// Global const and vars
+const version string     = "1.0.7"
+const confPath string    = "/etc/gocron/config.yml"
+const socket string      = ":8080"
+const errorResp string   = "Internal Server Error\n"
+const contentType string = "plain/text"
 
-// Global variables
-var config Config             // Stores configuration values in a Cron struct
-var version string = "1.0.6"  // Current version
-var verbose bool = false      // Flag enabling / disabling verbosity
-
+var config Config               // Stores configuration values in a Cron struct
+var verbose bool  = false       // Flag enabling / disabling verbosity
+var args []string = os.Args     // Command line arguments
 
 
 func main() {
-      // Handle optional command line args
-      if len(os.Args) > 1 {
-            var args []string = os.Args
-
-            // Return the current version --version
-            if strings.Contains(args[1], "--version") {
-                  println(version)
-                  return
-
-            // Enable verbose logging. All syslog will be printed standard out
-            } else if strings.Contains(args[1], "--verbose") {
-                  verbose = true
-                  cronLog("gocron started with --verbose.")
-            }
-      }
+      // Parse arguments
+      handleArgs(args)
 
 
       // Read in the config file
-      yamlFile, err := ioutil.ReadFile("/etc/gocron/config.yml")
+      yamlFile, err := ioutil.ReadFile(confPath)
       if err != nil {
             checkError(err)
-            return
+            os.Exit(1)
       }
 
 
@@ -72,7 +63,7 @@ func main() {
       err = yaml.Unmarshal(yamlFile, &config)
       if err != nil {
             checkError(err)
-            return
+            os.Exit(1)
       }
 
 
@@ -82,22 +73,20 @@ func main() {
 
       // Start the web server on port 8080
       http.HandleFunc("/", cronStatus)
-      http.ListenAndServe(":8080", nil)
+      http.ListenAndServe(socket, nil)
 }
 
 
 
-// Called from main. Parses a GET / POST into a cron sctruct
-// and then passes them to the updateDatabase() function
+// Validate the request and then pass to updateDatabase()
 func cronStatus(w http.ResponseWriter, req *http.Request) {
-      // Method agnostic vars
+
       var currentTime int = int(time.Now().Unix())
       var socket = strings.Split(req.RemoteAddr, ":")
       var cronJob Cron
       var method string = ""
 
 
-      // Handle GET / POST methods
       switch req.Method {
       case "GET":
             method = "GET"
@@ -108,36 +97,51 @@ func cronStatus(w http.ResponseWriter, req *http.Request) {
             cronJob.lastruntime = strconv.Itoa(currentTime)
             cronJob.ipaddress = socket[0]
 
-      case "POST":
-            // TODO: Actually handle a POST request
-            method = "POST"
-            cronJob.cronname = ""
-            cronJob.account = ""
-            cronJob.email = ""
-            cronJob.frequency = ""
-            cronJob.lastruntime = strconv.Itoa(currentTime)
-            cronJob.ipaddress = socket[0]
-
-            cronLog("POST from " + cronJob.ipaddress + " dropped. Not currently supported")
-            return  // TODO Remove after POST is handled
-
       default:
-            // Log an error
-            cronLog("Incoming request from " + cronJob.ipaddress + " is not a GET or POST.")
+            // Log an error and do not respond
+            cronLog("Incoming request from " + cronJob.ipaddress +
+                   " is not a GET or POST.")
             return
       }
 
 
       if validateArgs(cronJob) == true {
-            go updateDatabase(cronJob)
+            if updateDatabase(cronJob) == true {
+                  returnCreated(w)
+
+            } else {
+                  returnServerError(w)
+            }
 
       } else {
+            returnNotFound(w)
             cronLog(method + " from " + cronJob.ipaddress + " not valid. Dropping.")
       }
 }
 
 
-func updateDatabase(c Cron) {
+
+// Return a 201 Created
+func returnCreated(w http.ResponseWriter) {
+      w.Header().Set("Content-Type", contentType)
+      w.WriteHeader(http.StatusCreated)
+}
+
+// Return a 500 Server Error
+func returnServerError(w http.ResponseWriter) {
+      w.Header().Set("Content-Type", contentType)
+      w.WriteHeader(http.StatusInternalServerError)
+      w.Write([]byte(errorResp))
+}
+
+// Return 404 Not Found
+func returnNotFound(w http.ResponseWriter) {
+      w.WriteHeader(http.StatusNotFound)
+}
+
+
+
+func updateDatabase(c Cron) bool {
       // Build the database query
       var query string
       query = "INSERT INTO gocron (cronname, account, email, ipaddress, frequency, lastruntime, alerted) VALUES ('" +
@@ -159,6 +163,7 @@ func updateDatabase(c Cron) {
       db, err := sql.Open("postgres", databaseString())
       if err != nil {
             checkError(err)
+            return false
       }
       defer db.Close()
 
@@ -166,8 +171,32 @@ func updateDatabase(c Cron) {
       _, err = db.Exec(query)
       if err != nil {
             checkError(err)
+            return false
 
       } else {
             cronLog("Heartbeat from " + c.cronname + ": " + c.account + " \n")
+            return true
+      }
+}
+
+
+
+func handleArgs(args []string) {
+      if len(os.Args) > 1 {
+
+            // Return the current version
+            if strings.Contains(args[1], "--version") {
+                  println(version)
+                  os.Exit(0)
+
+            // When enabled, all logging will also print to screen
+            } else if strings.Contains(args[1], "--verbose") {
+                  verbose = true
+                  cronLog("gocron started with --verbose.")
+                  return
+
+            } else {
+                  return
+            }
       }
 }
