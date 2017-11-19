@@ -38,7 +38,7 @@ type Cron struct {
 
 // Global variables
 var config Config             // Stores configuration values in a Cron struct
-var version string = "1.0.4"  // Current version
+var version string = "1.0.5"  // Current version
 var verbose bool = false      // Flag enabling / disabling verbosity
 
 
@@ -62,7 +62,7 @@ func main() {
 
 
       // Read in the config file
-      yamlFile, err := ioutil.ReadFile("/etc/gocron/.config.yml")
+      yamlFile, err := ioutil.ReadFile("/etc/gocron/config.yml")
       if err != nil {
             checkError(err)
             return
