@@ -5,7 +5,7 @@
 dbfqdn: "localhost"
 dbport: "5432"
 dbuser: "gocron"
-dbpass: "passowrd"
+dbpass: "password"
 dbdatabase: "gocron"
 smtpserver: "smtp.gmail.com"
 smtpport: "587"

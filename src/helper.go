@@ -20,6 +20,37 @@ func databaseString() string {
 
 
 
+// Function validates SQL variables
+func validateArgs(c Cron) bool {
+
+      // Flag determines the return value
+      var valid bool = false
+
+      // Perform validation of parameters
+      if checkLength(c) == true {
+            if sqlInjection(c) == true {
+                  valid = true
+            }
+      }
+
+      // Log result if verbose is enabled
+      if verbose == true {
+            if valid == true {
+                  cronLog("Parameters from " + c.ipaddress + " passed validation")
+                  return true
+                  
+            } else {
+                  cronLog("Parameters from " + c.ipaddress + " failed validation!")
+                  return false
+            }
+      }
+
+      // Return true or false
+      return valid
+}
+
+
+
 // Validate that parameters are present
 func checkLength(c Cron) bool {
       if len(c.account) == 0 {
@@ -46,6 +77,14 @@ func checkLength(c Cron) bool {
       } else {
             return true
       }
+}
+
+
+
+// Prevent SQL injection
+func sqlInjection(c Cron) bool {
+      // TODO
+      return true
 }
 
 
