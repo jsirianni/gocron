@@ -35,7 +35,7 @@ type Cron struct {
 
 
 // Global const and vars
-const version string     = "1.0.7-beta"
+const version string     = "1.0.7"
 const confPath string    = "/etc/gocron/config.yml"
 const socket string      = ":8080"
 const okResp string      = "Update received\n"
