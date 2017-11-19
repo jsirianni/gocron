@@ -1,5 +1,3 @@
-// Debian 9 Officially supported
-
 package main
 import (
       "os"
