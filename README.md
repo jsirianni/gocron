@@ -36,10 +36,10 @@ recommended, however, this ability is not yet available. Please see the TODO sec
 ## Installing
 
 ### Postgresql must be installed and listening on localhost
-- `"CREATE DATABASE gocron;"`
-- `"CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, tolerance int, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));"`
-- `"CREATE USER gocron WITH PASSWORD 'password';"`
-- `"GRANT ALL PRIVILEGES ON gocron TO gocron;"`
+- `CREATE DATABASE gocron;`
+- `CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, tolerance int, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));`
+- `CREATE USER gocron WITH PASSWORD 'password';`
+- `GRANT ALL PRIVILEGES ON gocron TO gocron;`
 
 ### Run install.sh
 - `chmod +x install.sh`
