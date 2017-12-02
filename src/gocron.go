@@ -6,11 +6,12 @@ import (
       "strconv"
       "net/http"
       "database/sql"; _ "github.com/lib/pq";
+      "gocronlib"
 )
 
 
 // Global const and vars
-const version string     = "1.1.0"
+const version string     = "2.0.0"
 const socket string      = ":8080"
 const errorResp string   = "Internal Server Error\n"
 const contentType string = "plain/text"
@@ -36,21 +37,21 @@ func main() {
 func cronStatus(w http.ResponseWriter, req *http.Request) {
       var currentTime int = int(time.Now().Unix())
       var socket = strings.Split(req.RemoteAddr, ":")
-      var cronJob Cron
+      var cronJob gocronlib.Cron
       var method string = ""
 
       switch req.Method {
       case "GET":
             method = "GET"
-            cronJob.cronname = req.URL.Query().Get("cronname")
-            cronJob.account = req.URL.Query().Get("account")
-            cronJob.email = req.URL.Query().Get("email")
-            cronJob.frequency = req.URL.Query().Get("frequency")
-            cronJob.lastruntime = strconv.Itoa(currentTime)
-            cronJob.ipaddress = socket[0]
+            cronJob.Cronname = req.URL.Query().Get("cronname")
+            cronJob.Account = req.URL.Query().Get("account")
+            cronJob.Email = req.URL.Query().Get("email")
+            cronJob.Frequency = req.URL.Query().Get("frequency")
+            cronJob.Lastruntime = strconv.Itoa(currentTime)
+            cronJob.Ipaddress = socket[0]
       default:
             // Log an error and do not respond
-            cronLog("Incoming request from " + cronJob.ipaddress +
+            gocronlib.CronLog("Incoming request from " + cronJob.Ipaddress +
                    " is not a GET or POST.", verbose)
             return
       }
@@ -65,7 +66,7 @@ func cronStatus(w http.ResponseWriter, req *http.Request) {
 
       } else {
             returnNotFound(w)
-            cronLog(method + " from " + cronJob.ipaddress + " not valid. Dropping.", verbose)
+            gocronlib.CronLog(method + " from " + cronJob.Ipaddress + " not valid. Dropping.", verbose)
       }
 }
 
@@ -91,40 +92,40 @@ func returnNotFound(w http.ResponseWriter) {
 }
 
 
-func updateDatabase(c Cron) bool {
+func updateDatabase(c gocronlib.Cron) bool {
       // Build the database query
       var query string
       query = "INSERT INTO gocron " +
                    "(cronname, account, email, ipaddress, frequency, lastruntime, alerted) " +
               "VALUES ('" +
-                   c.cronname + "','" +
-                   c.account + "','" +
-                   c.email + "','" +
-                   c.ipaddress + "','" +
-                   c.frequency + "','" +
-                   c.lastruntime + "','" +
+                   c.Cronname + "','" +
+                   c.Account + "','" +
+                   c.Email + "','" +
+                   c.Ipaddress + "','" +
+                   c.Frequency + "','" +
+                   c.Lastruntime + "','" +
                    "false" + "') " +
               "ON CONFLICT (cronname, account) DO UPDATE " +
-                   "SET email = " + "'" + c.email + "'," +
-                   "ipaddress = " + "'" + c.ipaddress + "'," +
-                   "frequency = " + "'" + c.frequency + "'," +
-                   "lastruntime = " + "'" + c.lastruntime + "'" +
+                   "SET email = " + "'" + c.Email + "'," +
+                   "ipaddress = " + "'" + c.Ipaddress + "'," +
+                   "frequency = " + "'" + c.Frequency + "'," +
+                   "lastruntime = " + "'" + c.Lastruntime + "'" +
               ";"
 
-      db, err := sql.Open("postgres", databaseString(getConfig()))
+      db, err := sql.Open("postgres", gocronlib.DatabaseString(gocronlib.GetConfig(verbose)))
       if err != nil {
-            checkError(err, verbose)
+            gocronlib.CheckError(err, verbose)
             return false
       }
       defer db.Close()
 
       _, err = db.Exec(query)
       if err != nil {
-            checkError(err, verbose)
+            gocronlib.CheckError(err, verbose)
             return false
 
       } else {
-            cronLog("Heartbeat from " + c.cronname + ": " + c.account + " \n", verbose)
+            gocronlib.CronLog("Heartbeat from " + c.Cronname + ": " + c.Account + " \n", verbose)
             return true
       }
 }
@@ -141,7 +142,7 @@ func handleArgs(args []string) {
             // When enabled, all logging will also print to screen
             } else if strings.Contains(args[1], "--verbose") {
                   verbose = true
-                  cronLog("gocron started with --verbose.", verbose)
+                  gocronlib.CronLog("gocron started with --verbose.", verbose)
                   return
 
             } else {
@@ -152,7 +153,7 @@ func handleArgs(args []string) {
 
 
 // Function validates SQL variables
-func validateArgs(c Cron) bool {
+func validateArgs(c gocronlib.Cron) bool {
       // Flag determines the return value
       var valid bool = false
 
@@ -164,11 +165,11 @@ func validateArgs(c Cron) bool {
       // Log result if verbose is enabled
       if verbose == true {
             if valid == true {
-                  cronLog("Parameters from " + c.ipaddress + " passed validation", verbose)
+                  gocronlib.CronLog("Parameters from " + c.Ipaddress + " passed validation", verbose)
                   return true
 
             } else {
-                  cronLog("Parameters from " + c.ipaddress + " failed validation!", verbose)
+                  gocronlib.CronLog("Parameters from " + c.Ipaddress + " failed validation!", verbose)
                   return false
             }
       }
@@ -179,23 +180,23 @@ func validateArgs(c Cron) bool {
 
 
 // Validate that parameters are present
-func checkLength(c Cron) bool {
-      if len(c.account) == 0 {
+func checkLength(c gocronlib.Cron) bool {
+      if len(c.Account) == 0 {
             return false
 
-      } else if len(c.cronname) == 0 {
+      } else if len(c.Cronname) == 0 {
             return false
 
-      } else if len(c.email) == 0 {
+      } else if len(c.Email) == 0 {
             return false
 
-      } else if len(c.frequency) == 0 {
+      } else if len(c.Frequency) == 0 {
             return false
 
-      } else if len(c.ipaddress) == 0 {
+      } else if len(c.Ipaddress) == 0 {
             return false
 
-      } else if len(c.lastruntime) == 0 {
+      } else if len(c.Lastruntime) == 0 {
             return false
 
       } else {
