@@ -3,8 +3,9 @@ cd $(dirname $0)
 
 # Get gocron binary
 sudo mkdir /usr/local/bin
-sudo cp ./bin/gocron /usr/local/bin
-sudo chmod +x /usr/local/bin/gocron
+sudo cp ./bin/gocron-* /usr/local/bin/
+sudo chmod +x /usr/local/bin/gocron-*
+
 
 # Get gocron config and configure it
 # "/etc/gocron/config.yml"
@@ -13,16 +14,36 @@ sudo cp ./src/example.config.yml /etc/gocron/config.yml
 sudo chmod 600 /etc/gocron/config.yml
 sudo vi /etc/gocron/config.yml
 
+
 # Build systemd service
-sudo touch /etc/systemd/system/gocron.service
-echo "[Unit]" > /etc/systemd/system/gocron.service
-echo "Description=GOCron Monitoring Service" >> /etc/systemd/system/gocron.service
-echo "After=network.target" >> /etc/systemd/system/gocron.service
-echo "[Service]" >> /etc/systemd/system/gocron.service
-echo "ExecStart=/usr/local/bin/gocron" >> /etc/systemd/system/gocron.service
-echo "[Install]" >> /etc/systemd/system/gocron.service
-echo "WantedBy=multi-user.target" >> /etc/systemd/system/gocron.service
+sudo touch /etc/systemd/system/gocron-front.service
+tee /etc/systemd/system/gocron-front.service << EOH
+[Unit]
+Description=GoCron Monitoring Service - Frontend Gateway
+After=network.target
+[Service]
+ExecStart=/usr/local/bin/gocron-front
+[Install]
+WantedBy=multi-user.target
+EOH
+
+sudo touch /etc/systemd/system/gocron-back.service
+tee /etc/systemd/system/gocron-back.service << EOH
+[Unit]
+Description=GoCron Monitoring Service - Backend
+After=network.target
+[Service]
+ExecStart=/usr/local/bin/gocron-back
+[Install]
+WantedBy=multi-user.target
+EOH
+
 
 # Enable the gocron service
-sudo systemctl enable gocron.service && sudo systemctl start gocron.service
-sudo systemctl status gocron.service
+sudo systemctl enable gocron-front.service
+sudo systemctl start gocron-front.service
+sudo systemctl status gocron-front.service
+
+sudo systemctl enable gocron-back.service
+sudo systemctl start gocron-back.service
+sudo systemctl status gocron-back.service
