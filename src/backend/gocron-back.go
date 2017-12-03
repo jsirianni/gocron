@@ -9,7 +9,7 @@ import (
 )
 
 
-const version string    = "2.0.4"
+const version string    = "2.0.5"
 const libVersion string = gocronlib.Version
 
 var verbose bool  = false    // Flag enabling / disabling verbosity

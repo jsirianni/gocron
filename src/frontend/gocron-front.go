@@ -9,7 +9,7 @@ import (
 )
 
 
-const version string     = "2.0.3"
+const version string     = "2.0.4"
 const libVersion string  = gocronlib.Version
 
 const socket string      = ":8080"
