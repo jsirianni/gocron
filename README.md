@@ -6,6 +6,17 @@ not run after a predetermined amount of time.
 
 Email alerts are sent one time and then suppressed. Alerts are re-triggered only if the job checks in again, and then misses its next run.
 
+## Architecture
+GoCron is made up of several services
+- gocron-front
+- gocron-back
+- gocronlib https://github.com/jsirianni/gocronlib
+- gocron web interface https://github.com/jsirianni/gocron-frontend
+
+GoCron frontend and backend are included in this repository. Gocronlib is a helper
+library and the Gocron web interface is an optional component that allows the user
+to view the status of all jobs.
+
 ## Usage
 Send a GET request with the following parameters in the query string
 - cronname
@@ -45,9 +56,13 @@ recommended, however, this ability is not yet available. Please see the TODO sec
 - `sudo ./install.sh`
 
 This script will:
-- Copy the gocron binary to `/usr/local/bin`
+- Copy the gocron binaries to `/usr/local/bin`
 - Copy the config example to `/etc/gocron`
-- Create a Systemd service
+- Create a Systemd services
+
+### Manage services
+- systemctl status gocron-front
+- systemctl status gocron-back
 
 ## Notes
 The main purpose of this project is to gain familiarity with golang. If you have improvements or suggestions, please feel free to file an issue or open a pull request.
@@ -56,8 +71,6 @@ The main purpose of this project is to gain familiarity with golang. If you have
 
 Make compatible with Docker
 
-Build a Web front end for easy management
-
-Split code base up into multiple micro services (Front end job service, email service, web ui service)
+Build a Web front end for easy management (in progress thanks to JarrodMFlesch)
 
 Support SSL connections
