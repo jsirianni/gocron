@@ -40,7 +40,8 @@ that check in at a rate of 10,000 jobs per 90 seconds. At this rate, the load wa
 for jobs that have not checked in.
 
 If this kind of load is expected, it is possible to run multiple `gocron-front` services
-behind a load balancer and a single `gocron-back` service on a single machine.
+behind a load balancer and a single `gocron-back` service on a single machine. Additionally,
+the database can live on a separate system entirely. 
 
 
 ## Installing
