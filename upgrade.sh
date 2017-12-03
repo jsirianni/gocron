@@ -11,8 +11,8 @@ sudo service gocron-back stop
 sudo rm /usr/local/bin/gocro*
 sudo cp ./bin/gocro* /usr/local/bin/
 
-sudo service gocron-front start
-sudo service gocron-back start
+sudo service gocron-front restart
+sudo service gocron-back restart
 
 sudo service gocron-front status
 sudo service gocron-back status
