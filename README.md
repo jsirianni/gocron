@@ -39,8 +39,8 @@ that check in at a rate of 10,000 jobs per 90 seconds. At this rate, the load wa
 15%. The CPU would max out every 5 minutes when the service would check the entire database
 for jobs that have not checked in.
 
-If this kind of load is expected, running multiple servers behind a load balancer would be
-recommended, however, this ability is not yet available. Please see the TODO section.
+If this kind of load is expected, it is possible to run multiple `gocron-front` services
+behind a load balancer and a single `gocron-back` service on a single machine.
 
 
 ## Installing
