@@ -13,7 +13,7 @@ const version string    = "2.0.1"
 const libVersion string = gocronlib.Version
 
 var verbose bool  = false    // Flag enabling / disabling verbosity
-var checkInt int  = 300       // Time in seconds to check for missed jobs
+var checkInt int  = 60       // Time in seconds to check for missed jobs
 var args []string = os.Args  // Command line arguments
 
 
