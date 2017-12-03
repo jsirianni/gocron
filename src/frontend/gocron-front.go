@@ -121,7 +121,8 @@ func updateDatabase(c gocronlib.Cron) bool {
               "frequency = " + "'" + c.Frequency + "'," + "lastruntime = " + "'" + c.Lastruntime + "';"
 
       // Execute query
-      _, result = gocronlib.QueryDatabase(query, verbose)
+      rows, result := gocronlib.QueryDatabase(query, verbose)
+      defer rows.Close()
       if result == true {
             gocronlib.CronLog("Heartbeat from " + c.Cronname + ": " + c.Account + " \n", verbose)
             return true

@@ -66,6 +66,7 @@ func checkCronStatus() {
 
       // Perform a SELECT ALL
       rows, status := gocronlib.QueryDatabase(selectAll, verbose)
+      defer rows.Close()
       if status == false {
             gocronlib.CronLog("Failed to perform SELECT ALL", verbose)
             return
@@ -97,7 +98,8 @@ func checkCronStatus() {
                                 "WHERE cronname = '" + c.Cronname + "' AND account = '" + c.Account + "';"
 
                         // Perform the query
-                        _, result = gocronlib.QueryDatabase(query, verbose)
+                        rows, result = gocronlib.QueryDatabase(query, verbose)
+                        defer rows.Close()
                         if result == false {
                               gocronlib.CronLog(updateFail, verbose)
 
@@ -123,7 +125,8 @@ func checkCronStatus() {
                   query = "UPDATE gocron SET alerted = false " +
                           "WHERE cronname = '" + c.Cronname + "' AND account = '" + c.Account + "';"
 
-                  _, result = gocronlib.QueryDatabase(query, verbose)
+                  rows, result = gocronlib.QueryDatabase(query, verbose)
+                  defer rows.Close()
                   if result == false {
                         gocronlib.CronLog(updateFail, verbose)
 
