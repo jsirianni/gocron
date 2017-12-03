@@ -9,9 +9,9 @@ import (
 )
 
 
-// Global const and vars
 const version string     = "2.0.2"
 const libVersion string  = gocronlib.Version
+
 const socket string      = ":8080"
 const errorResp string   = "Internal Server Error\n"
 const contentType string = "plain/text"
