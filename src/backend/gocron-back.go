@@ -9,7 +9,7 @@ import (
 )
 
 
-const version string    = "2.0.1"
+const version string    = "2.0.2"
 const libVersion string = gocronlib.Version
 
 var verbose bool  = false    // Flag enabling / disabling verbosity
@@ -91,7 +91,7 @@ func checkCronStatus() {
                         result = gocronlib.InsertDatabase(query, verbose)
                         if result == false {
                               gocronlib.CronLog(updateFail, verbose)
-                              return
+
                         }
 
                         // Query was successful - Trigger alert
@@ -99,13 +99,13 @@ func checkCronStatus() {
                         message = "The cronjob " + c.Cronname + " for account " + c.Account + " has not checked in on time"
                         alert(c, subject, message)
                         gocronlib.CronLog(subject, verbose)
-                        return
+
 
                   // If alerted already marked true
                   } else {
                         gocronlib.CronLog("Alert for " + c.Cronname + ": " + c.Account +
                               " has been supressed. Already alerted", verbose)
-                        return
+
                   }
 
 
@@ -117,7 +117,7 @@ func checkCronStatus() {
                   result = gocronlib.InsertDatabase(query, verbose)
                   if result == false {
                         gocronlib.CronLog(updateFail, verbose)
-                        return
+
                   }
 
                   // Query was successful - Trigger alert
@@ -125,13 +125,13 @@ func checkCronStatus() {
                   message = "The cronjob " + c.Cronname + " for account " + c.Account + " is back online"
                   alert(c, subject, message)
                   gocronlib.CronLog(subject, verbose)
-                  return
+
 
             // Job in a good state
             } else {
                   subject = c.Cronname + ": " + c.Account + " is online" + "\n"
                   gocronlib.CronLog(subject, verbose)
-                  return
+
             }
       }
 }
