@@ -9,7 +9,7 @@ import (
 )
 
 
-const version string    = "2.0.3"
+const version string    = "2.0.4"
 const libVersion string = gocronlib.Version
 
 var verbose bool  = false    // Flag enabling / disabling verbosity
@@ -65,7 +65,7 @@ func checkCronStatus() {
       const selectAll string = "SELECT * FROM gocron;"
 
       // Perform a SELECT ALL
-      rows, status := gocronlib.SelectDatabase(selectAll, verbose)
+      rows, status := gocronlib.QueryDatabase(selectAll, verbose)
       if status == false {
             gocronlib.CronLog("Failed to perform SELECT ALL", verbose)
             return
