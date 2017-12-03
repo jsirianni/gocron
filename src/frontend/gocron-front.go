@@ -10,7 +10,7 @@ import (
 
 
 // Global const and vars
-const version string     = "2.0.1"
+const version string     = "2.0.2"
 const libVersion string  = gocronlib.Version
 const socket string      = ":8080"
 const errorResp string   = "Internal Server Error\n"
@@ -121,7 +121,7 @@ func updateDatabase(c gocronlib.Cron) bool {
               "frequency = " + "'" + c.Frequency + "'," + "lastruntime = " + "'" + c.Lastruntime + "';"
 
       // Execute query
-      result = gocronlib.InsertDatabase(query, verbose)
+      _, result = gocronlib.QueryDatabase(query, verbose)
       if result == true {
             gocronlib.CronLog("Heartbeat from " + c.Cronname + ": " + c.Account + " \n", verbose)
             return true

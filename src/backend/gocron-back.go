@@ -9,7 +9,7 @@ import (
 )
 
 
-const version string    = "2.0.2"
+const version string    = "2.0.3"
 const libVersion string = gocronlib.Version
 
 var verbose bool  = false    // Flag enabling / disabling verbosity
@@ -97,7 +97,7 @@ func checkCronStatus() {
                                 "WHERE cronname = '" + c.Cronname + "' AND account = '" + c.Account + "';"
 
                         // Perform the query
-                        result = gocronlib.InsertDatabase(query, verbose)
+                        _, result = gocronlib.QueryDatabase(query, verbose)
                         if result == false {
                               gocronlib.CronLog(updateFail, verbose)
 
@@ -123,7 +123,7 @@ func checkCronStatus() {
                   query = "UPDATE gocron SET alerted = false " +
                           "WHERE cronname = '" + c.Cronname + "' AND account = '" + c.Account + "';"
 
-                  result = gocronlib.InsertDatabase(query, verbose)
+                  _, result = gocronlib.QueryDatabase(query, verbose)
                   if result == false {
                         gocronlib.CronLog(updateFail, verbose)
 
