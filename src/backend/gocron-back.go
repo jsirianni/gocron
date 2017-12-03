@@ -13,7 +13,7 @@ const version string    = "2.0.2"
 const libVersion string = gocronlib.Version
 
 var verbose bool  = false    // Flag enabling / disabling verbosity
-var checkInt int  = 60       // Time in seconds to check for missed jobs
+var checkInt int  = 300       // Time in seconds to check for missed jobs
 var args []string = os.Args  // Command line arguments
 
 
@@ -31,6 +31,15 @@ func main() {
                   verbose = true
                   gocronlib.CronLog("gocron started with --verbose.", verbose)
             }
+      }
+
+      // Get the interval
+      var c gocronlib.Config = gocronlib.GetConfig(verbose)
+      if c.Interval > 0 {
+            checkInt = c.Interval
+            println("Using status check interval: " + strconv.Itoa(checkInt))
+      } else {
+            println("Not setting the int: " + strconv.Itoa(c.Interval))
       }
 
       // Run the timer

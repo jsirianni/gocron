@@ -11,3 +11,4 @@ smtpserver: "smtp.gmail.com"
 smtpport: "587"
 smtpaddress: ""
 smtppassword: ""
+Interval: 60
