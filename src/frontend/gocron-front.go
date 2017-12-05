@@ -9,11 +9,11 @@ import (
 )
 
 
-const version string     = "2.0.5"
+const version string     = "2.0.6"
 const libVersion string  = gocronlib.Version
 
 const socket string      = ":8080"
-const errorResp string   = "Internal Server Error\n"
+const errorResp string   = "Internal Server Error"
 const contentType string = "plain/text"
 
 var verbose bool  = false       // Flag enabling / disabling verbosity
@@ -36,7 +36,7 @@ func main() {
             }
       }
 
-      // Start the web server on port 8080
+      // Start the web server
       http.HandleFunc("/", cronStatus)
       http.ListenAndServe(socket, nil)
 }
@@ -52,12 +52,12 @@ func cronStatus(resp http.ResponseWriter, req *http.Request) {
       switch req.Method {
       case "GET":
             method = "GET"
-            c.Cronname = req.URL.Query().Get("cronname")
-            c.Account = req.URL.Query().Get("account")
-            c.Email = req.URL.Query().Get("email")
-            c.Frequency = req.URL.Query().Get("frequency")
+            c.Cronname    = req.URL.Query().Get("cronname")
+            c.Account     = req.URL.Query().Get("account")
+            c.Email       = req.URL.Query().Get("email")
+            c.Frequency   = req.URL.Query().Get("frequency")
             c.Lastruntime = strconv.Itoa(currentTime)
-            c.Ipaddress = socket[0]
+            c.Ipaddress   = socket[0]
 
       case "POST":
             gocronlib.CronLog("POST not yet supported: " + c.Ipaddress, verbose)
