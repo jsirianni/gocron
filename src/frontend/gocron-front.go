@@ -5,11 +5,11 @@ import (
       "strings"
       "strconv"
       "net/http"
-      "gocronlib"
+      "github.com/jsirianni/gocronlib"
 )
 
 
-const version string     = "2.0.4"
+const version string     = "2.0.5"
 const libVersion string  = gocronlib.Version
 
 const socket string      = ":8080"

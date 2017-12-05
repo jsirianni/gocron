@@ -5,11 +5,12 @@ import (
       "strings"
       "strconv"
       "gopkg.in/gomail.v2"
-      "gocronlib"
+      "github.com/jsirianni/gocronlib"
 )
 
 
-const version string    = "2.0.5"
+
+const version string    = "2.0.6"
 const libVersion string = gocronlib.Version
 
 var verbose bool  = false    // Flag enabling / disabling verbosity
