@@ -10,7 +10,7 @@ import (
 
 
 
-const version string    = "2.0.6"
+const version string    = "2.0.7"
 const libVersion string = gocronlib.Version
 
 var verbose bool  = false    // Flag enabling / disabling verbosity
@@ -83,7 +83,8 @@ func checkCronStatus() {
                         &c.Ipaddress,
                         &c.Frequency,
                         &c.Lastruntime,
-                        &c.Alerted)
+                        &c.Alerted,
+                        &c.Site)
 
             var updateFail string = "Failed to update row for " + c.Cronname
             var currentTime = int(time.Now().Unix())
