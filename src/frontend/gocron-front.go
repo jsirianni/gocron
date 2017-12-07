@@ -48,7 +48,6 @@ func cronStatus(resp http.ResponseWriter, req *http.Request) {
       var socket = strings.Split(req.RemoteAddr, ":")
       var c gocronlib.Cron
       var method string = ""
-      var err error
 
       switch req.Method {
       case "GET":
@@ -59,10 +58,13 @@ func cronStatus(resp http.ResponseWriter, req *http.Request) {
             c.Frequency   = req.URL.Query().Get("frequency")
             c.Lastruntime = strconv.Itoa(currentTime)
             c.Ipaddress   = socket[0]
-            
-            c.Site, err   = strconv.Atoi(req.URL.Query().Get("site"))
-            if err != nil {
-                  c.Site = 0 // False
+
+            // If x = 1, set c.Site to true
+            x, err  := strconv.Atoi(req.URL.Query().Get("site"))
+            if err == nil && x == 1 {
+                  c.Site = true
+            } else {
+                  c.Site = false
             }
 
       case "POST":
@@ -118,13 +120,14 @@ func updateDatabase(c gocronlib.Cron) bool {
 
       // Insert and update if already exist
       query = "INSERT INTO gocron " +
-              "(cronname, account, email, ipaddress, frequency, lastruntime, alerted) " +
+              "(cronname, account, email, ipaddress, frequency, lastruntime, alerted, site) " +
               "VALUES ('" +
-              c.Cronname + "','" + c.Account + "','" + c.Email + "','" +
-              c.Ipaddress + "','" + c.Frequency + "','" + c.Lastruntime + "','" + "false" + "') " +
+              c.Cronname + "','" + c.Account + "','" + c.Email + "','" + c.Ipaddress + "','" +
+              c.Frequency + "','" + c.Lastruntime + "','" + "false" + "','" + strconv.FormatBool(c.Site) + "') " +
               "ON CONFLICT (cronname, account) DO UPDATE " +
               "SET email = " + "'" + c.Email + "'," + "ipaddress = " + "'" + c.Ipaddress + "'," +
-              "frequency = " + "'" + c.Frequency + "'," + "lastruntime = " + "'" + c.Lastruntime + "';"
+              "frequency = " + "'" + c.Frequency + "'," + "lastruntime = " + "'" + c.Lastruntime + "', " +
+              "site = " + "'" + strconv.FormatBool(c.Site) + "';"
 
       // Execute query
       rows, result := gocronlib.QueryDatabase(query, verbose)
