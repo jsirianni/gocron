@@ -9,7 +9,7 @@ import (
 )
 
 
-const version string     = "2.0.6"
+const version string     = "2.0.7"
 const libVersion string  = gocronlib.Version
 
 const socket string      = ":8080"
@@ -58,6 +58,14 @@ func cronStatus(resp http.ResponseWriter, req *http.Request) {
             c.Frequency   = req.URL.Query().Get("frequency")
             c.Lastruntime = strconv.Itoa(currentTime)
             c.Ipaddress   = socket[0]
+
+            // If x = 1, set c.Site to true
+            x, err  := strconv.Atoi(req.URL.Query().Get("site"))
+            if err == nil && x == 1 {
+                  c.Site = true
+            } else {
+                  c.Site = false
+            }
 
       case "POST":
             gocronlib.CronLog("POST not yet supported: " + c.Ipaddress, verbose)
@@ -112,13 +120,14 @@ func updateDatabase(c gocronlib.Cron) bool {
 
       // Insert and update if already exist
       query = "INSERT INTO gocron " +
-              "(cronname, account, email, ipaddress, frequency, lastruntime, alerted) " +
+              "(cronname, account, email, ipaddress, frequency, lastruntime, alerted, site) " +
               "VALUES ('" +
-              c.Cronname + "','" + c.Account + "','" + c.Email + "','" +
-              c.Ipaddress + "','" + c.Frequency + "','" + c.Lastruntime + "','" + "false" + "') " +
+              c.Cronname + "','" + c.Account + "','" + c.Email + "','" + c.Ipaddress + "','" +
+              c.Frequency + "','" + c.Lastruntime + "','" + "false" + "','" + strconv.FormatBool(c.Site) + "') " +
               "ON CONFLICT (cronname, account) DO UPDATE " +
               "SET email = " + "'" + c.Email + "'," + "ipaddress = " + "'" + c.Ipaddress + "'," +
-              "frequency = " + "'" + c.Frequency + "'," + "lastruntime = " + "'" + c.Lastruntime + "';"
+              "frequency = " + "'" + c.Frequency + "'," + "lastruntime = " + "'" + c.Lastruntime + "', " +
+              "site = " + "'" + strconv.FormatBool(c.Site) + "';"
 
       // Execute query
       rows, result := gocronlib.QueryDatabase(query, verbose)
