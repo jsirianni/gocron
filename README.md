@@ -30,6 +30,8 @@ Test with
 Append to an existing crontab entry with:
 `&& curl -v "localhost:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"`
 
+Optionally configure a site with: `&site=1`
+A site represents an Internet gateway. In the future, if the gateway has not checked in, alerts for devices behind that gateway will be suppressed. This is to avoid an alert storm during a network outage.
 
 The above examples will notify the server to expect a notification every hour. If the job does not check in within 1 hour, an email alert is sent. Future notifications are suppressed until the job checks in again.
 
@@ -41,14 +43,14 @@ for jobs that have not checked in.
 
 If this kind of load is expected, it is possible to run multiple `gocron-front` services
 behind a load balancer and a single `gocron-back` service on a single machine. Additionally,
-the database can live on a separate system entirely. 
+the database can live on a separate system entirely.
 
 
 ## Installing
 
 ### Postgresql must be installed and listening on localhost
 - `CREATE DATABASE gocron;`
-- `CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, lastruntime varchar, alerted boolean, PRIMARY KEY(cronname, account));`
+- `CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, lastruntime varchar, alerted boolean, site boolean, PRIMARY KEY(cronname, account));`
 - `CREATE USER gocron WITH PASSWORD 'password';`
 - `GRANT ALL PRIVILEGES ON gocron TO gocron;`
 
