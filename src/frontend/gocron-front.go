@@ -9,7 +9,7 @@ import (
 )
 
 
-const version string     = "2.0.6"
+const version string     = "2.0.7"
 const libVersion string  = gocronlib.Version
 
 const socket string      = ":8080"
@@ -48,6 +48,7 @@ func cronStatus(resp http.ResponseWriter, req *http.Request) {
       var socket = strings.Split(req.RemoteAddr, ":")
       var c gocronlib.Cron
       var method string = ""
+      var err error
 
       switch req.Method {
       case "GET":
@@ -58,6 +59,11 @@ func cronStatus(resp http.ResponseWriter, req *http.Request) {
             c.Frequency   = req.URL.Query().Get("frequency")
             c.Lastruntime = strconv.Itoa(currentTime)
             c.Ipaddress   = socket[0]
+            
+            c.Site, err   = strconv.Atoi(req.URL.Query().Get("site"))
+            if err != nil {
+                  c.Site = 0 // False
+            }
 
       case "POST":
             gocronlib.CronLog("POST not yet supported: " + c.Ipaddress, verbose)
