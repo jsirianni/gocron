@@ -10,6 +10,7 @@ sudo service gocron-back stop
 
 sudo rm /usr/local/bin/gocro*
 sudo cp ./bin/gocro* /usr/local/bin/
+sudo chmod +x /usr/local/bin/gocron-*
 
 sudo service gocron-front restart
 sudo service gocron-back restart
