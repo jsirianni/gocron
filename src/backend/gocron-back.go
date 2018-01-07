@@ -27,7 +27,7 @@ func main() {
                   println("gocronlib version: " + libVersion)
                   os.Exit(0)
             }
-            // When enabled, all logging will also print to screen
+            // When enabled, all logging will also print to standard out
             if strings.Contains(args[1], "--verbose") {
                   verbose = true
                   gocronlib.CronLog("gocron started with --verbose.", verbose)
@@ -61,7 +61,7 @@ func timer() {
 func checkCronStatus() {
       var subject string  // Subject used in alerts
       var message string  // Message used in alerts
-      var result bool     // Handles InserDatabase responses
+      var result bool     // Handles Insert Database responses
       var query string    // Queries to be sent to database functions
       const selectAll string = "SELECT * FROM gocron;"
 

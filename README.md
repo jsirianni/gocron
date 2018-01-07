@@ -36,7 +36,7 @@ A site represents an Internet gateway. In the future, if the gateway has not che
 The above examples will notify the server to expect a notification every hour. If the job does not check in within 1 hour, an email alert is sent. Future notifications are suppressed until the job checks in again.
 
 ## Sizing
-A single Google Compute Engine f1-micro instance has been proven to handle 50,000 jobs
+A single Google Compute Engine f1-micro instance has been proven to hand1le 50,000 jobs
 that check in at a rate of 10,000 jobs per 90 seconds. At this rate, the load was less than
 15%. The CPU would max out every 5 minutes when the service would check the entire database
 for jobs that have not checked in.
@@ -69,11 +69,3 @@ This script will:
 
 ## Notes
 The main purpose of this project is to gain familiarity with golang. If you have improvements or suggestions, please feel free to file an issue or open a pull request.
-
-## TODO
-
-Make compatible with Docker
-
-Build a Web front end for easy management (in progress thanks to JarrodMFlesch)
-
-Support SSL connections
