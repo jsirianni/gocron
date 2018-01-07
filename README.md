@@ -69,11 +69,3 @@ This script will:
 
 ## Notes
 The main purpose of this project is to gain familiarity with golang. If you have improvements or suggestions, please feel free to file an issue or open a pull request.
-
-## TODO
-
-Make compatible with Docker
-
-Build a Web front end for easy management (in progress thanks to JarrodMFlesch)
-
-Support SSL connections
