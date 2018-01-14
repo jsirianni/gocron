@@ -153,15 +153,13 @@ func updateDatabase(c gocronlib.Cron) bool {
 
 // Function validates SQL variables
 func validateParams(c gocronlib.Cron) bool {
-      // Flag determines the return value
-      var valid bool = false
 
-      // Perform validation of parameters
+      var valid bool = false  // Flag determines the return value
+
       if checkLength(c) == true {
             valid = true
       }
 
-      // Log result if verbose is enabled
       if verbose == true {
             if valid == true {
                   gocronlib.CronLog("Parameters from " + c.Ipaddress + " passed validation", verbose)
@@ -173,7 +171,6 @@ func validateParams(c gocronlib.Cron) bool {
             }
       }
 
-      // Return true or false
       return valid
 }
 
