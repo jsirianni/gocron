@@ -148,24 +148,28 @@ func checkCronStatus() {
 
 func alert(cron gocronlib.Cron, subject string, message string) bool {
 
+      // Emmediatly log the alert
       gocronlib.CronLog(subject, verbose)
 
-      var recipient string = cron.Email
-      var port, _ = strconv.Atoi(config.Smtpport)
-      var d = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
-      var m = gomail.NewMessage()
+      var (
+            recipient string = cron.Email
+            port, _ = strconv.Atoi(config.Smtpport)
+            d = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
+            m = gomail.NewMessage()
+      )
 
       m.SetHeader("From", config.Smtpaddress)
       m.SetHeader("To", recipient)
       m.SetHeader("Subject", subject)
       m.SetBody("text/html", message)
 
+      // Failed to send alert
       if err := d.DialAndSend(m); err != nil {
             gocronlib.CheckError(err, verbose)
             return false
       }
 
+      // Alert sent 
       gocronlib.CronLog("Alert for " + cron.Cronname + " sent to " + recipient, verbose)
-
       return true
 }
