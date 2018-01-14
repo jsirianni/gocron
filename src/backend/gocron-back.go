@@ -1,8 +1,7 @@
 package main
 import (
-      "os"
       "time"
-      "strings"
+      "flag"
       "strconv"
       "gopkg.in/gomail.v2"
       "github.com/jsirianni/gocronlib"
@@ -10,40 +9,36 @@ import (
 
 
 
-const version string    = "2.0.7"
-const libVersion string = gocronlib.Version
+const (
+      version string    = "2.0.8"
+      libVersion string = gocronlib.Version
+)
 
-var verbose bool  = false    // Flag enabling / disabling verbosity
-var checkInt int  = 300       // Time in seconds to check for missed jobs
-var args []string = os.Args  // Command line arguments
+var (
+      verbose bool     // Command line flag
+      getVersion bool  // Command line flag
+      config gocronlib.Config
+)
 
 
 func main() {
-      // Parse arguments
-      if len(os.Args) > 1 {
-            // Return the current version
-            if strings.Contains(args[1], "--version") {
-                  println("gocron-front version: " + version)
-                  println("gocronlib version: " + libVersion)
-                  os.Exit(0)
-            }
-            // When enabled, all logging will also print to standard out
-            if strings.Contains(args[1], "--verbose") {
-                  verbose = true
-                  gocronlib.CronLog("gocron started with --verbose.", verbose)
-            }
+      flag.BoolVar(&getVersion, "version", false, "Get the version and then exit")
+      flag.BoolVar(&verbose, "verbose", false, "Enable verbose output")
+      flag.Parse()
+
+      if getVersion == true {
+            println("gocron-back version: " + version)
+            println("gocronlib version: " + libVersion)
+            return
       }
 
-      // Get the interval
-      var c gocronlib.Config = gocronlib.GetConfig(verbose)
-      if c.Interval > 0 {
-            checkInt = c.Interval
-            println("Using status check interval: " + strconv.Itoa(checkInt))
-      } else {
-            println("Not setting the int: " + strconv.Itoa(c.Interval))
+      if verbose == true {
+            println("Verbose mode enabled")
+            println("gocron-back version: " + version)
+            println("gocronlib version: " + libVersion)
+            println("Using check interval: " + string(config.Interval))
       }
 
-      // Run the timer
       timer()
 }
 
@@ -51,7 +46,7 @@ func main() {
 // Function calls checkCronStatus() on a set interval
 func timer() {
       for {
-            time.Sleep((time.Duration(checkInt) * time.Second))
+            time.Sleep((time.Duration(config.Interval) * time.Second))
             gocronlib.CronLog("Checking for missed jobs.", verbose)
             checkCronStatus()
       }
