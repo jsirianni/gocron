@@ -55,14 +55,14 @@ func timer() {
 
 
 func checkCronStatus() {
-      var subject string  // Subject used in alerts
-      var message string  // Message used in alerts
-      var result bool     // Handles Insert Database responses
-      var query string    // Queries to be sent to database functions
-      const selectAll string = "SELECT * FROM gocron;"
+      var (
+            subject string  // Subject used in alerts
+            message string  // Message used in alerts
+            result bool     // Handles Insert Database responses
+            query string    // Queries to be sent to database functions
+      )
 
-      // Perform a SELECT ALL
-      rows, status := gocronlib.QueryDatabase(selectAll, verbose)
+      rows, status := gocronlib.QueryDatabase("SELECT * FROM gocron;", verbose)
       defer rows.Close()
       if status == false {
             gocronlib.CronLog("Failed to perform SELECT ALL", verbose)
@@ -82,10 +82,13 @@ func checkCronStatus() {
                         &cron.Alerted,
                         &cron.Site)
 
-            var updateFail string = "Failed to update row for " + cron.Cronname
-            var currentTime = int(time.Now().Unix())
-            var lastRunTime, _ = strconv.Atoi(cron.Lastruntime)
-            var frequency, _ = strconv.Atoi(cron.Frequency)
+            var (
+                  updateFail string = "Failed to update row for " + cron.Cronname
+                  currentTime = int(time.Now().Unix())
+                  lastRunTime, _ = strconv.Atoi(cron.Lastruntime)
+                  frequency, _ = strconv.Atoi(cron.Frequency)
+            )
+
 
             // If job not checked in on time
             if (currentTime - lastRunTime) > frequency {
