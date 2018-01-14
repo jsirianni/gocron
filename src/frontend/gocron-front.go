@@ -19,8 +19,8 @@ const (
 )
 
 var (
-      verbose bool    = false  // Flag enabling / disabling verbosity
-      getVersion bool = false  // Flag
+      verbose bool     // Flag enabling / disabling verbosity
+      getVersion bool  // Flag
 )
 
 
