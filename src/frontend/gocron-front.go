@@ -13,7 +13,7 @@ const (
       version string     = "2.0.8"
       libVersion string  = gocronlib.Version
 
-      socket string      = ":8080"
+      port string        = "8080"
       errorResp string   = "Internal Server Error"
       contentType string = "plain/text"
 )
@@ -25,7 +25,6 @@ var (
 
 
 func main() {
-
       flag.BoolVar(&getVersion, "version", false, "Get the version and then exit")
       flag.BoolVar(&verbose, "verbose", false, "Enable verbose output")
       flag.Parse()
@@ -36,16 +35,21 @@ func main() {
             return
       }
 
+      if verbose == true {
+            println("Verbose mode enabled")
+            println("gocron-front version: " + version)
+            println("gocronlib version: " + libVersion)
+            println("Starting web server on port: " + port)
+      }
+
       // Start the web server
       http.HandleFunc("/", cronStatus)
-      http.ListenAndServe(socket, nil)
-
+      http.ListenAndServe(":" + port, nil)
 }
 
 
 // Validate the request and then pass to updateDatabase()
 func cronStatus(resp http.ResponseWriter, req *http.Request) {
-
       var (
             currentTime int = int(time.Now().Unix())
             socket = strings.Split(req.RemoteAddr, ":")
