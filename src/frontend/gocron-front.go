@@ -12,9 +12,7 @@ import (
 const (
       version string     = "2.0.8"
       libVersion string  = gocronlib.Version
-)
 
-const (
       socket string      = ":8080"
       errorResp string   = "Internal Server Error"
       contentType string = "plain/text"
