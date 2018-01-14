@@ -11,7 +11,7 @@ import (
 
 
 const (
-      version string    = "2.0.8"
+      version string    = "2.0.9"
       libVersion string = gocronlib.Version
 )
 
@@ -105,11 +105,11 @@ func checkCronStatus() {
 
                         }
 
-                        // Query was successful - Trigger alert
+                        // Trigger alert
                         subject = cron.Cronname + ": " + cron.Account + " failed to check in" + "\n"
                         message = "The cronjob " + cron.Cronname + " for account " + cron.Account + " has not checked in on time"
                         alert(cron, subject, message)
-                        gocronlib.CronLog(subject, verbose)
+
 
 
                   // If 'alerted' already  true
@@ -135,7 +135,6 @@ func checkCronStatus() {
                   subject = cron.Cronname + ": " + cron.Account + " is back online" + "\n"
                   message = "The cronjob " + cron.Cronname + " for account " + cron.Account + " is back online"
                   alert(cron, subject, message)
-                  gocronlib.CronLog(subject, verbose)
 
 
             } else {
@@ -147,7 +146,9 @@ func checkCronStatus() {
 }
 
 
-func alert(cron gocronlib.Cron, subject string, message string) {
+func alert(cron gocronlib.Cron, subject string, message string) bool {
+
+      gocronlib.CronLog(subject, verbose)
 
       var recipient string = cron.Email
       var port, _ = strconv.Atoi(config.Smtpport)
@@ -161,7 +162,10 @@ func alert(cron gocronlib.Cron, subject string, message string) {
 
       if err := d.DialAndSend(m); err != nil {
             gocronlib.CheckError(err, verbose)
+            return false
       }
 
       gocronlib.CronLog("Alert for " + cron.Cronname + " sent to " + recipient, verbose)
+
+      return true
 }
