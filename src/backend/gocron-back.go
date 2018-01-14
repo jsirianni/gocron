@@ -1,5 +1,6 @@
 package main
 import (
+      "fmt"
       "time"
       "flag"
       "strconv"
@@ -17,7 +18,7 @@ const (
 var (
       verbose bool     // Command line flag
       getVersion bool  // Command line flag
-      config gocronlib.Config
+      config gocronlib.Config = gocronlib.GetConfig(verbose)
 )
 
 
@@ -27,16 +28,16 @@ func main() {
       flag.Parse()
 
       if getVersion == true {
-            println("gocron-back version: " + version)
-            println("gocronlib version: " + libVersion)
+            fmt.Println("gocron-back version:", version)
+            fmt.Println("gocronlib version:", libVersion)
             return
       }
 
       if verbose == true {
-            println("Verbose mode enabled")
-            println("gocron-back version: " + version)
-            println("gocronlib version: " + libVersion)
-            println("Using check interval: " + string(config.Interval))
+            fmt.Println("Verbose mode enabled")
+            fmt.Println("gocron-back version:", version)
+            fmt.Println("gocronlib version:", libVersion)
+            fmt.Println("Using check interval:", config.Interval)
       }
 
       timer()
