@@ -11,7 +11,7 @@ import (
 
 
 const (
-      version string    = "2.0.8"
+      version string    = "2.0.9"
       libVersion string = gocronlib.Version
 )
 
@@ -92,24 +92,22 @@ func checkCronStatus() {
             // If job not checked in on time
             if (currentTime - lastRunTime) > frequency {
 
-                  // Mark row as alerted if not already true
+                  // If not already alerted
                   if cron.Alerted != true {
-                        query = "UPDATE gocron SET alerted = true " +
-                                "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
-
-                        // Perform the query
-                        rows, result = gocronlib.QueryDatabase(query, verbose)
-                        defer rows.Close()
-                        if result == false {
-                              gocronlib.CronLog(updateFail, verbose)
-
-                        }
-
-                        // Query was successful - Trigger alert
                         subject = cron.Cronname + ": " + cron.Account + " failed to check in" + "\n"
                         message = "The cronjob " + cron.Cronname + " for account " + cron.Account + " has not checked in on time"
-                        alert(cron, subject, message)
-                        gocronlib.CronLog(subject, verbose)
+
+                        // Only update database if alert sent successful
+                        if alert(cron, subject, message) == true {
+                              query = "UPDATE gocron SET alerted = true " +
+                                      "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
+
+                              rows, result = gocronlib.QueryDatabase(query, verbose)
+                              defer rows.Close()
+                              if result == false {
+                                    gocronlib.CronLog(updateFail, verbose)
+                              }
+                        }
 
 
                   // If 'alerted' already  true
@@ -135,7 +133,6 @@ func checkCronStatus() {
                   subject = cron.Cronname + ": " + cron.Account + " is back online" + "\n"
                   message = "The cronjob " + cron.Cronname + " for account " + cron.Account + " is back online"
                   alert(cron, subject, message)
-                  gocronlib.CronLog(subject, verbose)
 
 
             } else {
@@ -147,21 +144,30 @@ func checkCronStatus() {
 }
 
 
-func alert(cron gocronlib.Cron, subject string, message string) {
+func alert(cron gocronlib.Cron, subject string, message string) bool {
 
-      var recipient string = cron.Email
-      var port, _ = strconv.Atoi(config.Smtpport)
-      var d = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
-      var m = gomail.NewMessage()
+      // Emmediatly log the alert
+      gocronlib.CronLog(subject, verbose)
+
+      var (
+            recipient string = cron.Email
+            port, _ = strconv.Atoi(config.Smtpport)
+            d = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
+            m = gomail.NewMessage()
+      )
 
       m.SetHeader("From", config.Smtpaddress)
       m.SetHeader("To", recipient)
       m.SetHeader("Subject", subject)
       m.SetBody("text/html", message)
 
+      // Failed to send alert
       if err := d.DialAndSend(m); err != nil {
             gocronlib.CheckError(err, verbose)
+            return false
       }
 
+      // Alert sent
       gocronlib.CronLog("Alert for " + cron.Cronname + " sent to " + recipient, verbose)
+      return true
 }
