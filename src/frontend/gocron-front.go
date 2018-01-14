@@ -10,23 +10,24 @@ import (
 
 
 const (
-      version string     = "2.0.8"
+      version string     = "2.0.9"
       libVersion string  = gocronlib.Version
 
-      port string        = "8080"
       errorResp string   = "Internal Server Error"
       contentType string = "plain/text"
 )
 
-var (
-      verbose bool     // Flag enabling / disabling verbosity
-      getVersion bool  // Flag
+var ( // Flags set in main()
+      port string
+      verbose bool
+      getVersion bool
 )
 
 
 func main() {
       flag.BoolVar(&getVersion, "version", false, "Get the version and then exit")
       flag.BoolVar(&verbose, "verbose", false, "Enable verbose output")
+      flag.StringVar(&port, "p", "8080", "Listening port for the web server")
       flag.Parse()
 
       if getVersion == true {
