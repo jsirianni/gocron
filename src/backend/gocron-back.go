@@ -69,7 +69,6 @@ func checkCronStatus() {
             return
       }
 
-      // Iterate each row
       for rows.Next() {
             // Assign row results to a Cron struct
             var cron gocronlib.Cron
@@ -113,11 +112,10 @@ func checkCronStatus() {
                         gocronlib.CronLog(subject, verbose)
 
 
-                  // If alerted already marked true
+                  // If 'alerted' already  true
                   } else {
                         gocronlib.CronLog("Alert for " + cron.Cronname + ": " + cron.Account +
                               " has been supressed. Already alerted", verbose)
-
                   }
 
 
@@ -140,7 +138,6 @@ func checkCronStatus() {
                   gocronlib.CronLog(subject, verbose)
 
 
-            // Job in a good state
             } else {
                   subject = cron.Cronname + ": " + cron.Account + " is online" + "\n"
                   gocronlib.CronLog(subject, verbose)
