@@ -1,7 +1,7 @@
 package main
 import (
-      "os"
       "time"
+      "flag"
       "strings"
       "strconv"
       "net/http"
@@ -9,45 +9,51 @@ import (
 )
 
 
-const version string     = "2.0.7"
-const libVersion string  = gocronlib.Version
+const (
+      version string     = "2.0.8"
+      libVersion string  = gocronlib.Version
+)
 
-const socket string      = ":8080"
-const errorResp string   = "Internal Server Error"
-const contentType string = "plain/text"
+const (
+      socket string      = ":8080"
+      errorResp string   = "Internal Server Error"
+      contentType string = "plain/text"
+)
 
-var verbose bool  = false       // Flag enabling / disabling verbosity
-var args []string = os.Args     // Command line arguments
+var (
+      verbose bool    = false  // Flag enabling / disabling verbosity
+      getVersion bool = false  // Flag
+)
 
 
 func main() {
-      // Parse arguments
-      if len(os.Args) > 1 {
-            // Return the current version
-            if strings.Contains(args[1], "--version") {
-                  println("gocron-front version: " + version)
-                  println("gocronlib version: " + libVersion)
-                  os.Exit(0)
-            }
-            // When enabled, all logging will also print to screen
-            if strings.Contains(args[1], "--verbose") {
-                  verbose = true
-                  gocronlib.CronLog("gocron started with --verbose.", verbose)
-            }
+
+      flag.BoolVar(&getVersion, "version", false, "Get the version and then exit")
+      flag.BoolVar(&verbose, "verbose", false, "Enable verbose output")
+      flag.Parse()
+
+      if getVersion == true {
+            println("gocron-front version: " + version)
+            println("gocronlib version: " + libVersion)
+            return
       }
 
       // Start the web server
       http.HandleFunc("/", cronStatus)
       http.ListenAndServe(socket, nil)
+
 }
 
 
 // Validate the request and then pass to updateDatabase()
 func cronStatus(resp http.ResponseWriter, req *http.Request) {
-      var currentTime int = int(time.Now().Unix())
-      var socket = strings.Split(req.RemoteAddr, ":")
-      var c gocronlib.Cron
-      var method string = ""
+
+      var (
+            currentTime int = int(time.Now().Unix())
+            socket = strings.Split(req.RemoteAddr, ":")
+            c gocronlib.Cron
+            method string = ""
+      )
 
       switch req.Method {
       case "GET":
@@ -114,9 +120,10 @@ func returnNotFound(resp http.ResponseWriter) {
 
 
 func updateDatabase(c gocronlib.Cron) bool {
-      // Build the database query
-      var query string
-      var result bool
+      var (
+            query string
+            result bool
+      )
 
       // Insert and update if already exist
       query = "INSERT INTO gocron " +
