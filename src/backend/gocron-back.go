@@ -92,24 +92,22 @@ func checkCronStatus() {
             // If job not checked in on time
             if (currentTime - lastRunTime) > frequency {
 
-                  // Mark row as alerted if not already true
+                  // If not already alerted
                   if cron.Alerted != true {
-                        query = "UPDATE gocron SET alerted = true " +
-                                "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
-
-                        // Perform the query
-                        rows, result = gocronlib.QueryDatabase(query, verbose)
-                        defer rows.Close()
-                        if result == false {
-                              gocronlib.CronLog(updateFail, verbose)
-
-                        }
-
-                        // Trigger alert
                         subject = cron.Cronname + ": " + cron.Account + " failed to check in" + "\n"
                         message = "The cronjob " + cron.Cronname + " for account " + cron.Account + " has not checked in on time"
-                        alert(cron, subject, message)
 
+                        // Only update database if alert sent successful
+                        if alert(cron, subject, message) == true {
+                              query = "UPDATE gocron SET alerted = true " +
+                                      "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
+
+                              rows, result = gocronlib.QueryDatabase(query, verbose)
+                              defer rows.Close()
+                              if result == false {
+                                    gocronlib.CronLog(updateFail, verbose)
+                              }
+                        }
 
 
                   // If 'alerted' already  true
@@ -169,7 +167,7 @@ func alert(cron gocronlib.Cron, subject string, message string) bool {
             return false
       }
 
-      // Alert sent 
+      // Alert sent
       gocronlib.CronLog("Alert for " + cron.Cronname + " sent to " + recipient, verbose)
       return true
 }
