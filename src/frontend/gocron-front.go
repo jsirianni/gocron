@@ -1,5 +1,6 @@
 package main
 import (
+      "fmt"
       "time"
       "flag"
       "strings"
@@ -10,9 +11,8 @@ import (
 
 
 const (
-      version string     = "2.0.9"
+      version string     = "2.0.10"
       libVersion string  = gocronlib.Version
-
       errorResp string   = "Internal Server Error"
       contentType string = "plain/text"
 )
@@ -31,16 +31,16 @@ func main() {
       flag.Parse()
 
       if getVersion == true {
-            println("gocron-front version: " + version)
-            println("gocronlib version: " + libVersion)
+            fmt.Println("gocron-front version: " + version)
+            fmt.Println("gocronlib version: " + libVersion)
             return
       }
 
       if verbose == true {
-            println("Verbose mode enabled")
-            println("gocron-front version: " + version)
-            println("gocronlib version: " + libVersion)
-            println("Starting web server on port: " + port)
+            fmt.Println("Verbose mode enabled")
+            fmt.Println("gocron-front version: " + version)
+            fmt.Println("gocronlib version: " + libVersion)
+            fmt.Println("Starting web server on port: " + port)
       }
 
       // Start the web server
