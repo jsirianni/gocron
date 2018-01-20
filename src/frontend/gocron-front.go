@@ -11,7 +11,7 @@ import (
 
 
 const (
-      version string     = "2.0.10"
+      version string     = "2.1.0"
       libVersion string  = gocronlib.Version
       errorResp string   = "Internal Server Error"
       contentType string = "plain/text"
@@ -64,8 +64,8 @@ func cronStatus(resp http.ResponseWriter, req *http.Request) {
             c.Cronname    = req.URL.Query().Get("cronname")
             c.Account     = req.URL.Query().Get("account")
             c.Email       = req.URL.Query().Get("email")
-            c.Frequency   = req.URL.Query().Get("frequency")
-            c.Lastruntime = strconv.Itoa(currentTime)
+            c.Frequency   = gocronlib.StringToInt(req.URL.Query().Get("frequency"), verbose)
+            c.Lastruntime = currentTime
             c.Ipaddress   = socket[0]
 
             // If x = 1, set c.Site to true
@@ -124,8 +124,13 @@ func returnNotFound(resp http.ResponseWriter) {
 
 func updateDatabase(c gocronlib.Cron) bool {
       var (
-            query string
+            query  string
             result bool
+
+            // Convert variables once and use multiple times in the query
+            frequency   string = strconv.Itoa(c.Frequency)
+            lastruntime string = strconv.Itoa(c.Lastruntime)
+            site        string = strconv.FormatBool(c.Site)
       )
 
       // Insert and update if already exist
@@ -133,11 +138,11 @@ func updateDatabase(c gocronlib.Cron) bool {
               "(cronname, account, email, ipaddress, frequency, lastruntime, alerted, site) " +
               "VALUES ('" +
               c.Cronname + "','" + c.Account + "','" + c.Email + "','" + c.Ipaddress + "','" +
-              c.Frequency + "','" + c.Lastruntime + "','" + "false" + "','" + strconv.FormatBool(c.Site) + "') " +
+              frequency + "','" + lastruntime + "','" + "false" + "','" + site + "') " +
               "ON CONFLICT (cronname, account) DO UPDATE " +
               "SET email = " + "'" + c.Email + "'," + "ipaddress = " + "'" + c.Ipaddress + "'," +
-              "frequency = " + "'" + c.Frequency + "'," + "lastruntime = " + "'" + c.Lastruntime + "', " +
-              "site = " + "'" + strconv.FormatBool(c.Site) + "';"
+              "frequency = " + "'" + frequency + "'," + "lastruntime = " + "'" + lastruntime + "', " +
+              "site = " + "'" + site + "';"
 
       // Execute query
       rows, result := gocronlib.QueryDatabase(query, verbose)
@@ -177,6 +182,7 @@ func validateParams(c gocronlib.Cron) bool {
 
 
 // Validate that parameters are present
+// Validate that ints are not -1 (failed conversion in gocronlib StringToInt())
 func checkLength(c gocronlib.Cron) bool {
       if len(c.Account) == 0 {
             return false
@@ -187,13 +193,13 @@ func checkLength(c gocronlib.Cron) bool {
       } else if len(c.Email) == 0 {
             return false
 
-      } else if len(c.Frequency) == 0 {
+      } else if c.Frequency == -1 {
             return false
 
       } else if len(c.Ipaddress) == 0 {
             return false
 
-      } else if len(c.Lastruntime) == 0 {
+      } else if c.Lastruntime == -1 {
             return false
 
       } else {

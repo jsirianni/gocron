@@ -58,8 +58,8 @@ func checkCronStatus() {
       var (
             subject string  // Subject used in alerts
             message string  // Message used in alerts
-            result bool     // Handles Insert Database responses
-            query string    // Queries to be sent to database functions
+            result  bool     // Handles Insert Database responses
+            query   string    // Queries to be sent to database functions
       )
 
       rows, status := gocronlib.QueryDatabase("SELECT * FROM gocron;", verbose)
@@ -76,21 +76,21 @@ func checkCronStatus() {
                         &cron.Account,
                         &cron.Email,
                         &cron.Ipaddress,
-                        &cron.Frequency,
-                        &cron.Lastruntime,
+                        &cron.Frequency,  // TODO set to int
+                        &cron.Lastruntime, // TODO set to int
                         &cron.Alerted,
                         &cron.Site)
 
             var (
                   updateFail string = "Failed to update row for " + cron.Cronname
                   currentTime = int(time.Now().Unix())
-                  lastRunTime, _ = strconv.Atoi(cron.Lastruntime)
-                  frequency, _ = strconv.Atoi(cron.Frequency)
+                  lastRunTime, _ = strconv.Atoi(cron.Lastruntime)     // TODO set to int
+                  frequency, _ = strconv.Atoi(cron.Frequency)        // TODO set to int
             )
 
 
             // If job not checked in on time
-            if (currentTime - lastRunTime) > frequency {
+            if (currentTime - lastRunTime) > frequency {   // TODO set to int
 
                   // If not already alerted
                   if cron.Alerted != true {
@@ -118,7 +118,7 @@ func checkCronStatus() {
 
 
             // If checked in on time but previously not (alerted == true)
-            } else if ((currentTime - lastRunTime) < frequency) && cron.Alerted == true {
+            } else if ((currentTime - lastRunTime) < frequency) && cron.Alerted == true {       // TODO set to int
                   query = "UPDATE gocron SET alerted = false " +
                           "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
