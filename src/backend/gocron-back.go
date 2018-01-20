@@ -11,7 +11,7 @@ import (
 
 
 const (
-      version    string = "2.1.0"
+      version    string = "2.2.0"
       libVersion string = gocronlib.Version
 )
 
@@ -49,28 +49,29 @@ func timer() {
       for {
             time.Sleep((time.Duration(config.Interval) * time.Second))
             gocronlib.CronLog("Checking for missed jobs.", verbose)
-            checkCronStatus()
+            checkMissedJobs()
+            checkRevivedJobs()
       }
 }
 
 
-func checkCronStatus() {
+func checkMissedJobs() {
       var (
             subject string  // Subject used in alerts
             message string  // Message used in alerts
-            result  bool     // Handles Insert Database responses
-            query   string    // Queries to be sent to database functions
+            result  bool    // Handles Insert Database responses
+            query   string  // Queries to be sent to database functions
       )
 
-      rows, status := gocronlib.QueryDatabase("SELECT * FROM gocron;", verbose)
+      query = "SELECT * FROM gocron WHERE (extract(epoch from now()) - lastruntime) > frequency;"
+      rows, status := gocronlib.QueryDatabase(query, verbose)
       defer rows.Close()
       if status == false {
-            gocronlib.CronLog("Failed to perform SELECT ALL", verbose)
+            gocronlib.CronLog("Failed to perform query: " + query, verbose)
             return
       }
 
       for rows.Next() {
-            // Assign row results to a Cron struct
             var cron gocronlib.Cron
             rows.Scan(&cron.Cronname,
                         &cron.Account,
@@ -81,63 +82,74 @@ func checkCronStatus() {
                         &cron.Alerted,
                         &cron.Site)
 
-            var (
-                  updateFail string = "Failed to update row for " + cron.Cronname
-                  currentTime = int(time.Now().Unix())
-            )
+            var updateFail string = "Failed to update row for " + cron.Cronname
 
+            // If not already alerted
+            if cron.Alerted != true {
+                  subject = cron.Cronname + ": " + cron.Account + " failed to check in" + "\n"
+                  message = "The cronjob " + cron.Cronname + " for account " + cron.Account + " has not checked in on time"
 
-            // If job not checked in on time
-            if (currentTime - cron.Lastruntime) > cron.Frequency {
+                  // Only update database if alert sent successful
+                  if alert(cron, subject, message) == true {
+                        query = "UPDATE gocron SET alerted = true " +
+                                "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-                  // If not already alerted
-                  if cron.Alerted != true {
-                        subject = cron.Cronname + ": " + cron.Account + " failed to check in" + "\n"
-                        message = "The cronjob " + cron.Cronname + " for account " + cron.Account + " has not checked in on time"
-
-                        // Only update database if alert sent successful
-                        if alert(cron, subject, message) == true {
-                              query = "UPDATE gocron SET alerted = true " +
-                                      "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
-
-                              rows, result = gocronlib.QueryDatabase(query, verbose)
-                              defer rows.Close()
-                              if result == false {
-                                    gocronlib.CronLog(updateFail, verbose)
-                              }
+                        rows, result = gocronlib.QueryDatabase(query, verbose)
+                        defer rows.Close()
+                        if result == false {
+                              gocronlib.CronLog(updateFail, verbose)
                         }
-
-
-                  // If 'alerted' already  true
-                  } else {
-                        gocronlib.CronLog("Alert for " + cron.Cronname + ": " + cron.Account +
-                              " has been supressed. Already alerted", verbose)
                   }
-
-
-            // If checked in on time but previously not (alerted == true)
-            } else if ((currentTime - cron.Lastruntime) < cron.Frequency) && cron.Alerted == true {
-                  query = "UPDATE gocron SET alerted = false " +
-                          "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
-
-                  rows, result = gocronlib.QueryDatabase(query, verbose)
-                  defer rows.Close()
-                  if result == false {
-                        gocronlib.CronLog(updateFail, verbose)
-
-                  }
-
-                  // Query was successful - Trigger alert
-                  subject = cron.Cronname + ": " + cron.Account + " is back online" + "\n"
-                  message = "The cronjob " + cron.Cronname + " for account " + cron.Account + " is back online"
-                  alert(cron, subject, message)
-
 
             } else {
-                  subject = cron.Cronname + ": " + cron.Account + " is online" + "\n"
-                  gocronlib.CronLog(subject, verbose)
+                  gocronlib.CronLog("Alert for " + cron.Cronname + ": " + cron.Account +
+                        " has been supressed. Already alerted", verbose)
+            }
+      }
+}
+
+
+func checkRevivedJobs() {
+      var (
+            subject string  // Subject used in alerts
+            message string  // Message used in alerts
+            result  bool    // Handles Insert Database responses
+            query   string  // Queries to be sent to database functions
+      )
+
+      query = "SELECT * FROM gocron WHERE alerted = true AND (extract(epoch from now()) - lastruntime) < frequency;"
+      rows, status := gocronlib.QueryDatabase(query, verbose)
+      defer rows.Close()
+      if status == false {
+            gocronlib.CronLog("Failed to perform query: " + query, verbose)
+            return
+      }
+
+      for rows.Next() {
+            var cron gocronlib.Cron
+            rows.Scan(&cron.Cronname,
+                        &cron.Account,
+                        &cron.Email,
+                        &cron.Ipaddress,
+                        &cron.Frequency,
+                        &cron.Lastruntime,
+                        &cron.Alerted,
+                        &cron.Site)
+
+            var updateFail string = "Failed to update row for " + cron.Cronname
+            query = "UPDATE gocron SET alerted = false " +
+                    "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
+
+            rows, result = gocronlib.QueryDatabase(query, verbose)
+            defer rows.Close()
+            if result == false {
+                  gocronlib.CronLog(updateFail, verbose)
 
             }
+
+            subject = cron.Cronname + ": " + cron.Account + " is back online" + "\n"
+            message = "The cronjob " + cron.Cronname + " for account " + cron.Account + " is back online"
+            alert(cron, subject, message)
       }
 }
 
