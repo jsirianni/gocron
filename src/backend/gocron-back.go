@@ -11,7 +11,7 @@ import (
 
 
 const (
-      version    string = "2.2.0"
+      version    string = "2.2.2"
       libVersion string = gocronlib.Version
 )
 
@@ -49,21 +49,19 @@ func timer() {
       for {
             time.Sleep((time.Duration(config.Interval) * time.Second))
             gocronlib.CronLog("Checking for missed jobs.", verbose)
-            checkMissedJobs()
-            checkRevivedJobs()
+            cronStatus()
       }
 }
 
 
-func checkMissedJobs() {
-      var (
-            subject string  // Subject used in alerts
-            message string  // Message used in alerts
-            result  bool    // Handles Insert Database responses
-            query   string  // Queries to be sent to database functions
-      )
+func cronStatus() {
+      checkMissedJobs("SELECT * FROM gocron WHERE (extract(epoch from now()) - lastruntime) > frequency;")
+      checkRevivedJobs("SELECT * FROM gocron WHERE alerted = true AND (extract(epoch from now()) - lastruntime) < frequency;")
+}
 
-      query = "SELECT * FROM gocron WHERE (extract(epoch from now()) - lastruntime) > frequency;"
+
+func checkMissedJobs(query string) {
+      //query := "SELECT * FROM gocron WHERE (extract(epoch from now()) - lastruntime) > frequency;"
       rows, status := gocronlib.QueryDatabase(query, verbose)
       defer rows.Close()
       if status == false {
@@ -84,17 +82,16 @@ func checkMissedJobs() {
 
             var updateFail string = "Failed to update row for " + cron.Cronname
 
-            // If not already alerted
             if cron.Alerted != true {
-                  subject = cron.Cronname + ": " + cron.Account + " failed to check in" + "\n"
-                  message = "The cronjob " + cron.Cronname + " for account " + cron.Account + " has not checked in on time"
+                  subject := cron.Cronname + ": " + cron.Account + " failed to check in" + "\n"
+                  message := "The cronjob " + cron.Cronname + " for account " + cron.Account + " has not checked in on time"
 
                   // Only update database if alert sent successful
                   if alert(cron, subject, message) == true {
                         query = "UPDATE gocron SET alerted = true " +
                                 "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-                        rows, result = gocronlib.QueryDatabase(query, verbose)
+                        rows, result := gocronlib.QueryDatabase(query, verbose)
                         defer rows.Close()
                         if result == false {
                               gocronlib.CronLog(updateFail, verbose)
@@ -109,15 +106,8 @@ func checkMissedJobs() {
 }
 
 
-func checkRevivedJobs() {
-      var (
-            subject string  // Subject used in alerts
-            message string  // Message used in alerts
-            result  bool    // Handles Insert Database responses
-            query   string  // Queries to be sent to database functions
-      )
-
-      query = "SELECT * FROM gocron WHERE alerted = true AND (extract(epoch from now()) - lastruntime) < frequency;"
+func checkRevivedJobs(query string) {
+      //query := "SELECT * FROM gocron WHERE alerted = true AND (extract(epoch from now()) - lastruntime) < frequency;"
       rows, status := gocronlib.QueryDatabase(query, verbose)
       defer rows.Close()
       if status == false {
@@ -140,15 +130,15 @@ func checkRevivedJobs() {
             query = "UPDATE gocron SET alerted = false " +
                     "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-            rows, result = gocronlib.QueryDatabase(query, verbose)
+            rows, result := gocronlib.QueryDatabase(query, verbose)
             defer rows.Close()
             if result == false {
                   gocronlib.CronLog(updateFail, verbose)
 
             }
 
-            subject = cron.Cronname + ": " + cron.Account + " is back online" + "\n"
-            message = "The cronjob " + cron.Cronname + " for account " + cron.Account + " is back online"
+            subject := cron.Cronname + ": " + cron.Account + " is back online" + "\n"
+            message := "The cronjob " + cron.Cronname + " for account " + cron.Account + " is back online"
             alert(cron, subject, message)
       }
 }
