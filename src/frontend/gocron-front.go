@@ -11,15 +11,15 @@ import (
 
 
 const (
-      version string     = "2.1.0"
-      libVersion string  = gocronlib.Version
-      errorResp string   = "Internal Server Error"
+      version     string = "2.1.0"
+      libVersion  string = gocronlib.Version
+      errorResp   string = "Internal Server Error"
       contentType string = "plain/text"
 )
 
 var ( // Flags set in main()
-      port string
-      verbose bool
+      port       string
+      verbose    bool
       getVersion bool
 )
 
