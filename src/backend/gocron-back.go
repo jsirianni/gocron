@@ -11,12 +11,12 @@ import (
 
 
 const (
-      version string    = "2.0.9"
+      version    string = "2.0.9"
       libVersion string = gocronlib.Version
 )
 
 var (
-      verbose bool     // Command line flag
+      verbose    bool  // Command line flag
       getVersion bool  // Command line flag
       config gocronlib.Config = gocronlib.GetConfig(verbose)
 )
