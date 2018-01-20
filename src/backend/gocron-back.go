@@ -76,21 +76,19 @@ func checkCronStatus() {
                         &cron.Account,
                         &cron.Email,
                         &cron.Ipaddress,
-                        &cron.Frequency,  // TODO set to int
-                        &cron.Lastruntime, // TODO set to int
+                        &cron.Frequency,
+                        &cron.Lastruntime,
                         &cron.Alerted,
                         &cron.Site)
 
             var (
                   updateFail string = "Failed to update row for " + cron.Cronname
                   currentTime = int(time.Now().Unix())
-                  lastRunTime, _ = strconv.Atoi(cron.Lastruntime)     // TODO set to int
-                  frequency, _ = strconv.Atoi(cron.Frequency)        // TODO set to int
             )
 
 
             // If job not checked in on time
-            if (currentTime - lastRunTime) > frequency {   // TODO set to int
+            if (currentTime - cron.Lastruntime) > cron.Frequency {
 
                   // If not already alerted
                   if cron.Alerted != true {
@@ -118,7 +116,7 @@ func checkCronStatus() {
 
 
             // If checked in on time but previously not (alerted == true)
-            } else if ((currentTime - lastRunTime) < frequency) && cron.Alerted == true {       // TODO set to int
+            } else if ((currentTime - cron.Lastruntime) < cron.Frequency) && cron.Alerted == true {
                   query = "UPDATE gocron SET alerted = false " +
                           "WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
@@ -146,14 +144,14 @@ func checkCronStatus() {
 
 func alert(cron gocronlib.Cron, subject string, message string) bool {
 
-      // Emmediatly log the alert
+      // Immediately log the alert
       gocronlib.CronLog(subject, verbose)
 
       var (
             recipient string = cron.Email
             port, _ = strconv.Atoi(config.Smtpport)
-            d = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
-            m = gomail.NewMessage()
+            d       = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
+            m       = gomail.NewMessage()
       )
 
       m.SetHeader("From", config.Smtpaddress)
