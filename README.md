@@ -25,10 +25,14 @@ Send a GET request with the following parameters in the query string
 - frequency (seconds)
 
 Test with
-`curl -v "localhost:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"`
+```
+curl -v "localhost:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"
+```
 
 Append to an existing crontab entry with:
-`&& curl -v "localhost:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"`
+```
+&& curl -v "localhost:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"
+```
 
 Optionally configure a site with: `&site=1`
 A site represents an Internet gateway. In the future, if the gateway has not checked in, alerts for devices behind that gateway will be suppressed. This is to avoid an alert storm during a network outage.
@@ -36,7 +40,7 @@ A site represents an Internet gateway. In the future, if the gateway has not che
 The above examples will notify the server to expect a notification every hour. If the job does not check in within 1 hour, an email alert is sent. Future notifications are suppressed until the job checks in again.
 
 ## Sizing
-A single Google Compute Engine f1-micro instance has been proven to hand1le 50,000 jobs
+A single Google Compute Engine f1-micro instance has been proven to handle 50,000 jobs
 that check in at a rate of 10,000 jobs per 90 seconds. At this rate, the load was less than
 15%. The CPU would max out every 5 minutes when the service would check the entire database
 for jobs that have not checked in.
@@ -49,14 +53,18 @@ the database can live on a separate system entirely.
 ## Installing
 
 ### Postgresql must be installed and listening on localhost
-- `CREATE DATABASE gocron;`
-- `CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency integer, lastruntime integer, alerted boolean, site boolean, PRIMARY KEY(cronname, account));`
-- `CREATE USER gocron WITH PASSWORD 'password';`
-- `GRANT ALL PRIVILEGES ON gocron TO gocron;`
+```
+CREATE DATABASE gocron;
+CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency integer, lastruntime integer, alerted boolean, site boolean, PRIMARY KEY(cronname, account));
+CREATE USER gocron WITH PASSWORD 'password';
+GRANT ALL PRIVILEGES ON gocron TO gocron;
+```
 
 ### Run install.sh
-- `chmod +x install.sh`
-- `sudo ./install.sh`
+```
+chmod +x install.sh
+sudo ./install.sh
+```
 
 This script will:
 - Copy the gocron binaries to `/usr/local/bin`
@@ -64,8 +72,10 @@ This script will:
 - Create a Systemd services
 
 ### Manage services
-- systemctl status gocron-front
-- systemctl status gocron-back
+```
+systemctl status gocron-front
+systemctl status gocron-back
+```
 
 ## Notes
 The main purpose of this project is to gain familiarity with golang. If you have improvements or suggestions, please feel free to file an issue or open a pull request.
