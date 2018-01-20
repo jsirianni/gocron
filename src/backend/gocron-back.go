@@ -61,7 +61,6 @@ func cronStatus() {
 
 
 func checkMissedJobs(query string) {
-      //query := "SELECT * FROM gocron WHERE (extract(epoch from now()) - lastruntime) > frequency;"
       rows, status := gocronlib.QueryDatabase(query, verbose)
       defer rows.Close()
       if status == false {
@@ -107,7 +106,6 @@ func checkMissedJobs(query string) {
 
 
 func checkRevivedJobs(query string) {
-      //query := "SELECT * FROM gocron WHERE alerted = true AND (extract(epoch from now()) - lastruntime) < frequency;"
       rows, status := gocronlib.QueryDatabase(query, verbose)
       defer rows.Close()
       if status == false {
