@@ -50,7 +50,7 @@ the database can live on a separate system entirely.
 
 ### Postgresql must be installed and listening on localhost
 - `CREATE DATABASE gocron;`
-- `CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency varchar, lastruntime varchar, alerted boolean, site boolean, PRIMARY KEY(cronname, account));`
+- `CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency integer, lastruntime integer, alerted boolean, site boolean, PRIMARY KEY(cronname, account));`
 - `CREATE USER gocron WITH PASSWORD 'password';`
 - `GRANT ALL PRIVILEGES ON gocron TO gocron;`
 
