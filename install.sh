@@ -3,7 +3,9 @@ cd $(dirname $0)
 
 # Get gocron binary
 sudo mkdir /usr/local/bin
-sudo cp ./bin/gocron-* /usr/local/bin/
+cd /usr/local/bin
+sudo wget https://github.com/jsirianni/gocron/releases/download/latest/gocron-back
+sudo wget https://github.com/jsirianni/gocron/releases/download/latest/gocron-front
 sudo chmod +x /usr/local/bin/gocron-*
 
 
