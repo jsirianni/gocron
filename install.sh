@@ -1,16 +1,11 @@
 #!/bin/bash
 cd $(dirname $0)
 
-# Get gocron binary
-sudo mkdir /usr/local/bin
-sudo cp ./bin/gocron-* /usr/local/bin/
-sudo chmod +x /usr/local/bin/gocron-*
-
 
 # Get gocron config and configure it
 # "/etc/gocron/config.yml"
 sudo mkdir -p /etc/gocron/
-sudo cp ./src/example.config.yml /etc/gocron/config.yml
+sudo cp example.config.yml /etc/gocron/config.yml
 sudo chmod 600 /etc/gocron/config.yml
 sudo vi /etc/gocron/config.yml
 
@@ -37,6 +32,14 @@ ExecStart=/usr/local/bin/gocron-back
 [Install]
 WantedBy=multi-user.target
 EOH
+
+
+# Get gocron binary
+sudo mkdir /usr/local/bin
+cd /usr/local/bin
+sudo wget https://github.com/jsirianni/gocron/releases/download/latest/gocron-back
+sudo wget https://github.com/jsirianni/gocron/releases/download/latest/gocron-front
+sudo chmod +x /usr/local/bin/gocron-*
 
 
 # Enable the gocron service
