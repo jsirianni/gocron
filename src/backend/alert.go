@@ -5,7 +5,7 @@ import (
     "strconv"
 	"gopkg.in/gomail.v2"
 
-    "github.com/jsirianni/gocronlib"
+	"../gocronlib"
     "github.com/jsirianni/slacklib/slacklib"
 )
 

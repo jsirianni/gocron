@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jsirianni/gocronlib"
+	"../gocronlib"
 )
 
 const (
-	version    string = "3.0.1"
+	version    string = "3.0.2"
 	libVersion string = gocronlib.Version
 )
 
