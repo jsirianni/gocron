@@ -8,11 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jsirianni/gocronlib"
+	"../gocronlib"
 )
 
 const (
-	version     string = "2.3.0"
+	version     string = "3.0.2"
 	libVersion  string = gocronlib.Version
 	errorResp   string = "Internal Server Error"
 	contentType string = "plain/text"
