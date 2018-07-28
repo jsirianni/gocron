@@ -21,6 +21,7 @@ var (
 
 
 func main() {
+	fmt.Println("this")
 	flag.BoolVar(&getVersion, "version", false, "Get the version and then exit")
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose output")
 	flag.Parse()
@@ -36,6 +37,13 @@ func main() {
 		fmt.Println("gocron-back version:", version)
 		fmt.Println("gocronlib version:", libVersion)
 		fmt.Println("Using check interval:", config.Interval)
+
+		if config.PreferSlack == true {
+			fmt.Println("Prefer slack: enabled")
+			fmt.Println("Slack channel: " + config.SlackChannel)
+			fmt.Println("Slack hook url: " + config.SlackHookUrl)
+
+		}
 	}
 
 	timer()
