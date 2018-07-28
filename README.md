@@ -10,11 +10,10 @@ Email alerts are sent one time and then suppressed. Alerts are re-triggered only
 GoCron is made up of several services
 - gocron-front
 - gocron-back
-- gocronlib https://github.com/jsirianni/gocronlib
+- gocronlib
 - gocron web interface https://github.com/jsirianni/gocron-frontend
 
-GoCron frontend and backend are included in this repository. Gocronlib is a helper
-library and the Gocron web interface is an optional component that allows the user
+Gocron web interface is an optional component that allows the user
 to view the status of all jobs.
 
 ## Usage
