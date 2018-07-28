@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	version     string = "2.3.0"
+	version     string = "3.0.0"
 	libVersion  string = gocronlib.Version
 	errorResp   string = "Internal Server Error"
 	contentType string = "plain/text"
