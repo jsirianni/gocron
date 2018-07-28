@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	version     string = "3.0.2"
+	version     string = "3.0.3"
 	libVersion  string = gocronlib.Version
 	errorResp   string = "Internal Server Error"
 	contentType string = "plain/text"
@@ -45,7 +45,15 @@ func main() {
 
 	// Start the web server
 	http.HandleFunc("/", cronStatus)
+	http.HandleFunc("/healthcheck", healthCheck)
 	http.ListenAndServe(":"+port, nil)
+}
+
+// return http status 200 if connection to database is healthy
+func healthCheck(resp http.ResponseWriter, req *http.Request) {
+    remote_ip := strings.Split(req.RemoteAddr, ":")[0]
+	gocronlib.CronLog("healthcheck from: " + remote_ip, verbose)
+	returnOk(resp)
 }
 
 // Validate the request and then pass to updateDatabase()
@@ -97,6 +105,12 @@ func cronStatus(resp http.ResponseWriter, req *http.Request) {
 		returnNotFound(resp)
 		gocronlib.CronLog(method+" from "+c.Ipaddress+" not valid. Dropping.", verbose)
 	}
+}
+
+// Return 200 OK
+func returnOk(resp http.ResponseWriter) {
+	resp.Header().Set("Content-Type", contentType)
+	resp.WriteHeader(http.StatusOK)
 }
 
 // Return a 201 Created
