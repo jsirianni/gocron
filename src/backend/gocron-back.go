@@ -21,7 +21,6 @@ var (
 
 
 func main() {
-	fmt.Println("this")
 	flag.BoolVar(&getVersion, "version", false, "Get the version and then exit")
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose output")
 	flag.Parse()
