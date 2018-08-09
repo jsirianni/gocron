@@ -6,9 +6,15 @@ import (
 )
 
 
+const (
+	missedJobs = "SELECT * FROM gocron WHERE (extract(epoch from now()) - lastruntime) > frequency;"
+	revivedJobs = "SELECT * FROM gocron WHERE alerted = true AND (extract(epoch from now()) - lastruntime) < frequency;"
+)
+
+
 func cronStatus() {
-	checkMissedJobs("SELECT * FROM gocron WHERE (extract(epoch from now()) - lastruntime) > frequency;")
-	checkRevivedJobs("SELECT * FROM gocron WHERE alerted = true AND (extract(epoch from now()) - lastruntime) < frequency;")
+	checkMissedJobs(missedJobs)
+	checkRevivedJobs(revivedJobs)
 }
 
 
@@ -89,4 +95,44 @@ func checkRevivedJobs(query string) {
 		message := "The cronjob " + cron.Cronname + " for account " + cron.Account + " is back online"
 		alert(cron, subject, message)
 	}
+}
+
+
+func getSummary() {
+	var message string = "GOCRON Weekly Status - Missed Jobs:\n"
+
+	rows, status := gocronlib.QueryDatabase(missedJobs, verbose)
+	defer rows.Close()
+	if status == false {
+		gocronlib.CronLog("Failed to perform query while attempting to build a summary: " + missedJobs, verbose)
+		return
+	}
+
+	for rows.Next() {
+		var cron gocronlib.Cron
+		rows.Scan(&cron.Cronname,
+			&cron.Account,
+			&cron.Email,
+			&cron.Ipaddress,
+			&cron.Frequency,
+			&cron.Lastruntime,
+			&cron.Alerted,
+			&cron.Site)
+
+		message = message + "Name: " + cron.Cronname  + " Account: " + cron.Account + "\n"
+	}
+
+	// If verbose is true, send alert
+	// Useful if running from cron and not the command line
+	if verbose == true {
+		if summaryAlert("gocron alert summary", message) == true {
+				return
+
+		} else {
+			gocronlib.CronLog("GOCRON: Failed to build alert summary.", verbose)
+		}
+	}
+
+	// Always print output
+	gocronlib.CronLog(message, verbose)
 }
