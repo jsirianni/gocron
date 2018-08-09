@@ -31,7 +31,6 @@ func checkMissedJobs(query string) {
 			&cron.Alerted,
 			&cron.Site)
 
-		var updateFail string = "Failed to update row for " + cron.Cronname
 
 		if cron.Alerted != true {
 			subject := cron.Cronname + ": " + cron.Account + " failed to check in" + "\n"
@@ -45,7 +44,7 @@ func checkMissedJobs(query string) {
 				rows, result := gocronlib.QueryDatabase(query, verbose)
 				defer rows.Close()
 				if result == false {
-					gocronlib.CronLog(updateFail, verbose)
+					gocronlib.CronLog("Failed to update row for " + cron.Cronname, verbose)
 				}
 			}
 
@@ -76,14 +75,13 @@ func checkRevivedJobs(query string) {
 			&cron.Alerted,
 			&cron.Site)
 
-		var updateFail string = "Failed to update row for " + cron.Cronname
 		query = "UPDATE gocron SET alerted = false " +
 			"WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
 		rows, result := gocronlib.QueryDatabase(query, verbose)
 		defer rows.Close()
 		if result == false {
-			gocronlib.CronLog(updateFail, verbose)
+			gocronlib.CronLog("Failed to update row for " + cron.Cronname, verbose)
 
 		}
 
