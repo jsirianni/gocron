@@ -14,9 +14,9 @@ const (
 )
 
 var (
-	weeklyStatus bool           // Command line flag
-	verbose      bool           // Command line flag
-	getVersion   bool           // Command line flag
+	summary    bool           // Command line flag
+	verbose    bool           // Command line flag
+	getVersion bool           // Command line flag
 	config     gocronlib.Config = gocronlib.GetConfig(verbose)
 )
 
@@ -24,13 +24,18 @@ var (
 func main() {
 	flag.BoolVar(&getVersion, "version", false, "Get the version and then exit")
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose output")
-	flag.BoolVar(&weeklyStatus, "weekly-status", false, "Enable weekly summary")
+	flag.BoolVar(&summary, "summary", false, "Enable weekly summary")
 	flag.Parse()
 
 	if getVersion == true {
 		fmt.Println("gocron-back version:", version)
 		fmt.Println("gocronlib version:", libVersion)
 		return
+	}
+
+	if summary == true {
+		gocronlib.CronLog("gocron retrieving summary", verbose)
+
 	}
 
 	if verbose == true {
@@ -45,10 +50,6 @@ func main() {
 			fmt.Println("Slack hook url: " + config.SlackHookUrl)
 
 		}
-	}
-
-	if weeklyStatus == true {
-		gocronlib.CronLog("Weekly status enabled", verbose)
 	}
 
 	timer()
