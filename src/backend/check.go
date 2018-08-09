@@ -2,6 +2,8 @@ package main
 
 
 import (
+	"fmt"
+
 	"../gocronlib"
 )
 
@@ -126,13 +128,13 @@ func getSummary() {
 	// Useful if running from cron and not the command line
 	if verbose == true {
 		if summaryAlert("gocron alert summary", message) == true {
-				return
+			gocronlib.CronLog(message, verbose)
+			return
 
 		} else {
 			gocronlib.CronLog("GOCRON: Failed to build alert summary.", verbose)
 		}
+	} else {
+		fmt.Printf(message)
 	}
-
-	// Always print output
-	gocronlib.CronLog(message, verbose)
 }

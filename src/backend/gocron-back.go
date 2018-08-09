@@ -33,14 +33,12 @@ func main() {
 		return
 	}
 
-	//if summary == true {
-	//	gocronlib.CronLog("gocron retrieving summary", verbose)
-
+	if summary == true {
 		// If verbose == true, summary will send to syslog AND the configured
 		// alert system
-	//	getSummary()
-	//	return
-	//}
+		getSummary()
+		return
+	}
 
 	if verbose == true {
 		fmt.Println("Verbose mode enabled")
