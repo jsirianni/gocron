@@ -9,26 +9,37 @@ import (
 )
 
 const (
-	version    string = "3.0.3"
+	version    string = "3.0.4"
 	libVersion string = gocronlib.Version
 )
 
 var (
-	verbose    bool             // Command line flag
-	getVersion bool             // Command line flag
-	config     gocronlib.Config = gocronlib.GetConfig(verbose)
+	summary    bool           // Command line flag
+	verbose    bool           // Command line flag
+	getVersion bool           // Command line flag
+	config     gocronlib.Config
 )
 
 
 func main() {
-	fmt.Println("this")
 	flag.BoolVar(&getVersion, "version", false, "Get the version and then exit")
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose output")
+	flag.BoolVar(&summary, "summary", false, "Enable weekly summary")
 	flag.Parse()
 
 	if getVersion == true {
 		fmt.Println("gocron-back version:", version)
 		fmt.Println("gocronlib version:", libVersion)
+		return
+	}
+
+	// Build config
+	config = gocronlib.GetConfig(verbose)
+
+	if summary == true {
+		// If verbose == true, summary will send to syslog AND the configured
+		// alert system
+		getSummary()
 		return
 	}
 

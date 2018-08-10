@@ -37,8 +37,8 @@ EOH
 # Get gocron binary
 sudo mkdir /usr/local/bin
 cd /usr/local/bin
-sudo wget https://github.com/jsirianni/gocron/releases/download/3.0.2/gocron-back
-sudo wget https://github.com/jsirianni/gocron/releases/download/3.0.2/gocron-front
+sudo wget https://github.com/jsirianni/gocron/releases/download/3.0.4/gocron-back
+sudo wget https://github.com/jsirianni/gocron/releases/download/3.0.4/gocron-front
 sudo chmod +x /usr/local/bin/gocron-*
 
 
