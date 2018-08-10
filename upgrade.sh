@@ -10,8 +10,8 @@ sudo service gocron-back stop
 
 sudo rm /usr/local/bin/gocro*
 cd /usr/local/bin
-sudo wget https://github.com/jsirianni/gocron/releases/download/3.0.4/gocron-back
-sudo wget https://github.com/jsirianni/gocron/releases/download/3.0.4/gocron-front
+sudo wget https://github.com/jsirianni/gocron/releases/download/v3.0.4/gocron-back
+sudo wget https://github.com/jsirianni/gocron/releases/download/v3.0.4/gocron-front
 sudo chmod +x /usr/local/bin/gocron-*
 
 sudo service gocron-front restart
