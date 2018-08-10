@@ -17,7 +17,7 @@ var (
 	summary    bool           // Command line flag
 	verbose    bool           // Command line flag
 	getVersion bool           // Command line flag
-	config     gocronlib.Config = gocronlib.GetConfig(verbose)
+	config     gocronlib.Config
 )
 
 
@@ -32,6 +32,9 @@ func main() {
 		fmt.Println("gocronlib version:", libVersion)
 		return
 	}
+
+	// Build config
+	config = gocronlib.GetConfig(verbose)
 
 	if summary == true {
 		// If verbose == true, summary will send to syslog AND the configured
