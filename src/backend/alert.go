@@ -41,11 +41,6 @@ func alert(cron gocronlib.Cron, subject string, message string) bool {
 }
 
 
-func summaryAlert(subject string, message string) bool {
-    return true
-}
-
-
 func emailAlert(cron gocronlib.Cron, subject string, message string) bool {
 
 	var (

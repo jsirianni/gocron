@@ -101,7 +101,7 @@ func checkRevivedJobs(query string) {
 
 
 func getSummary() {
-	var message string = "GOCRON Weekly Status - Missed Jobs:\n"
+	var message string = "gocron summary - missed jobs:\n"
 
 	rows, status := gocronlib.QueryDatabase(missedJobs, verbose)
 	defer rows.Close()
@@ -121,13 +121,18 @@ func getSummary() {
 			&cron.Alerted,
 			&cron.Site)
 
-		message = message + "Name: " + cron.Cronname  + " Account: " + cron.Account + "\n"
+		message = message + "Name: " + cron.Cronname  + "| Account: " + cron.Account + "\n"
 	}
 
 	// If verbose is true, send alert
 	// Useful if running from cron and not the command line
 	if verbose == true {
-		if summaryAlert("gocron alert summary", message) == true {
+
+		// build cummy cron struct
+		var c gocronlib.Cron
+
+		// Send slack alert and pass dummy cron object
+		if slackAlert(c, "gocron alert summary", message) == true {
 			gocronlib.CronLog(message, verbose)
 			return
 
