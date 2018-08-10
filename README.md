@@ -38,6 +38,21 @@ A site represents an Internet gateway. In the future, if the gateway has not che
 
 The above examples will notify the server to expect a notification every hour. If the job does not check in within 1 hour, an email alert is sent. Future notifications are suppressed until the job checks in again.
 
+## Weekly Summary
+The backend service binary can provide a summary of all missed jobs
+```
+# print a summary of current missed jobs
+./gocron-back --summary
+
+# print a summary of current missed jobs and send it via slack
+./gocron-back --summary --verbose
+```
+
+Run from cron every monday at 9am
+```
+0 9 * * MON /usr/local/bin/gocron-back --summary --verbose >> /dev/null
+```
+
 ## Sizing
 A single Google Compute Engine f1-micro instance has been proven to handle 50,000 jobs
 that check in at a rate of 10,000 jobs per 90 seconds. At this rate, the load was less than
