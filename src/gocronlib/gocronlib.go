@@ -102,6 +102,22 @@ func QueryDatabase(query string, verbose bool) (*sql.Rows, bool) {
 }
 
 
+// Creates the gocron database table, if it does not exist
+// Returns false if not successful, else true
+func CreateGocronTable(verbose bool) bool {
+    query := "CREATE TABLE IF NOT EXISTS gocron(cronName varchar, " +
+        "account varchar, email varchar, ipaddress varchar, " +
+        "frequency integer, lastruntime integer, alerted boolean, " +
+        "site boolean, PRIMARY KEY(cronname, account));"
+    _, result := QueryDatabase(query, verbose)
+    if result == false {
+        CronLog("Table 'gocron' is missing. Creation failed. Validate permissions in the config.", verbose)
+        os.Exit(1)
+    }
+    return result
+}
+
+
 // Convert a String to an int and return it
 // If -1 returns, validation will fail
 func StringToInt(x string, verbose bool) int {
