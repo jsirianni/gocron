@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"time"
+	"os"
+
 
 	"../gocronlib"
 )
@@ -57,8 +59,15 @@ func main() {
 		}
 	}
 
+	// create the gocron table, if not exists
+	if gocronlib.CreateGocronTable(verbose) == false {
+		os.Exit(1)
+	}
+
+
 	timer()
 }
+
 
 
 // Function calls checkCronStatus() on a set interval
