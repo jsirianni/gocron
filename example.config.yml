@@ -11,7 +11,7 @@ smtpserver: "smtp.gmail.com"
 smtpport: "587"
 smtpaddress: ""
 smtppassword: ""
-Interval: 60
-SlackHookUrl: ""
-SlackChannel: ""
-PreferSlack: true
+interval: 60
+slackHookUrl: ""
+slackChannel: ""
+preferSlack: true
