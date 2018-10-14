@@ -91,5 +91,21 @@ systemctl status gocron-front
 systemctl status gocron-back
 ```
 
+
+## Building
+### Compile for linux
+simply run `build_linux.sh`, which places the compuled binaries into `bin/`
+
+### Docker
+Dockerfiles are included in `src/fronend` and `src/backend`. 
+```
+docker run -d \
+  -p 8080:8080
+  -v /path/to/config/dir:/etc/gocron gocron-front
+```
+https://hub.docker.com/r/firefoxx04/gocron-front/
+https://hub.docker.com/r/firefoxx04/gocron-back/
+
+
 ## Notes
 The main purpose of this project is to gain familiarity with golang. If you have improvements or suggestions, please feel free to file an issue or open a pull request.
