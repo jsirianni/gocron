@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	version    string = "3.0.4"
+	version    string = "3.0.6"
 	libVersion string = gocronlib.Version
 )
 

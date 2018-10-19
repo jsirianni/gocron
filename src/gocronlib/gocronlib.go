@@ -10,7 +10,7 @@ import (
 )
 
 
-const Version string  = "2.0.4"
+const Version string  = "2.0.5"
 
 const (
       sslmode  string = "disable"   // Disable or enable ssl
@@ -36,14 +36,14 @@ type Config struct {
 
 
 type Cron struct {
-      Cronname    string   // Name of the cronjob
-      Account     string   // Account the job belongs to
-      Email       string   // Address to send alerts to
+      Cronname    string `json:cronname`  // Name of the cronjob
+      Account     string `json:account`   // Account the job belongs to
+      Email       string `json:email`     // Address to send alerts to
+      Frequency   int    `json:frequency` // How often a job should check in
+      Site        bool   `json:site`      // Set true if service is a site (Example: Network gateway)
       Ipaddress   string   // Source IP address
-      Frequency   int      // How often a job should check in
       Lastruntime int      // Unix timestamp
       Alerted     bool     // set to true if an alert has already been thrown
-      Site        bool     // Set true if service is a site (Example: Network gateway)
 }
 
 
