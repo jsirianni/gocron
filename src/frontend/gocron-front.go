@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"io/ioutil"
+    "encoding/json"
 
 	"../gocronlib"
 )
@@ -76,6 +78,8 @@ func cronStatus(resp http.ResponseWriter, req *http.Request) {
 		c.Ipaddress = socket[0]
 
 		// If x = 1, set c.Site to true
+		// NOTE: Depricating the site feature. It was never implemented and is causing
+		// technical debt
 		x, err := strconv.Atoi(req.URL.Query().Get("site"))
 		if err == nil && x == 1 {
 			c.Site = true
@@ -84,8 +88,21 @@ func cronStatus(resp http.ResponseWriter, req *http.Request) {
 		}
 
 	case "POST":
-		gocronlib.CronLog("POST not yet supported: "+c.Ipaddress, verbose)
-		return
+		method = "POST"
+
+		// read the request body into a byte array
+		payload, err := ioutil.ReadAll(req.Body)
+		defer req.Body.Close()
+		if err != nil {
+		 	gocronlib.CronLog(err.Error(), verbose)
+		}
+
+		if err := json.Unmarshal(payload, &c); err != nil {
+			gocronlib.CronLog(err.Error(), verbose)
+		}
+		c.Lastruntime = currentTime
+		c.Ipaddress = socket[0]
+
 
 	default:
 		// Log an error and do not respond
@@ -106,6 +123,7 @@ func cronStatus(resp http.ResponseWriter, req *http.Request) {
 		gocronlib.CronLog(method+" from "+c.Ipaddress+" not valid. Dropping.", verbose)
 	}
 }
+
 
 // Return 200 OK
 func returnOk(resp http.ResponseWriter) {
