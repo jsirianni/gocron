@@ -17,6 +17,11 @@ Gocron web interface is an optional component that allows the user
 to view the status of all jobs.
 
 ## Usage
+These examples will notify the server to expect a notification every hour. If the job
+does not check in within one hour, an alert is sent. Future notifications are
+suppressed until the job checks in again.
+
+#### GET
 Send a GET request with the following parameters in the query string
 - cronname
 - account
@@ -25,18 +30,19 @@ Send a GET request with the following parameters in the query string
 
 Test with
 ```
-curl -v "localhost:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"
+curl -v "172.17.0.2:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"
 ```
-
 Append to an existing crontab entry with:
 ```
-&& curl -v "localhost:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"
+&& curl -v "172.17.0.2:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"
 ```
 
-Optionally configure a site with: `&site=1`
-A site represents an Internet gateway. In the future, if the gateway has not checked in, alerts for devices behind that gateway will be suppressed. This is to avoid an alert storm during a network outage.
+#### POST
+```
+curl -v -X POST -d "{\"cronname\":\"test\",\"account\":\"test account\", \"email\":\"test@gmail.com\",\"frequency\":20}" http://172.17.0.2:8080
+```
 
-The above examples will notify the server to expect a notification every hour. If the job does not check in within 1 hour, an email alert is sent. Future notifications are suppressed until the job checks in again.
+
 
 ## Weekly Summary
 The backend service binary can provide a summary of all missed jobs
@@ -97,7 +103,7 @@ systemctl status gocron-back
 simply run `build_linux.sh`, which places the compuled binaries into `bin/`
 
 ### Docker
-Dockerfiles are included in `src/fronend` and `src/backend`. 
+Dockerfiles are included in `src/fronend` and `src/backend`.
 ```
 docker run -d \
   -p 8080:8080
