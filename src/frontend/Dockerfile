@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 
-RUN wget https://github.com/jsirianni/gocron/releases/download/v3.0.5/gocron-front -O /usr/local/bin/gocron-front
+RUN wget https://github.com/jsirianni/gocron/releases/download/v3.0.6/gocron-front -O /usr/local/bin/gocron-front
 RUN chmod +x /usr/local/bin/gocron-front
 
 
