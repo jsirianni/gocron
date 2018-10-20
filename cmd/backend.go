@@ -3,7 +3,6 @@ import (
 	"os"
 	"time"
 	"strconv"
-	"gopkg.in/gomail.v2"
 
 	"github.com/spf13/cobra"
 	"github.com/jsirianni/slacklib/slacklib"
@@ -192,26 +191,17 @@ func getSummary() {
 }
 
 
-// alert will send slack messages first, if enabled, and fallback
-// to email alerts if the slack notification fails
 func alert(cron Cron, subject string, message string) bool {
 
     // Immediately log the alert
     CronLog(subject, verbose)
 
-    var result bool
-	if config.PreferSlack == true {
-
-        if slackAlert(cron, subject, message) == true {
-			result = true
-		} else {
-			result = emailAlert(cron, subject, message)
-		}
-
-	} else {
-		result = emailAlert(cron, subject, message)
+    var result bool = false
+	if slackAlert(cron, subject, message) == true {
+		result = true
 	}
 
+	// NOTE: future alert methods will go here. Removed SMTP due to complexity
 
     if result == true {
         CronLog("gocron success: alert for " + cron.Cronname + " sent", verbose)
@@ -220,29 +210,6 @@ func alert(cron Cron, subject string, message string) bool {
         CronLog("gocron fail: alert for " + cron.Cronname, verbose)
         return false
     }
-}
-
-
-func emailAlert(cron Cron, subject string, message string) bool {
-
-	var (
-		recipient string = cron.Email
-		port, _          = strconv.Atoi(config.Smtpport)
-		d                = gomail.NewDialer(config.Smtpserver, port, config.Smtpaddress, config.Smtppassword)
-		m                = gomail.NewMessage()
-	)
-
-	m.SetHeader("From", config.Smtpaddress)
-	m.SetHeader("To", recipient)
-	m.SetHeader("Subject", subject)
-	m.SetBody("text/html", message)
-
-	// Failed to send alert
-	if err := d.DialAndSend(m); err != nil {
-		CheckError(err, verbose)
-		return false
-	}
-	return true
 }
 
 
