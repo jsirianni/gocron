@@ -8,9 +8,8 @@ Email alerts are sent one time and then suppressed. Alerts are re-triggered only
 
 ## Architecture
 GoCron is made up of several services
-- gocron-front
-- gocron-back
-- gocronlib
+- gocron frontend
+- gocron backend
 - gocron web interface https://github.com/jsirianni/gocron-frontend
 
 Gocron web interface is an optional component that allows the user
@@ -48,10 +47,10 @@ curl -v -X POST -d "{\"cronname\":\"test\",\"account\":\"test account\", \"email
 The backend service binary can provide a summary of all missed jobs
 ```
 # print a summary of current missed jobs
-./gocron-back --summary
+./gocron backend --summary
 
 # print a summary of current missed jobs and send it via slack
-./gocron-back --summary --verbose
+./gocron backend --summary --verbose
 ```
 
 Run from cron every monday at 9am

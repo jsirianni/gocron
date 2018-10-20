@@ -17,7 +17,7 @@ tee /etc/systemd/system/gocron-front.service << EOH
 Description=GoCron Monitoring Service - Frontend Gateway
 After=network.target
 [Service]
-ExecStart=/usr/local/bin/gocron-front
+ExecStart=/usr/local/bin/gocron frontend
 [Install]
 WantedBy=multi-user.target
 EOH
@@ -28,18 +28,17 @@ tee /etc/systemd/system/gocron-back.service << EOH
 Description=GoCron Monitoring Service - Backend
 After=network.target
 [Service]
-ExecStart=/usr/local/bin/gocron-back
+ExecStart=/usr/local/bin/gocron backend
 [Install]
 WantedBy=multi-user.target
 EOH
 
 
 # Get gocron binary
-sudo mkdir /usr/local/bin
+sudo mkdir -p /usr/local/bin
 cd /usr/local/bin
-sudo wget https://github.com/jsirianni/gocron/releases/download/v3.0.4/gocron-back
-sudo wget https://github.com/jsirianni/gocron/releases/download/v3.0.4/gocron-front
-sudo chmod +x /usr/local/bin/gocron-*
+sudo wget https://github.com/jsirianni/gocron/releases/download/v4.0.1-alpha/gocron
+sudo chmod +x /usr/local/bin/gocron
 
 
 # Enable the gocron service
