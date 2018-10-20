@@ -27,10 +27,6 @@ type Config struct {
       Dbuser       string `yaml:"dbuser"`
       Dbpass       string `yaml:"dbpass"`
       Dbdatabase   string `yaml:"dbdatabase"`
-      Smtpserver   string `yaml:"smtpserver"`
-      Smtpport     string `yaml:"smtpport"`
-      Smtpaddress  string `yaml:"smtpaddress"`
-      Smtppassword string `yaml:"smtppassword"`
       Interval     int    `yaml:"interval"`
       SlackHookUrl string `yaml:"slackhookurl"`
       SlackChannel string `yaml:"slackchannel"`
