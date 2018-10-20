@@ -1,6 +1,7 @@
 package cmd
 import (
 	"os"
+	"fmt"
 	"time"
 	"strconv"
 
@@ -183,6 +184,9 @@ func getSummary() {
 	if verbose == true && slackAlert(c, "gocron alert summary", message) == true {
 		CronLog(message, verbose)
 		return
+
+	} else if verbose == false {
+		fmt.Println(message)
 
 	} else {
 		CronLog("GOCRON: Failed to build alert summary.", verbose)
