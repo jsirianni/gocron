@@ -40,7 +40,7 @@ func startBackend() {
 
 	CronLog("verbose mode enabled", verbose)
 	CronLog("gocron-back version: " + VERSION, verbose)
-	CronLog("check interval: " + string(config.Interval), verbose)
+	CronLog("check interval: " + strconv.Itoa(config.Interval), verbose)
 
 	if config.PreferSlack == true {
 		CronLog("Prefer slack: enabled", verbose)
