@@ -12,6 +12,6 @@ smtpport: "587"
 smtpaddress: ""
 smtppassword: ""
 interval: 60
-slackHookUrl: ""
-slackChannel: ""
-preferSlack: true
+slackhookurl: ""
+slackchannel: ""
+preferslack: true
