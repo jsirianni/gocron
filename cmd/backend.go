@@ -23,7 +23,7 @@ var backendCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(backendCmd)
-	backendCmd.Flags().BoolVar(&summary, "summary", false, "Enable weekly summary")
+	backendCmd.Flags().BoolVar(&summary, "summary", false, "Get summary")
 }
 
 
@@ -181,7 +181,7 @@ func getSummary() {
 
 	// Send slack alert and pass dummy cron object
 	var c Cron // build dummy cron stru
-	if slackAlert(c, "gocron alert summary", message) == true {
+	if verbose == true && slackAlert(c, "gocron alert summary", message) == true {
 		CronLog(message, verbose)
 		return
 
