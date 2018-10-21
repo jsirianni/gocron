@@ -21,3 +21,6 @@ bin/
 
 # binary
 gocron
+
+# ignore .vagrant
+.vagrant/
