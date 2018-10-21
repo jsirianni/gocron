@@ -8,7 +8,7 @@ read -p "Press [Enter] key to upgrade gocron on this branch"
 
 sudo rm /usr/local/bin/gocro*
 cd /usr/local/bin
-sudo wget https://github.com/jsirianni/gocron/releases/download/v4.0.1-alpha/gocron
+sudo wget https://github.com/jsirianni/gocron/releases/download/v4.0.2/gocron
 sudo chmod +x /usr/local/bin/gocron
 
 sudo service gocron-front restart
