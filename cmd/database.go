@@ -38,8 +38,7 @@ func QueryDatabase(query string, verbose bool) (*sql.Rows, bool) {
 
 // Return a Postgres connection string
 func DatabaseString(verbose bool) string {
-      var c Config = GetConfig(verbose)
-      return "postgres://" + c.Dbuser + ":" + c.Dbpass + "@" + c.Dbfqdn + "/gocron" + "?sslmode=" + "disable"
+      return "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable"
 }
 
 

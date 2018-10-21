@@ -29,7 +29,7 @@ func init() {
 
 func startBackend() {
 	// Initilize the config struct
-	config = GetConfig(verbose)
+	//config = GetConfig(verbose)
 
 	if summary == true {
 		// If verbose == true, summary will send to syslog AND the configured
@@ -38,15 +38,16 @@ func startBackend() {
 		return
 	}
 
-	CronLog("verbose mode enabled", verbose)
-	CronLog("gocron-back version: " + VERSION, verbose)
+	CronLog("Starting backend server with config: ", verbose)
+	//CronLog("verbose mode enabled", verbose)
+	//CronLog("gocron-back version: " + VERSION, verbose)
 	CronLog("check interval: " + strconv.Itoa(config.Interval), verbose)
 
-	if config.PreferSlack == true {
-		CronLog("Prefer slack: enabled", verbose)
-		CronLog("Slack channel: " + config.SlackChannel, verbose)
-		CronLog("Slack hook url: " + config.SlackHookUrl, verbose)
-	}
+	//if config.PreferSlack == true {
+	//	CronLog("Prefer slack: enabled", verbose)
+	//	CronLog("Slack channel: " + config.SlackChannel, verbose)
+	//	CronLog("Slack hook url: " + config.SlackHookUrl, verbose)
+	//}
 
 
 	// create the gocron table, if not exists
