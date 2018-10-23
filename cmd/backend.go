@@ -3,7 +3,6 @@ import (
 	"os"
 	"fmt"
 	"time"
-	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/jsirianni/slacklib/slacklib"
@@ -37,16 +36,6 @@ func startBackend() {
 		getSummary()
 		return
 	}
-
-	CronLog("Starting backend server with config: ", verbose)
-	CronLog("dbfqdn: " + config.Dbfqdn, verbose)
-	CronLog("dbport: " +  config.Dbport, verbose)
-	CronLog("dbuser: " +  config.Dbuser, verbose)
-	CronLog("dbdatabase: " +  config.Dbdatabase, verbose)
-	CronLog("interval: " +  strconv.Itoa(config.Interval), verbose)
-	CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack), verbose)
-	CronLog("slackchannel: " +  config.SlackChannel, verbose)
-	CronLog("slackurl: " +  config.SlackHookUrl, verbose)
 
 	// create the gocron table, if not exists
 	if CreateGocronTable(verbose) == false {
