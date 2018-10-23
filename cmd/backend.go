@@ -39,16 +39,14 @@ func startBackend() {
 	}
 
 	CronLog("Starting backend server with config: ", verbose)
-	//CronLog("verbose mode enabled", verbose)
-	//CronLog("gocron-back version: " + VERSION, verbose)
-	CronLog("check interval: " + strconv.Itoa(config.Interval), verbose)
-
-	//if config.PreferSlack == true {
-	//	CronLog("Prefer slack: enabled", verbose)
-	//	CronLog("Slack channel: " + config.SlackChannel, verbose)
-	//	CronLog("Slack hook url: " + config.SlackHookUrl, verbose)
-	//}
-
+	CronLog("dbfqdn: " + config.Dbfqdn, verbose)
+	CronLog("dbport: " +  config.Dbport, verbose)
+	CronLog("dbuser: " +  config.Dbuser, verbose)
+	CronLog("dbdatabase: " +  config.Dbdatabase, verbose)
+	CronLog("interval: " +  strconv.Itoa(config.Interval), verbose)
+	CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack), verbose)
+	CronLog("slackchannel: " +  config.SlackChannel, verbose)
+	CronLog("slackurl: " +  config.SlackHookUrl, verbose)
 
 	// create the gocron table, if not exists
 	if CreateGocronTable(verbose) == false {
