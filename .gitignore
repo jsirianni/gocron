@@ -25,5 +25,6 @@ gocron
 # ignore .vagrant
 .vagrant/
 
-# ignore docker compose env file
+# ignore env files
 gocron.env
+docker.env
