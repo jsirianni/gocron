@@ -81,7 +81,7 @@ func initConfig() {
 		CronLog("dbuser: " +  viper.GetString("dbuser"), verbose)
 	}
 	if viper.Get("dbdatabase") != nil {
-		CronLog("dbdatabase: " +  viper.GetString("database"), verbose)
+		CronLog("dbdatabase: " +  viper.GetString("dbdatabase"), verbose)
 	}
 	if viper.Get("interval") != nil {
 		CronLog("interval: " +  viper.GetString("interval"), verbose)
