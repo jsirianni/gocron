@@ -2,7 +2,7 @@ package cmd
 import (
 	"fmt"
 	"os"
-	//"strconv"
+	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -54,15 +54,6 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		CronLog("Starting gocron . . .", verbose)
 		CronLog("Using config file: " + viper.ConfigFileUsed(), verbose)
-		CronLog("dbfqdn: " + viper.GetString("dbfqdn"), verbose)
-		CronLog("dbport: " +  viper.GetString("dbport"), verbose)
-		CronLog("dbuser: " +  viper.GetString("dbuser"), verbose)
-		CronLog("dbdatabase: " +  viper.GetString("database"), verbose)
-		CronLog("interval: " +  viper.GetString("interval"), verbose)
-		CronLog("preferslack: " +  viper.GetString("preferslack"), verbose)
-		CronLog("slackchannel: " +  viper.GetString("slackchannel"), verbose)
-		CronLog("slackurl: " +  viper.GetString("slachhookurl"), verbose)
-
 	} else {
 		CronLog("Config file not found: " + cfgFile, verbose)
 	}
@@ -70,33 +61,6 @@ func initConfig() {
 	// read the environment variables
 	viper.SetEnvPrefix("GC")
 	viper.AutomaticEnv()
-	CronLog("Using environment variables: ", verbose)
-	if viper.Get("dbfqdn") != nil {
-		CronLog("dbfqdn: " + viper.GetString("dbfqdn"), verbose)
-	}
-	if viper.Get("dbport") != nil {
-		CronLog("dbport: " +  viper.GetString("dbport"), verbose)
-	}
-	if viper.Get("dbuser") != nil {
-		CronLog("dbuser: " +  viper.GetString("dbuser"), verbose)
-	}
-	if viper.Get("dbdatabase") != nil {
-		CronLog("dbdatabase: " +  viper.GetString("dbdatabase"), verbose)
-	}
-	if viper.Get("interval") != nil {
-		CronLog("interval: " +  viper.GetString("interval"), verbose)
-	}
-	if viper.Get("preferslack") != nil {
-		CronLog("preferslack: " +  viper.GetString("preferslack"), verbose)
-	}
-	if viper.Get("slackchannel") != nil {
-		CronLog("slackchannel: " +  viper.GetString("slackchannel"), verbose)
-	}
-	if viper.Get("slackhookurl") != nil {
-		CronLog("slackurl: " +  viper.GetString("slackhookurl"), verbose)
-	}
-
-
 
 	// Unmarshal the configuration into config (Config struct)
 	// environment values will replace values found in the config file
@@ -104,6 +68,17 @@ func initConfig() {
 	err := viper.Unmarshal(&config)
 	if err != nil {
 		CronLog(err.Error(), verbose)
+		os.Exit(1)
+	} else {
+		CronLog("Starting gocron with config: ", verbose)
+		CronLog("dbfqdn: " + config.Dbfqdn, verbose)
+		CronLog("dbport: " +  config.Dbport, verbose)
+		CronLog("dbuser: " +  config.Dbuser, verbose)
+		CronLog("dbdatabase: " +  config.Dbdatabase, verbose)
+		CronLog("interval: " +  strconv.Itoa(config.Interval), verbose)
+		CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack), verbose)
+		CronLog("slackchannel: " +  config.SlackChannel, verbose)
+		CronLog("slackhookurl: " +  config.SlackHookUrl, verbose)
 	}
 
 
