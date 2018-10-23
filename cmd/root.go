@@ -52,7 +52,7 @@ func initConfig() {
 
 	// read the config file
 	if err := viper.ReadInConfig(); err == nil {
-		CronLog("Starting gocrn . . .", verbose)
+		CronLog("Starting gocron . . .", verbose)
 		CronLog("Using config file: " + viper.ConfigFileUsed(), verbose)
 		CronLog("dbfqdn: " + viper.GetString("dbfqdn"), verbose)
 		CronLog("dbport: " +  viper.GetString("dbport"), verbose)
