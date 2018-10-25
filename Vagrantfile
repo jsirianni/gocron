@@ -18,6 +18,7 @@ sudo -u postgres -H -- psql -c "alter user gocron with encrypted password 'passw
 sudo -u postgres -H -- psql -c "grant all privileges on database gocron to gocron"
 
 export GOPATH=/home/vagrant
+echo "export GOPATH=/home/vagrant" >> /home/vagrant/.bash_profile
 mkdir $GOPATH/src
 sudo cp -r /gocron $GOPATH/src/
 sudo chown -R vagrant:vagrant $GOPATH
