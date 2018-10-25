@@ -168,8 +168,7 @@ func getSummary() {
 
 
 	// Send slack alert and pass dummy cron object
-	var c Cron // build dummy cron stru
-	if verbose == true && slackAlert(c, "gocron alert summary", message) == true {
+	if verbose == true && slackAlert("gocron alert summary", message) == true {
 		CronLog(message, verbose)
 		return
 
@@ -189,7 +188,7 @@ func alert(cron Cron, subject string, message string) bool {
     CronLog(subject, verbose)
 
     var result bool = false
-	if slackAlert(cron, subject, message) == true {
+	if slackAlert(subject, message) == true {
 		result = true
 	}
 
@@ -205,7 +204,7 @@ func alert(cron Cron, subject string, message string) bool {
 }
 
 
-func slackAlert(cron Cron, subject string, message string) bool {
+func slackAlert(subject string, message string) bool {
     var slackmessage slacklib.SlackPost
     slackmessage.Channel = config.SlackChannel
     slackmessage.Text = message
