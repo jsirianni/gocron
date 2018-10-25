@@ -2,6 +2,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -41,17 +42,54 @@ func init() {
 }
 
 
-// initConfig reads in config file and ENV variables if set.
+// initConfig reads in config file and ENV variables
 func initConfig() {
+
+	// set the config file to be read
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
+	// read the config file
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		CronLog("Starting gocron . . .", verbose)
+		CronLog("Using config file: " + viper.ConfigFileUsed(), verbose)
+	} else {
+		CronLog("Config file not found: " + cfgFile, verbose)
 	}
+
+	// read the environment variables
+	viper.SetEnvPrefix("GC")
+	viper.AutomaticEnv()
+
+	// Unmarshal the configuration into config (Config struct)
+	// environment values will replace values found in the config file
+	//
+	err := viper.Unmarshal(&config)
+	if err != nil {
+		CronLog(err.Error(), verbose)
+		os.Exit(1)
+	} else {
+		CronLog("Starting gocron with config: ", verbose)
+		CronLog("dbfqdn: " + config.Dbfqdn, verbose)
+		CronLog("dbport: " +  config.Dbport, verbose)
+		CronLog("dbuser: " +  config.Dbuser, verbose)
+		CronLog("dbdatabase: " +  config.Dbdatabase, verbose)
+		CronLog("interval: " +  strconv.Itoa(config.Interval), verbose)
+		CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack), verbose)
+		CronLog("slackchannel: " +  config.SlackChannel, verbose)
+		CronLog("slackhookurl: " +  config.SlackHookUrl, verbose)
+	}
+
+
+
+	// TODO: implement this, which will likely require some logic that
+	// /includes a dedicated "read config" function
+	/*viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("Config file changed:", e.Name)
+	})
+	read the config file into Config struct
+	var c Config = GetConfig(verbose)
+	*/
 }

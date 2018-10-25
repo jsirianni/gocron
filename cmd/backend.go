@@ -3,7 +3,6 @@ import (
 	"os"
 	"fmt"
 	"time"
-	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/jsirianni/slacklib/slacklib"
@@ -29,7 +28,7 @@ func init() {
 
 func startBackend() {
 	// Initilize the config struct
-	config = GetConfig(verbose)
+	//config = GetConfig(verbose)
 
 	if summary == true {
 		// If verbose == true, summary will send to syslog AND the configured
@@ -37,17 +36,6 @@ func startBackend() {
 		getSummary()
 		return
 	}
-
-	CronLog("verbose mode enabled", verbose)
-	CronLog("gocron-back version: " + VERSION, verbose)
-	CronLog("check interval: " + strconv.Itoa(config.Interval), verbose)
-
-	if config.PreferSlack == true {
-		CronLog("Prefer slack: enabled", verbose)
-		CronLog("Slack channel: " + config.SlackChannel, verbose)
-		CronLog("Slack hook url: " + config.SlackHookUrl, verbose)
-	}
-
 
 	// create the gocron table, if not exists
 	if CreateGocronTable(verbose) == false {
@@ -180,8 +168,7 @@ func getSummary() {
 
 
 	// Send slack alert and pass dummy cron object
-	var c Cron // build dummy cron stru
-	if verbose == true && slackAlert(c, "gocron alert summary", message) == true {
+	if verbose == true && slackAlert("gocron alert summary", message) == true {
 		CronLog(message, verbose)
 		return
 
@@ -201,7 +188,7 @@ func alert(cron Cron, subject string, message string) bool {
     CronLog(subject, verbose)
 
     var result bool = false
-	if slackAlert(cron, subject, message) == true {
+	if slackAlert(subject, message) == true {
 		result = true
 	}
 
@@ -217,7 +204,7 @@ func alert(cron Cron, subject string, message string) bool {
 }
 
 
-func slackAlert(cron Cron, subject string, message string) bool {
+func slackAlert(subject string, message string) bool {
     var slackmessage slacklib.SlackPost
     slackmessage.Channel = config.SlackChannel
     slackmessage.Text = message

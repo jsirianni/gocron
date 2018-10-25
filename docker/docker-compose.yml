@@ -1,0 +1,19 @@
+version: '3'
+services:
+    gocron-front:
+        image: gocron:latest
+        deploy:
+            replicas: 2
+        entrypoint: /usr/local/bin/gocron frontend
+        ports:
+            - "8080:8080"
+        env_file:
+          - docker.env
+
+    gocron-back:
+        image: gocron:latest
+        deploy:
+            replicas: 1
+        env_file:
+          - docker.env
+        entrypoint: /usr/local/bin/gocron backend

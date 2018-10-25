@@ -1,15 +1,8 @@
-FROM alpine:latest AS gocron-base
+FROM alpine:latest
 COPY gocron /usr/local/bin/gocron
+COPY example.config.yml /etc/gocron/config.yml
 RUN \
     chmod +x /usr/local/bin/gocron; \
-    adduser -S gocron
+    adduser -S gocron; \ 
+    apk add ca-certificates
 USER gocron
-
-
-FROM gocron-base AS gocron-front
-expose 8080
-ENTRYPOINT ["/usr/local/bin/gocon", "frontend", "verbose"]
-
-
-FROM gocron-base AS gocron-back
-ENTRYPOINT ["/usr/local/bin/gocron", "backend", "verbose"]
