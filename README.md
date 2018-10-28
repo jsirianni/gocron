@@ -1,33 +1,37 @@
 # gocron
-Service that monitors the status of your cron jobs
+Service that monitors the status of your cron jobs. The goal of this service is to
+receive an alert when a cronjob does not run after a predetermined amount of time.
 
-The goal of this service is to receive an email alert when a cronjob does
-not run after a predetermined amount of time.
-
-Email alerts are sent one time and then suppressed. Alerts are re-triggered only if the job checks in again, and then misses its next run.
 
 ## Architecture
-GoCron is made up of several services
+Gocron is made up of several services
 - gocron frontend
 - gocron backend
-- gocron web interface https://github.com/jsirianni/gocron-frontend
+- Postgresql
 
 Gocron web interface is an optional component that allows the user
-to view the status of all jobs.
+to view the status of all jobs. The frontend service can be scaled to any number
+of nodes, if required.
+
 
 ## Usage
 These examples will notify the server to expect a notification every hour. If the job
 does not check in within one hour, an alert is sent. Future notifications are
 suppressed until the job checks in again.
 
-#### GET
-Send a GET request with the following parameters in the query string
+HTTP POST and GET are supported, however, POST is recommend. Send a request
+with the following parameters:
 - cronname
 - account
 - email
 - frequency (seconds)
 
-Test with
+### POST
+```
+curl -v -X POST -d "{\"cronname\":\"test\",\"account\":\"test account\", \"email\":\"test@gmail.com\",\"frequency\":20}" http://172.17.0.2:8080
+```
+
+### GET
 ```
 curl -v "172.17.0.2:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"
 ```
@@ -36,14 +40,8 @@ Append to an existing crontab entry with:
 && curl -v "172.17.0.2:8080/?cronname=mycronjob&account=myaccount&email=myemail@gmail.com&frequency=3600"
 ```
 
-#### POST
-```
-curl -v -X POST -d "{\"cronname\":\"test\",\"account\":\"test account\", \"email\":\"test@gmail.com\",\"frequency\":20}" http://172.17.0.2:8080
-```
 
-
-
-## Weekly Summary
+### Weekly Summary
 The backend service binary can provide a summary of all missed jobs
 ```
 # print a summary of current missed jobs
@@ -58,20 +56,15 @@ Run from cron every monday at 9am
 0 9 * * MON /usr/local/bin/gocron-back --summary --verbose >> /dev/null
 ```
 
-## Sizing
-A single Google Compute Engine f1-micro instance has been proven to handle 50,000 jobs
-that check in at a rate of 10,000 jobs per 90 seconds. At this rate, the load was less than
-15%. The CPU would max out every 5 minutes when the service would check the entire database
-for jobs that have not checked in.
 
-If this kind of load is expected, it is possible to run multiple `gocron-front` services
-behind a load balancer and a single `gocron-back` service on a single machine. Additionally,
-the database can live on a separate system entirely.
+## Installation
 
+Docker is the default deployment method as of version `4.0.3`. Systemd is also
+an option. Examples can be found in `install.sh` but are not guaranteed to be up
+to data. The docker image is based on `alpine:latest`.
 
-## Installing
-
-### Postgresql must be installed and listening on localhost
+### Database
+Postgresql must be configured:
 ```
 CREATE DATABASE gocron;
 CREATE TABLE gocron(cronName varchar, account varchar, email varchar, ipaddress varchar, frequency integer, lastruntime integer, alerted boolean, site boolean, PRIMARY KEY(cronname, account));
@@ -79,37 +72,25 @@ CREATE USER gocron WITH PASSWORD 'password';
 GRANT ALL PRIVILEGES ON gocron TO gocron;
 ```
 
-### Run install.sh
+### Docker
+Setup docker swarm
 ```
-chmod +x install.sh
-sudo ./install.sh
+sudo docker swarm init
 ```
-
-This script will:
-- Copy the gocron binaries to `/usr/local/bin`
-- Copy the config example to `/etc/gocron`
-- Create a Systemd services
-
-### Manage services
+Setup environment:
 ```
-systemctl status gocron-front
-systemctl status gocron-back
+sudo vim docker/docker.env
+```
+Deploy:
+```
+sudo docker stack deploy gocron --compose-file docker/docker-compose.yml
 ```
 
 
 ## Building
-### Compile for linux
-simply run `build_linux.sh`, which places the compuled binaries into `bin/`
 
-### Docker
-Dockerfiles are included in `src/fronend` and `src/backend`.
-```
-docker run -d \
-  -p 8080:8080
-  -v /path/to/config/dir:/etc/gocron gocron-front
-```
-https://hub.docker.com/r/firefoxx04/gocron-front/
-https://hub.docker.com/r/firefoxx04/gocron-back/
+### Compile
+`build_linux.sh` will compile `gocron` and build the docker image.
 
 
 ## Notes
