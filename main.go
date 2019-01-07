@@ -1,5 +1,7 @@
 package main
-import "gocron/cmd"
+import (
+	"gocron/cmd"
+)
 
 func main() {
 	cmd.Execute()

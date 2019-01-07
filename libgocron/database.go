@@ -1,10 +1,14 @@
-package cmd
+package libgocron
 import (
     "os"
     "strconv"
 
 	"database/sql"; _ "github.com/lib/pq";
 )
+
+
+const missedJobs = "SELECT * FROM gocron WHERE (extract(epoch from now()) - lastruntime) > frequency;"
+const revivedJobs = "SELECT * FROM gocron WHERE alerted = true AND (extract(epoch from now()) - lastruntime) < frequency;"
 
 
 // Function handles database queries

@@ -1,4 +1,4 @@
-package cmd
+package libgocron
 import (
     "fmt"
     "os/exec"

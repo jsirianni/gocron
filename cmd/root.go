@@ -4,9 +4,18 @@ import (
 	"os"
 	"strconv"
 
+	"gocron/libgocron"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+// global CLI variables
+var cfgFile      string
+var frontendPort string
+var summary      bool
+var verbose      bool
+var config       libgocron.Config
 
 
 // rootCmd represents the base command when called without any subcommands
@@ -52,10 +61,10 @@ func initConfig() {
 
 	// read the config file
 	if err := viper.ReadInConfig(); err == nil {
-		CronLog("Starting gocron . . .", verbose)
-		CronLog("Using config file: " + viper.ConfigFileUsed(), verbose)
+		libgocron.CronLog("Starting gocron . . .", verbose)
+		libgocron.CronLog("Using config file: " + viper.ConfigFileUsed(), verbose)
 	} else {
-		CronLog("Config file not found: " + cfgFile, verbose)
+		libgocron.CronLog("Config file not found: " + cfgFile, verbose)
 	}
 
 	// read the environment variables
@@ -67,18 +76,18 @@ func initConfig() {
 	//
 	err := viper.Unmarshal(&config)
 	if err != nil {
-		CronLog(err.Error(), verbose)
+		libgocron.CronLog(err.Error(), verbose)
 		os.Exit(1)
 	} else {
-		CronLog("Starting gocron with config: ", verbose)
-		CronLog("dbfqdn: " + config.Dbfqdn, verbose)
-		CronLog("dbport: " +  config.Dbport, verbose)
-		CronLog("dbuser: " +  config.Dbuser, verbose)
-		CronLog("dbdatabase: " +  config.Dbdatabase, verbose)
-		CronLog("interval: " +  strconv.Itoa(config.Interval), verbose)
-		CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack), verbose)
-		CronLog("slackchannel: " +  config.SlackChannel, verbose)
-		CronLog("slackhookurl: " +  config.SlackHookUrl, verbose)
+		libgocron.CronLog("Starting gocron with config: ", verbose)
+		libgocron.CronLog("dbfqdn: " + config.Dbfqdn, verbose)
+		libgocron.CronLog("dbport: " +  config.Dbport, verbose)
+		libgocron.CronLog("dbuser: " +  config.Dbuser, verbose)
+		libgocron.CronLog("dbdatabase: " +  config.Dbdatabase, verbose)
+		libgocron.CronLog("interval: " +  strconv.Itoa(config.Interval), verbose)
+		libgocron.CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack), verbose)
+		libgocron.CronLog("slackchannel: " +  config.SlackChannel, verbose)
+		libgocron.CronLog("slackhookurl: " +  config.SlackHookUrl, verbose)
 	}
 
 

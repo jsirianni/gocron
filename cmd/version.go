@@ -2,6 +2,8 @@ package cmd
 import (
 	"fmt"
 
+	"gocron/libgocron"
+
 	"github.com/spf13/cobra"
 )
 
@@ -21,5 +23,5 @@ func init() {
 
 
 func getVersion() {
-	fmt.Println("gocron version:", VERSION)
+	fmt.Println("gocron version:", libgocron.VERSION)
 }
