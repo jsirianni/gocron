@@ -60,8 +60,7 @@ Run from cron every monday at 9am
 ## Installation
 
 Docker is the default deployment method as of version `4.0.3`. Systemd is also
-an option. Examples can be found in `install.sh` but are not guaranteed to be up
-to data. The docker image is based on `alpine:latest`.
+an option. Examples can be found in previous releases.
 
 ### Database
 Postgresql must be configured:
@@ -90,8 +89,18 @@ sudo docker stack deploy gocron --compose-file docker/docker-compose.yml
 ## Building
 
 ### Compile
-`build_linux.sh` will compile `gocron` and build the docker image.
+The primary way to build (and run) `GOCRON` is with Docker. 
+```
+sudo docker build -t <tag>:<version> .
+```
+
+Compile manually with GO. This repo must be placed within your `$GOPATH`
+```
+cd $GOPATH/src/gocron
+go get .
+go build -o gocron
+```
 
 
 ## Notes
-The main purpose of this project is to gain familiarity with golang. If you have improvements or suggestions, please feel free to file an issue or open a pull request.
+The main purpose of this project is to gain familiarity with golang and related tech. If you have improvements or suggestions, please feel free to file an issue or open a pull request.
