@@ -9,9 +9,13 @@ import (
 
 
 // Timer calls checkCronStatus() on a set interval
-func StartBackend(verbose bool) {
+func StartBackend(c Config, verbose bool) {
+
+	// set the global struct "config"
+	config = c
+
 	// create the gocron table, if not exists
-	if CreateGocronTable(verbose) == false {
+	if createGocronTable(verbose) == false {
 		os.Exit(1)
 	}
 
@@ -25,10 +29,14 @@ func StartBackend(verbose bool) {
 }
 
 
-func GetSummary(verbose bool) {
+func GetSummary(c Config, verbose bool) {
+
+	// set the global struct "config"
+	config = c
+
 	var message string = "gocron summary - missed jobs:\n"
 
-	rows, status := QueryDatabase(missedJobs, verbose)
+	rows, status := queryDatabase(missedJobs, verbose)
 	defer rows.Close()
 	if status == false {
 		CronLog("Failed to perform query while attempting to build a summary: " + missedJobs, verbose)
@@ -71,7 +79,7 @@ func cronStatus(verbose bool) {
 
 
 func checkMissedJobs(query string, verbose bool) {
-	rows, status := QueryDatabase(query, verbose)
+	rows, status := queryDatabase(query, verbose)
 	defer rows.Close()
 	if status == false {
 		CronLog("Failed to perform query: "+query, verbose)
@@ -99,7 +107,7 @@ func checkMissedJobs(query string, verbose bool) {
 				query = "UPDATE gocron SET alerted = true " +
 					"WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-				rows, result := QueryDatabase(query, verbose)
+				rows, result := queryDatabase(query, verbose)
 				defer rows.Close()
 				if result == false {
 					CronLog("Failed to update row for " + cron.Cronname, verbose)
@@ -115,7 +123,7 @@ func checkMissedJobs(query string, verbose bool) {
 
 
 func checkRevivedJobs(query string, verbose bool) {
-	rows, status := QueryDatabase(query, verbose)
+	rows, status := queryDatabase(query, verbose)
 	defer rows.Close()
 	if status == false {
 		CronLog("Failed to perform query: "+query, verbose)
@@ -136,7 +144,7 @@ func checkRevivedJobs(query string, verbose bool) {
 		query = "UPDATE gocron SET alerted = false " +
 			"WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-		rows, result := QueryDatabase(query, verbose)
+		rows, result := queryDatabase(query, verbose)
 		defer rows.Close()
 		if result == false {
 			CronLog("Failed to update row for " + cron.Cronname, verbose)
