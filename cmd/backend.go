@@ -1,7 +1,5 @@
 package cmd
 import (
-	"os"
-
 	"gocron/libgocron"
 
 	"github.com/spf13/cobra"
