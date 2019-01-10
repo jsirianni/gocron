@@ -11,10 +11,7 @@ import (
 
 // StartFrontend starts the gocron frontend server
 func StartFrontend(c Config, frontendPort string, v bool) {
-
-	// set the global struct "config"
 	config = c
-
 	verbose = v
 
 	CronLog("verbose mode enabled", verbose)

@@ -9,10 +9,9 @@ import (
 
 
 // Timer calls checkCronStatus() on a set interval
-func StartBackend(c Config, verbose bool) {
-
-	// set the global struct "config"
+func StartBackend(c Config, v bool) {
 	config = c
+	verbose = v
 
 	// create the gocron table, if not exists
 	if createGocronTable(verbose) == false {
@@ -29,10 +28,9 @@ func StartBackend(c Config, verbose bool) {
 }
 
 
-func GetSummary(c Config, verbose bool) {
-
-	// set the global struct "config"
+func GetSummary(c Config, v bool) {
 	config = c
+	verbose = v
 
 	var message string = "gocron summary - missed jobs:\n"
 
