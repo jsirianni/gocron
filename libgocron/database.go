@@ -13,7 +13,7 @@ const revivedJobs = "SELECT * FROM gocron WHERE alerted = true AND (extract(epoc
 
 // Function handles database queries
 // Returns false if bad query
-func QueryDatabase(query string, verbose bool) (*sql.Rows, bool) {
+func queryDatabase(query string, verbose bool) (*sql.Rows, bool) {
       var (
             db *sql.DB
             rows *sql.Rows
@@ -21,7 +21,7 @@ func QueryDatabase(query string, verbose bool) (*sql.Rows, bool) {
             status bool
       )
 
-      db, err = sql.Open("postgres", DatabaseString(verbose))
+      db, err = sql.Open("postgres", databaseString(verbose))
       defer db.Close()
       if err != nil {
             CheckError(err, verbose)
@@ -41,7 +41,7 @@ func QueryDatabase(query string, verbose bool) (*sql.Rows, bool) {
 
 
 // Return a Postgres connection string
-func DatabaseString(verbose bool) string {
+func databaseString(verbose bool) string {
       return "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable"
 }
 
@@ -68,7 +68,7 @@ func updateDatabase(c Cron) bool {
 		"site = " + "'" + site + "';"
 
 	// Execute query
-	rows, result := QueryDatabase(query, verbose)
+	rows, result := queryDatabase(query, verbose)
 	defer rows.Close()
 	if result == true {
 		CronLog("Heartbeat from "+c.Cronname+": "+c.Account+" \n", verbose)
@@ -82,12 +82,12 @@ func updateDatabase(c Cron) bool {
 
 // Creates the gocron database table, if it does not exist
 // Returns false if not successful, else true
-func CreateGocronTable(verbose bool) bool {
+func createGocronTable(verbose bool) bool {
     query := "CREATE TABLE IF NOT EXISTS gocron(cronName varchar, " +
         "account varchar, email varchar, ipaddress varchar, " +
         "frequency integer, lastruntime integer, alerted boolean, " +
         "site boolean, PRIMARY KEY(cronname, account));"
-    _, result := QueryDatabase(query, verbose)
+    _, result := queryDatabase(query, verbose)
     if result == false {
         CronLog("Table 'gocron' is missing. Creation failed. Validate permissions in the config.", verbose)
         os.Exit(1)
