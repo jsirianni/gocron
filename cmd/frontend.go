@@ -23,5 +23,5 @@ func init() {
 }
 
 func start() {
-	libgocron.StartFrontend(frontendPort, verbose)
+	libgocron.StartFrontend(config, frontendPort, verbose)
 }

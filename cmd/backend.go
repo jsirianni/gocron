@@ -24,9 +24,9 @@ func init() {
 
 func startBackend() {
 	if summary == true {
-		libgocron.GetSummary(verbose)
+		libgocron.GetSummary(config, verbose)
 		return
 	}
 
-	libgocron.StartBackend(verbose)
+	libgocron.StartBackend(config, verbose)
 }
