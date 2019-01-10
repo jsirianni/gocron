@@ -21,7 +21,7 @@ func queryDatabase(query string, verbose bool) (*sql.Rows, bool) {
             status bool
       )
 
-      db, err = sql.Open("postgres", databaseString(verbose))
+      db, err = sql.Open("postgres", "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable")
       defer db.Close()
       if err != nil {
             CheckError(err, verbose)
@@ -37,12 +37,6 @@ func queryDatabase(query string, verbose bool) (*sql.Rows, bool) {
 
       // Return query result and status
       return rows, status
-}
-
-
-// Return a Postgres connection string
-func databaseString(verbose bool) string {
-      return "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable"
 }
 
 
