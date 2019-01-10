@@ -2,17 +2,7 @@ package libgocron
 
 const VERSION string = "5.0"
 
-
-//var cfgFile      string
-//var frontendPort string
-//var summary      bool
-//var verbose      bool = false
-
 var config Config
-
-
-
-
 
 type Cron struct {
       Cronname    string `json:cronname`  // Name of the cronjob
