@@ -1,4 +1,4 @@
-package cmd
+package libgocron
 import (
     "os"
     "strconv"
@@ -7,9 +7,13 @@ import (
 )
 
 
+const missedJobs = "SELECT * FROM gocron WHERE (extract(epoch from now()) - lastruntime) > frequency;"
+const revivedJobs = "SELECT * FROM gocron WHERE alerted = true AND (extract(epoch from now()) - lastruntime) < frequency;"
+
+
 // Function handles database queries
 // Returns false if bad query
-func QueryDatabase(query string, verbose bool) (*sql.Rows, bool) {
+func queryDatabase(query string) (*sql.Rows, bool) {
       var (
             db *sql.DB
             rows *sql.Rows
@@ -17,15 +21,15 @@ func QueryDatabase(query string, verbose bool) (*sql.Rows, bool) {
             status bool
       )
 
-      db, err = sql.Open("postgres", DatabaseString(verbose))
+      db, err = sql.Open("postgres", "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable")
       defer db.Close()
       if err != nil {
-            CheckError(err, verbose)
+            CheckError(err)
       }
 
       rows, err = db.Query(query)
       if err != nil {
-            CheckError(err, verbose)
+            CheckError(err)
             status = false
       } else {
             status = true
@@ -33,12 +37,6 @@ func QueryDatabase(query string, verbose bool) (*sql.Rows, bool) {
 
       // Return query result and status
       return rows, status
-}
-
-
-// Return a Postgres connection string
-func DatabaseString(verbose bool) string {
-      return "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable"
 }
 
 
@@ -64,10 +62,10 @@ func updateDatabase(c Cron) bool {
 		"site = " + "'" + site + "';"
 
 	// Execute query
-	rows, result := QueryDatabase(query, verbose)
+	rows, result := queryDatabase(query)
 	defer rows.Close()
 	if result == true {
-		CronLog("Heartbeat from "+c.Cronname+": "+c.Account+" \n", verbose)
+		CronLog("Heartbeat from "+c.Cronname+": "+c.Account+" \n")
 		return true
 
 	} else {
@@ -78,14 +76,14 @@ func updateDatabase(c Cron) bool {
 
 // Creates the gocron database table, if it does not exist
 // Returns false if not successful, else true
-func CreateGocronTable(verbose bool) bool {
+func createGocronTable() bool {
     query := "CREATE TABLE IF NOT EXISTS gocron(cronName varchar, " +
         "account varchar, email varchar, ipaddress varchar, " +
         "frequency integer, lastruntime integer, alerted boolean, " +
         "site boolean, PRIMARY KEY(cronname, account));"
-    _, result := QueryDatabase(query, verbose)
+    _, result := queryDatabase(query)
     if result == false {
-        CronLog("Table 'gocron' is missing. Creation failed. Validate permissions in the config.", verbose)
+        CronLog("Table 'gocron' is missing. Creation failed. Validate permissions in the config.")
         os.Exit(1)
     }
     return result

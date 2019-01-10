@@ -4,9 +4,18 @@ import (
 	"os"
 	"strconv"
 
+	"gocron/libgocron"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+// global CLI variables
+var cfgFile      string
+var frontendPort string
+var summary      bool
+var verbose      bool
+var config       libgocron.Config
 
 
 // rootCmd represents the base command when called without any subcommands
@@ -30,15 +39,8 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "/etc/gocron/config.yml", "config file (default is /etc/gocron/config.yml")
 	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "enable standard out output with --verbose (default is disabled)" )
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 
@@ -52,10 +54,10 @@ func initConfig() {
 
 	// read the config file
 	if err := viper.ReadInConfig(); err == nil {
-		CronLog("Starting gocron . . .", verbose)
-		CronLog("Using config file: " + viper.ConfigFileUsed(), verbose)
+		libgocron.CronLog("Starting gocron . . .")
+		libgocron.CronLog("Using config file: " + viper.ConfigFileUsed())
 	} else {
-		CronLog("Config file not found: " + cfgFile, verbose)
+		libgocron.CronLog("Config file not found: " + cfgFile)
 	}
 
 	// read the environment variables
@@ -67,18 +69,18 @@ func initConfig() {
 	//
 	err := viper.Unmarshal(&config)
 	if err != nil {
-		CronLog(err.Error(), verbose)
+		libgocron.CronLog(err.Error())
 		os.Exit(1)
 	} else {
-		CronLog("Starting gocron with config: ", verbose)
-		CronLog("dbfqdn: " + config.Dbfqdn, verbose)
-		CronLog("dbport: " +  config.Dbport, verbose)
-		CronLog("dbuser: " +  config.Dbuser, verbose)
-		CronLog("dbdatabase: " +  config.Dbdatabase, verbose)
-		CronLog("interval: " +  strconv.Itoa(config.Interval), verbose)
-		CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack), verbose)
-		CronLog("slackchannel: " +  config.SlackChannel, verbose)
-		CronLog("slackhookurl: " +  config.SlackHookUrl, verbose)
+		libgocron.CronLog("Starting gocron with config: ")
+		libgocron.CronLog("dbfqdn: " + config.Dbfqdn)
+		libgocron.CronLog("dbport: " +  config.Dbport)
+		libgocron.CronLog("dbuser: " +  config.Dbuser)
+		libgocron.CronLog("dbdatabase: " +  config.Dbdatabase)
+		libgocron.CronLog("interval: " +  strconv.Itoa(config.Interval))
+		libgocron.CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack))
+		libgocron.CronLog("slackchannel: " +  config.SlackChannel)
+		libgocron.CronLog("slackhookurl: " +  config.SlackHookUrl)
 	}
 
 

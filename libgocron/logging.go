@@ -1,4 +1,4 @@
-package cmd
+package libgocron
 import (
     "fmt"
     "os/exec"
@@ -6,7 +6,7 @@ import (
 
 
 // Function writes messages to syslog and (optionally) to standard out
-func CronLog(message string, verbose bool) {
+func CronLog(message string) {
       err := exec.Command("logger", message).Run()
       if err != nil {
             fmt.Println("Failed to write to syslog")
@@ -19,8 +19,8 @@ func CronLog(message string, verbose bool) {
 
 
 // Function passes error messages to the cronLog() function
-func CheckError(err error, verbose bool) {
+func CheckError(err error) {
       if err != nil {
-            CronLog("Error: \n" + err.Error(), verbose)
+            CronLog("Error: \n" + err.Error())
       }
 }
