@@ -9,11 +9,12 @@ import (
 )
 
 
-var verbose bool
-
-
 // StartFrontend starts the gocron frontend server
-func StartFrontend(frontendPort string, v bool) {
+func StartFrontend(c Config, frontendPort string, v bool) {
+
+	// set the global struct "config"
+	config = c
+
 	verbose = v
 
 	CronLog("verbose mode enabled", verbose)
@@ -49,7 +50,7 @@ func incomingCron(resp http.ResponseWriter, req *http.Request) {
 		c.Cronname = req.URL.Query().Get("cronname")
 		c.Account = req.URL.Query().Get("account")
 		c.Email = req.URL.Query().Get("email")
-		c.Frequency = StringToInt(req.URL.Query().Get("frequency"))
+		c.Frequency = stringToInt(req.URL.Query().Get("frequency"))
 		c.Lastruntime = currentTime
 		c.Ipaddress = socket[0]
 
@@ -182,7 +183,7 @@ func checkLength(c Cron) bool {
 
 // Convert a String to an int and return it
 // If -1 returns, validation will fail
-func StringToInt(x string) int {
+func stringToInt(x string) int {
       y, err := strconv.Atoi(x)
       if err != nil {
             CheckError(err, verbose)
