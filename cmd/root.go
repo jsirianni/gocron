@@ -54,10 +54,10 @@ func initConfig() {
 
 	// read the config file
 	if err := viper.ReadInConfig(); err == nil {
-		libgocron.CronLog("Starting gocron . . .", verbose)
-		libgocron.CronLog("Using config file: " + viper.ConfigFileUsed(), verbose)
+		libgocron.CronLog("Starting gocron . . .")
+		libgocron.CronLog("Using config file: " + viper.ConfigFileUsed())
 	} else {
-		libgocron.CronLog("Config file not found: " + cfgFile, verbose)
+		libgocron.CronLog("Config file not found: " + cfgFile)
 	}
 
 	// read the environment variables
@@ -69,18 +69,18 @@ func initConfig() {
 	//
 	err := viper.Unmarshal(&config)
 	if err != nil {
-		libgocron.CronLog(err.Error(), verbose)
+		libgocron.CronLog(err.Error())
 		os.Exit(1)
 	} else {
-		libgocron.CronLog("Starting gocron with config: ", verbose)
-		libgocron.CronLog("dbfqdn: " + config.Dbfqdn, verbose)
-		libgocron.CronLog("dbport: " +  config.Dbport, verbose)
-		libgocron.CronLog("dbuser: " +  config.Dbuser, verbose)
-		libgocron.CronLog("dbdatabase: " +  config.Dbdatabase, verbose)
-		libgocron.CronLog("interval: " +  strconv.Itoa(config.Interval), verbose)
-		libgocron.CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack), verbose)
-		libgocron.CronLog("slackchannel: " +  config.SlackChannel, verbose)
-		libgocron.CronLog("slackhookurl: " +  config.SlackHookUrl, verbose)
+		libgocron.CronLog("Starting gocron with config: ")
+		libgocron.CronLog("dbfqdn: " + config.Dbfqdn)
+		libgocron.CronLog("dbport: " +  config.Dbport)
+		libgocron.CronLog("dbuser: " +  config.Dbuser)
+		libgocron.CronLog("dbdatabase: " +  config.Dbdatabase)
+		libgocron.CronLog("interval: " +  strconv.Itoa(config.Interval))
+		libgocron.CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack))
+		libgocron.CronLog("slackchannel: " +  config.SlackChannel)
+		libgocron.CronLog("slackhookurl: " +  config.SlackHookUrl)
 	}
 
 

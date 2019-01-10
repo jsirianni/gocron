@@ -14,7 +14,7 @@ func StartBackend(c Config, v bool) {
 	verbose = v
 
 	// create the gocron table, if not exists
-	if createGocronTable(verbose) == false {
+	if createGocronTable() == false {
 		os.Exit(1)
 	}
 
@@ -22,8 +22,8 @@ func StartBackend(c Config, v bool) {
 	// jobs at the set interval
 	for {
 		time.Sleep((time.Duration(config.Interval) * time.Second))
-		CronLog("Checking for missed jobs.", verbose)
-		cronStatus(verbose)
+		CronLog("Checking for missed jobs.")
+		cronStatus()
 	}
 }
 
@@ -34,10 +34,10 @@ func GetSummary(c Config, v bool) {
 
 	var message string = "gocron summary - missed jobs:\n"
 
-	rows, status := queryDatabase(missedJobs, verbose)
+	rows, status := queryDatabase(missedJobs)
 	defer rows.Close()
 	if status == false {
-		CronLog("Failed to perform query while attempting to build a summary: " + missedJobs, verbose)
+		CronLog("Failed to perform query while attempting to build a summary: " + missedJobs)
 		return
 	}
 
@@ -58,29 +58,29 @@ func GetSummary(c Config, v bool) {
 
 	// Send slack alert and pass dummy cron object
 	if verbose == true && slackAlert("gocron alert summary", message) == true {
-		CronLog(message, verbose)
+		CronLog(message)
 		return
 
 	} else if verbose == false {
 		fmt.Println(message)
 
 	} else {
-		CronLog("GOCRON: Failed to build alert summary.", verbose)
+		CronLog("GOCRON: Failed to build alert summary.")
 	}
 }
 
 
-func cronStatus(verbose bool) {
-	checkMissedJobs(missedJobs, verbose)
-	checkRevivedJobs(revivedJobs, verbose)
+func cronStatus() {
+	checkMissedJobs(missedJobs)
+	checkRevivedJobs(revivedJobs)
 }
 
 
-func checkMissedJobs(query string, verbose bool) {
-	rows, status := queryDatabase(query, verbose)
+func checkMissedJobs(query string) {
+	rows, status := queryDatabase(query)
 	defer rows.Close()
 	if status == false {
-		CronLog("Failed to perform query: "+query, verbose)
+		CronLog("Failed to perform query: "+query)
 		return
 	}
 
@@ -101,30 +101,30 @@ func checkMissedJobs(query string, verbose bool) {
 			message := "The cronjob " + cron.Cronname + " for account " + cron.Account + " has not checked in on time"
 
 			// Only update database if alert sent successful
-			if alert(cron, subject, message, verbose) == true {
+			if alert(cron, subject, message) == true {
 				query = "UPDATE gocron SET alerted = true " +
 					"WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-				rows, result := queryDatabase(query, verbose)
+				rows, result := queryDatabase(query)
 				defer rows.Close()
 				if result == false {
-					CronLog("Failed to update row for " + cron.Cronname, verbose)
+					CronLog("Failed to update row for " + cron.Cronname)
 				}
 			}
 
 		} else {
 			CronLog("Alert for "+cron.Cronname+": "+cron.Account+
-				" has been supressed. Already alerted", verbose)
+				" has been supressed. Already alerted")
 		}
 	}
 }
 
 
-func checkRevivedJobs(query string, verbose bool) {
-	rows, status := queryDatabase(query, verbose)
+func checkRevivedJobs(query string) {
+	rows, status := queryDatabase(query)
 	defer rows.Close()
 	if status == false {
-		CronLog("Failed to perform query: "+query, verbose)
+		CronLog("Failed to perform query: "+query)
 		return
 	}
 
@@ -142,24 +142,24 @@ func checkRevivedJobs(query string, verbose bool) {
 		query = "UPDATE gocron SET alerted = false " +
 			"WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-		rows, result := queryDatabase(query, verbose)
+		rows, result := queryDatabase(query)
 		defer rows.Close()
 		if result == false {
-			CronLog("Failed to update row for " + cron.Cronname, verbose)
+			CronLog("Failed to update row for " + cron.Cronname)
 
 		}
 
 		subject := cron.Cronname + ": " + cron.Account + " is back online" + "\n"
 		message := "The cronjob " + cron.Cronname + " for account " + cron.Account + " is back online"
-		alert(cron, subject, message, verbose)
+		alert(cron, subject, message)
 	}
 }
 
 
-func alert(cron Cron, subject string, message string, verbose bool) bool {
+func alert(cron Cron, subject string, message string) bool {
 
     // Immediately log the alert
-    CronLog(subject, verbose)
+    CronLog(subject)
 
     var result bool = false
 	if slackAlert(subject, message) == true {
@@ -169,10 +169,10 @@ func alert(cron Cron, subject string, message string, verbose bool) bool {
 	// NOTE: future alert methods will go here. Removed SMTP due to complexity
 
     if result == true {
-        CronLog("gocron success: alert for " + cron.Cronname + " sent", verbose)
+        CronLog("gocron success: alert for " + cron.Cronname + " sent")
         return true
     } else {
-        CronLog("gocron fail: alert for " + cron.Cronname, verbose)
+        CronLog("gocron fail: alert for " + cron.Cronname)
         return false
     }
 }

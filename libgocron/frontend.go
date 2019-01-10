@@ -14,9 +14,11 @@ func StartFrontend(c Config, frontendPort string, v bool) {
 	config = c
 	verbose = v
 
-	CronLog("verbose mode enabled", verbose)
-	CronLog("gocron-front version: " + VERSION, verbose)
-	CronLog("starting web server on port: " + frontendPort, verbose)
+	if verbose == true {
+		CronLog("verbose mode enabled")
+		CronLog("gocron-front version: " + VERSION)
+		CronLog("starting web server on port: " + frontendPort)
+	}
 
 	http.HandleFunc("/", incomingCron)
 	http.HandleFunc("/healthcheck", frontEndHealthCheck)
@@ -27,7 +29,9 @@ func StartFrontend(c Config, frontendPort string, v bool) {
 // return http status 200 if connection to database is healthy
 func frontEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
     remote_ip := strings.Split(req.RemoteAddr, ":")[0]
-	CronLog("healthcheck from: " + remote_ip, false)
+	if verbose == true {
+		CronLog("healthcheck from: " + remote_ip)
+	}
 	returnOk(resp)
 }
 
@@ -68,11 +72,11 @@ func incomingCron(resp http.ResponseWriter, req *http.Request) {
 		payload, err := ioutil.ReadAll(req.Body)
 		defer req.Body.Close()
 		if err != nil {
-		 	CronLog(err.Error(), verbose)
+		 	CronLog(err.Error())
 		}
 
 		if err := json.Unmarshal(payload, &c); err != nil {
-			CronLog(err.Error(), verbose)
+			CronLog(err.Error())
 		}
 		c.Lastruntime = currentTime
 		c.Ipaddress = socket[0]
@@ -80,7 +84,7 @@ func incomingCron(resp http.ResponseWriter, req *http.Request) {
 
 	default:
 		// Log an error and do not respond
-		CronLog("Incoming request from "+c.Ipaddress+" is not a GET or POST.", verbose)
+		CronLog("Incoming request from "+c.Ipaddress+" is not a GET or POST.")
 		return
 	}
 
@@ -94,7 +98,7 @@ func incomingCron(resp http.ResponseWriter, req *http.Request) {
 
 	} else {
 		returnNotFound(resp)
-		CronLog(method+" from "+c.Ipaddress+" not valid. Dropping.", verbose)
+		CronLog(method+" from "+c.Ipaddress+" not valid. Dropping.")
 	}
 }
 
@@ -138,11 +142,11 @@ func validateParams(c Cron) bool {
 
 	if verbose == true {
 		if valid == true {
-			CronLog("Parameters from "+c.Ipaddress+" passed validation", verbose)
+			CronLog("Parameters from "+c.Ipaddress+" passed validation")
 			return true
 
 		} else {
-			CronLog("Parameters from "+c.Ipaddress+" failed validation!", verbose)
+			CronLog("Parameters from "+c.Ipaddress+" failed validation!")
 			return false
 		}
 	}
@@ -183,8 +187,8 @@ func checkLength(c Cron) bool {
 func stringToInt(x string) int {
       y, err := strconv.Atoi(x)
       if err != nil {
-            CheckError(err, verbose)
-            CronLog("Failed to convert int to string. Probably a bad GET.", verbose)
+            CheckError(err)
+            CronLog("Failed to convert int to string. Probably a bad GET.")
             return -1
 
       } else {
