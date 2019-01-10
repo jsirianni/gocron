@@ -8,11 +8,57 @@ import (
 
 
 // Timer calls checkCronStatus() on a set interval
-func Timer(verbose bool) {
+func StartBackend(verbose bool) {
+	// create the gocron table, if not exists
+	if CreateGocronTable(verbose) == false {
+		os.Exit(1)
+	}
+
+	// backend server is just a never ending loop that checks for missed
+	// jobs at the set interval
 	for {
 		time.Sleep((time.Duration(config.Interval) * time.Second))
 		CronLog("Checking for missed jobs.", verbose)
 		cronStatus(verbose)
+	}
+}
+
+
+func GetSummary(verbose bool) {
+	var message string = "gocron summary - missed jobs:\n"
+
+	rows, status := QueryDatabase(missedJobs, verbose)
+	defer rows.Close()
+	if status == false {
+		CronLog("Failed to perform query while attempting to build a summary: " + missedJobs, verbose)
+		return
+	}
+
+	for rows.Next() {
+		var cron Cron
+		rows.Scan(&cron.Cronname,
+			&cron.Account,
+			&cron.Email,
+			&cron.Ipaddress,
+			&cron.Frequency,
+			&cron.Lastruntime,
+			&cron.Alerted,
+			&cron.Site)
+
+		message = message + "Name: " + cron.Cronname  + "| Account: " + cron.Account + "\n"
+	}
+
+
+	// Send slack alert and pass dummy cron object
+	if verbose == true && slackAlert("gocron alert summary", message) == true {
+		CronLog(message, verbose)
+		return
+
+	} else if verbose == false {
+		fmt.Println(message)
+
+	} else {
+		CronLog("GOCRON: Failed to build alert summary.", verbose)
 	}
 }
 
@@ -100,46 +146,6 @@ func checkRevivedJobs(query string, verbose bool) {
 		message := "The cronjob " + cron.Cronname + " for account " + cron.Account + " is back online"
 		alert(cron, subject, message, verbose)
 	}
-}
-
-
-func GetSummary(verbose bool) {
-	var message string = "gocron summary - missed jobs:\n"
-
-	rows, status := QueryDatabase(missedJobs, verbose)
-	defer rows.Close()
-	if status == false {
-		CronLog("Failed to perform query while attempting to build a summary: " + missedJobs, verbose)
-		return
-	}
-
-	for rows.Next() {
-		var cron Cron
-		rows.Scan(&cron.Cronname,
-			&cron.Account,
-			&cron.Email,
-			&cron.Ipaddress,
-			&cron.Frequency,
-			&cron.Lastruntime,
-			&cron.Alerted,
-			&cron.Site)
-
-		message = message + "Name: " + cron.Cronname  + "| Account: " + cron.Account + "\n"
-	}
-
-
-	// Send slack alert and pass dummy cron object
-	if verbose == true && slackAlert("gocron alert summary", message) == true {
-		CronLog(message, verbose)
-		return
-
-	} else if verbose == false {
-		fmt.Println(message)
-
-	} else {
-		CronLog("GOCRON: Failed to build alert summary.", verbose)
-	}
-
 }
 
 
