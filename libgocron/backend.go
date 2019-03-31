@@ -26,10 +26,7 @@ func (c Config) StartBackend(v bool) {
 }
 
 
-func GetSummary(c Config, v bool) {
-	config = c
-	verbose = v
-
+func (c Config) GetSummary(v bool) {
 	var message string = "gocron summary - missed jobs:\n"
 
 	rows, status := queryDatabase(missedJobs)
@@ -55,11 +52,11 @@ func GetSummary(c Config, v bool) {
 
 
 	// Send slack alert and pass dummy cron object
-	if verbose == true && slackAlert("gocron alert summary", message) == true {
+	if v == true && slackAlert("gocron alert summary", message) == true {
 		CronLog(message)
 		return
 
-	} else if verbose == false {
+	} else if v == false {
 		fmt.Println(message)
 
 	} else {

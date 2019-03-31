@@ -1,7 +1,5 @@
 package cmd
 import (
-	"gocron/libgocron"
-
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +22,7 @@ func init() {
 
 func startBackend() {
 	if summary == true {
-		libgocron.GetSummary(config, verbose)
+		config.GetSummary(verbose)
 		return
 	}
 
