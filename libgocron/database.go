@@ -2,8 +2,12 @@ package libgocron
 import (
     "os"
     "strconv"
+    "errors"
+
 
 	"database/sql"
+    _ "github.com/lib/pq" // github.com/lib/pq is required by database/sql
+
 )
 
 
@@ -43,7 +47,7 @@ func updateDatabase(c Cron) bool {
 	// Execute query
 	rows, err := queryDatabase(query)
 	if err != nil {
-        CheckError(err)
+        LogError(err)
         return false
 	}
     defer rows.Close()
@@ -54,7 +58,6 @@ func updateDatabase(c Cron) bool {
 
 
 // Creates the gocron database table, if it does not exist
-// Returns false if not successful, else true
 func createGocronTable() error {
     query := "CREATE TABLE IF NOT EXISTS gocron(cronName varchar, " +
         "account varchar, email varchar, ipaddress varchar, " +
@@ -62,9 +65,10 @@ func createGocronTable() error {
         "site boolean, PRIMARY KEY(cronname, account));"
     _, err := queryDatabase(query)
     if err != nil {
-        CheckError(err)
-        CronLog("Table 'gocron' is missing. Creation failed. Validate permissions in the config.")
+        LogError(err)
+        LogError(errors.New("Table 'gocron' is missing. Creation failed. Validate permissions in the config."))
         os.Exit(1)
     }
+
     return err
 }
