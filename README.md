@@ -42,6 +42,9 @@ Append to an existing crontab entry with:
 
 
 ### Weekly Summary
+***NOTE:*** as of version 6.0.0, this feature is not available. If you
+want to use it, download 5.1.0 and follow these instructions.
+
 The backend service binary can provide a summary of all missed jobs
 ```
 # print a summary of current missed jobs
