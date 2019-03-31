@@ -4,6 +4,7 @@ import (
     "strconv"
     "errors"
 
+    "gocron/util/log"
 
 	"database/sql"
     _ "github.com/lib/pq" // github.com/lib/pq is required by database/sql
@@ -48,12 +49,12 @@ func (g Gocron) updateDatabase(c Cron) bool {
 	// Execute query
 	rows, err := queryDatabase(g, query)
 	if err != nil {
-        LogError(err)
+        log.LogError(err)
         return false
 	}
     defer rows.Close()
 
-    CronLog("Heartbeat from "+c.Cronname+": "+c.Account+" \n")
+    log.CronLog("Heartbeat from "+c.Cronname+": "+c.Account+" \n")
     return true
 }
 
@@ -66,8 +67,8 @@ func (g Gocron) createGocronTable() error {
         "site boolean, PRIMARY KEY(cronname, account));"
     _, err := queryDatabase(g, query)
     if err != nil {
-        LogError(err)
-        LogError(errors.New("table 'gocron' is missing. Creation failed. Validate permissions in the config"))
+        log.LogError(err)
+        log.LogError(errors.New("table 'gocron' is missing. Creation failed. Validate permissions in the config"))
         os.Exit(1)
     }
 

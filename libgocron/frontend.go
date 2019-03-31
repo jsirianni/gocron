@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
     "encoding/json"
 	"errors"
+
+	"gocron/util/log"
 )
 
 
@@ -15,8 +17,8 @@ func (g Gocron) StartFrontend(frontendPort string) {
 
 	//if v == true {
 	//	CronLog("verbose mode enabled")
-	CronLog("gocron-front version: " + Version)
-	CronLog("starting web server on port: " + frontendPort)
+	log.CronLog("gocron-front version: " + Version)
+	log.CronLog("starting web server on port: " + frontendPort)
 	//}
 
 	http.HandleFunc("/", g.incomingCron)
@@ -29,7 +31,7 @@ func (g Gocron) StartFrontend(frontendPort string) {
 func frontEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
     r := strings.Split(req.RemoteAddr, ":")[0]
 	//if verbose == true {
-	CronLog("healthcheck from: " + r)
+	log.CronLog("healthcheck from: " + r)
 	//}
 	returnOk(resp)
 }
@@ -71,11 +73,11 @@ func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 		payload, err := ioutil.ReadAll(req.Body)
 		defer req.Body.Close()
 		if err != nil {
-		 	CronLog(err.Error())
+		 	log.CronLog(err.Error())
 		}
 
 		if err := json.Unmarshal(payload, &c); err != nil {
-			CronLog(err.Error())
+			log.CronLog(err.Error())
 		}
 		c.Lastruntime = currentTime
 		c.Ipaddress = socket[0]
@@ -83,7 +85,7 @@ func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 
 	default:
 		// Log an error and do not respond
-		CronLog("Incoming request from "+c.Ipaddress+" is not a GET or POST.")
+		log.CronLog("Incoming request from "+c.Ipaddress+" is not a GET or POST.")
 		return
 	}
 
@@ -97,7 +99,7 @@ func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 
 	} else {
 		returnNotFound(resp)
-		CronLog(method+" from "+c.Ipaddress+" not valid. Dropping.")
+		log.CronLog(method+" from "+c.Ipaddress+" not valid. Dropping.")
 	}
 }
 
@@ -184,8 +186,8 @@ func (c Cron) CheckLength() bool {
 func stringToInt(x string) int {
     y, err := strconv.Atoi(x)
     if err != nil {
-        LogError(err)
-        LogError(errors.New("failed to convert int to string. Probably a bad GET"))
+        log.LogError(err)
+        log.LogError(errors.New("failed to convert int to string. Probably a bad GET"))
         return -1
     }
 

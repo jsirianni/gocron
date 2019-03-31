@@ -1,4 +1,4 @@
-package libgocron
+package log
 import (
     "os"
     "fmt"

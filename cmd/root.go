@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"gocron/libgocron"
+	"gocron/util/log"
 
 	"github.com/spf13/cobra"
 )
@@ -27,7 +28,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		libgocron.LogError(err)
+		log.LogError(err)
 		os.Exit(1)
 	}
 }
@@ -51,13 +52,13 @@ func initConfig() {
 
 	gocron.Interval, err = strconv.Atoi(os.Getenv("GC_INTERVAL"))
 	if err != nil {
-		libgocron.LogError(err)
+		log.LogError(err)
 		os.Exit(1)
 	}
 
 	err = gocron.Validate()
 	if err != nil {
-		libgocron.LogError(err)
+		log.LogError(err)
 		os.Exit(1)
 	}
 }
