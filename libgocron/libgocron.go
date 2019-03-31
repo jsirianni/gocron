@@ -1,6 +1,7 @@
 package libgocron
 
 import (
+    "fmt"
     "errors"
     "net/url"
 )
@@ -68,7 +69,7 @@ func (g Gocron) Validate() error {
     if len(g.SlackHookURL) == 0 {
         m = m + "slack_hook_url is length 0\n"
     } else {
-        _, err := url.Parse(g.SlackHookURL)
+        _, err := url.ParseRequestURI(g.SlackHookURL)
         if err != nil {
             m = m + "slack_hook_url: "
             m = m + err.Error()
