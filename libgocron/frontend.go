@@ -86,7 +86,7 @@ func incomingCron(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if validateParams(c) == true {
+	if c.ValidateParams() == true {
 		if updateDatabase(c) == true {
 			returnCreated(resp)
 
@@ -130,11 +130,11 @@ func returnNotFound(resp http.ResponseWriter) {
 
 
 // Function validates SQL variables
-func validateParams(c Cron) bool {
+func (c Cron) ValidateParams() bool {
 
 	var valid bool = false // Flag determines the return value
 
-	if checkLength(c) == true {
+	if c.CheckLength() == true {
 		valid = true
 	}
 
@@ -155,7 +155,7 @@ func validateParams(c Cron) bool {
 
 // Validate that parameters are present
 // Validate that ints are not -1 (failed conversion in gocronlib StringToInt())
-func checkLength(c Cron) bool {
+func (c Cron) CheckLength() bool {
 	if len(c.Account) == 0 {
 		return false
 
