@@ -16,8 +16,8 @@ const revivedJobs = "SELECT * FROM gocron WHERE alerted = true AND (extract(epoc
 
 
 // Function handles database queries
-func queryDatabase(query string) (*sql.Rows, error) {
-    conn := "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable"
+func queryDatabase(g Gocron, query string) (*sql.Rows, error) {
+    conn := "postgres://" + g.Dbuser + ":" + g.Dbpass + "@" + g.Dbfqdn + "/gocron" + "?sslmode=" + "disable"
     db, err := sql.Open("postgres", conn)
     if err != nil {
         return nil, err
@@ -28,7 +28,7 @@ func queryDatabase(query string) (*sql.Rows, error) {
 }
 
 
-func updateDatabase(c Cron) bool {
+func (g Gocron) updateDatabase(c Cron) bool {
 	frequency   := strconv.Itoa(c.Frequency)
 	lastruntime := strconv.Itoa(c.Lastruntime)
 	site        := strconv.FormatBool(c.Site)
@@ -46,7 +46,7 @@ func updateDatabase(c Cron) bool {
 		"site = " + "'" + site + "';"
 
 	// Execute query
-	rows, err := queryDatabase(query)
+	rows, err := queryDatabase(g, query)
 	if err != nil {
         LogError(err)
         return false
@@ -59,12 +59,12 @@ func updateDatabase(c Cron) bool {
 
 
 // Creates the gocron database table, if it does not exist
-func createGocronTable() error {
+func (g Gocron) createGocronTable() error {
     query := "CREATE TABLE IF NOT EXISTS gocron(cronName varchar, " +
         "account varchar, email varchar, ipaddress varchar, " +
         "frequency integer, lastruntime integer, alerted boolean, " +
         "site boolean, PRIMARY KEY(cronname, account));"
-    _, err := queryDatabase(query)
+    _, err := queryDatabase(g, query)
     if err != nil {
         LogError(err)
         LogError(errors.New("Table 'gocron' is missing. Creation failed. Validate permissions in the config."))

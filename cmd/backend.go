@@ -22,9 +22,9 @@ func init() {
 
 func startBackend() {
 	if summary == true {
-		config.GetSummary(verbose)
+		gocron.GetSummary()
 		return
 	}
 
-	config.StartBackend(verbose)
+	gocron.StartBackend()
 }

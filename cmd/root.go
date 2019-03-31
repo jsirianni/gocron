@@ -14,7 +14,7 @@ var cfgFile      string
 var frontendPort string
 var summary      bool
 var verbose      bool
-var config       libgocron.Config
+var gocron       libgocron.Gocron
 
 
 // rootCmd represents the base command when called without any subcommands
@@ -37,30 +37,27 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "/etc/gocron/config.yml", "config file (default is /etc/gocron/config.yml")
-	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "enable standard out output with --verbose (default is disabled)" )
 }
 
 
 // initConfig reads ENV variables
 func initConfig() {
 	var err error
-	config.Dbdatabase = os.Getenv("GC_DBDATABASE")
-	config.Dbfqdn = os.Getenv("GC_DBFQDN")
-	config.Dbpass = os.Getenv("GC_DBPASS")
-	config.Dbport = os.Getenv("GC_DBPORT")
-	config.Dbuser = os.Getenv("GC_DBUSER")
-	config.SlackChannel = os.Getenv("GC_SLACK_CHANNEL")
-	config.SlackHookURL = os.Getenv("GC_SLACK_HOOK_URL")
+	gocron.Dbdatabase = os.Getenv("GC_DBDATABASE")
+	gocron.Dbfqdn = os.Getenv("GC_DBFQDN")
+	gocron.Dbpass = os.Getenv("GC_DBPASS")
+	gocron.Dbport = os.Getenv("GC_DBPORT")
+	gocron.Dbuser = os.Getenv("GC_DBUSER")
+	gocron.SlackChannel = os.Getenv("GC_SLACKCHANNEL")
+	gocron.SlackHookURL = os.Getenv("GC_SLACKHOOKURL")
 
-	config.Interval, err = strconv.Atoi(os.Getenv("GC_INTERVAL"))
+	gocron.Interval, err = strconv.Atoi(os.Getenv("GC_INTERVAL"))
 	if err != nil {
 		libgocron.LogError(err)
 		os.Exit(1)
 	}
 
-	err = config.Validate()
+	err = gocron.Validate()
 	if err != nil {
 		libgocron.LogError(err)
 		os.Exit(1)

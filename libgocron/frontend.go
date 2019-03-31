@@ -11,15 +11,15 @@ import (
 
 
 // StartFrontend starts the gocron frontend server
-func (c Config) StartFrontend(frontendPort string, v bool) {
+func (g Gocron) StartFrontend(frontendPort string) {
 
-	if v == true {
-		CronLog("verbose mode enabled")
-		CronLog("gocron-front version: " + Version)
-		CronLog("starting web server on port: " + frontendPort)
-	}
+	//if v == true {
+	//	CronLog("verbose mode enabled")
+	CronLog("gocron-front version: " + Version)
+	CronLog("starting web server on port: " + frontendPort)
+	//}
 
-	http.HandleFunc("/", incomingCron)
+	http.HandleFunc("/", g.incomingCron)
 	http.HandleFunc("/healthcheck", frontEndHealthCheck)
 	http.ListenAndServe(":"+frontendPort, nil)
 }
@@ -28,15 +28,15 @@ func (c Config) StartFrontend(frontendPort string, v bool) {
 // return http status 200 if connection to database is healthy
 func frontEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
     r := strings.Split(req.RemoteAddr, ":")[0]
-	if verbose == true {
-		CronLog("healthcheck from: " + r)
-	}
+	//if verbose == true {
+	CronLog("healthcheck from: " + r)
+	//}
 	returnOk(resp)
 }
 
 
 // Validate the request and then pass to updateDatabase()
-func incomingCron(resp http.ResponseWriter, req *http.Request) {
+func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 	var (
 		currentTime int = int(time.Now().Unix())
 		socket          = strings.Split(req.RemoteAddr, ":")
@@ -88,7 +88,7 @@ func incomingCron(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	if c.ValidateParams() == true {
-		if updateDatabase(c) == true {
+		if g.updateDatabase(c) == true {
 			returnCreated(resp)
 
 		} else {
@@ -139,7 +139,7 @@ func (c Cron) ValidateParams() bool {
 		valid = true
 	}
 
-	if verbose == true {
+	/*if verbose == true {
 		if valid == true {
 			CronLog("Parameters from "+c.Ipaddress+" passed validation")
 			return true
@@ -147,7 +147,7 @@ func (c Cron) ValidateParams() bool {
 
 		CronLog("Parameters from "+c.Ipaddress+" failed validation!")
 		return false
-	}
+	}*/
 
 	return valid
 }

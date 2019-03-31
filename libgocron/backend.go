@@ -10,10 +10,12 @@ import (
 
 
 // StartBackend calls checkCronStatus() on a set interval
-func (c Config) StartBackend(v bool) error {
+func (g Gocron) StartBackend() error {
+
+	fmt.Println(g.Dbfqdn)
 
 	// create the gocron table, if not exists
-	err := createGocronTable()
+	err := g.createGocronTable()
 	if err != nil {
 		LogError(err)
 		os.Exit(1)
@@ -22,17 +24,17 @@ func (c Config) StartBackend(v bool) error {
 	// backend server is just a never ending loop that checks for missed
 	// jobs at the set interval
 	for {
-		time.Sleep((time.Duration(c.Interval) * time.Second))
+		time.Sleep((time.Duration(g.Interval) * time.Second))
 		CronLog("Checking for missed jobs.")
-		cronStatus()
+		g.cronStatus()
 	}
 }
 
 // GetSummary prints a summary to standard out
-func (c Config) GetSummary(v bool) {
+func (g Gocron) GetSummary() {
 	message := "gocron summary - missed jobs:\n"
 
-	rows, err := queryDatabase(missedJobs)
+	rows, err := queryDatabase(g, missedJobs)
 	defer rows.Close()
 	if err != nil {
 		LogError(err)
@@ -55,13 +57,9 @@ func (c Config) GetSummary(v bool) {
 	}
 
 
-	// Send slack alert and pass dummy cron object
-	if v == true && slackAlert("gocron alert summary", message) == true {
+	// Send slack alert
+	if g.slackAlert("gocron alert summary", message) == true {
 		CronLog(message)
-		return
-
-	} else if v == false {
-		fmt.Println(message)
 
 	} else {
 		CronLog("GOCRON: Failed to build alert summary.")
@@ -69,14 +67,14 @@ func (c Config) GetSummary(v bool) {
 }
 
 
-func cronStatus() {
-	checkMissedJobs(missedJobs)
-	checkRevivedJobs(revivedJobs)
+func (g Gocron) cronStatus() {
+	g.checkMissedJobs(missedJobs)
+	g.checkRevivedJobs(revivedJobs)
 }
 
 
-func checkMissedJobs(query string) {
-	rows, err := queryDatabase(query)
+func (g Gocron) checkMissedJobs(query string) {
+	rows, err := queryDatabase(g, query)
 	defer rows.Close()
 	if err != nil {
 		LogError(err)
@@ -101,11 +99,11 @@ func checkMissedJobs(query string) {
 			message := "The cronjob " + cron.Cronname + " for account " + cron.Account + " has not checked in on time"
 
 			// Only update database if alert sent successful
-			if alert(cron, subject, message) == true {
+			if g.alert(cron, subject, message) == true {
 				query = "UPDATE gocron SET alerted = true " +
 					"WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-				rows, err := queryDatabase(query)
+				rows, err := queryDatabase(g, query)
 				defer rows.Close()
 				if err != nil {
 					LogError(err)
@@ -121,8 +119,8 @@ func checkMissedJobs(query string) {
 }
 
 
-func checkRevivedJobs(query string) {
-	rows, err := queryDatabase(query)
+func (g Gocron) checkRevivedJobs(query string) {
+	rows, err := queryDatabase(g, query)
 	defer rows.Close()
 	if err != nil {
 		LogError(err)
@@ -144,7 +142,7 @@ func checkRevivedJobs(query string) {
 		query = "UPDATE gocron SET alerted = false " +
 			"WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-		rows, err := queryDatabase(query)
+		rows, err := queryDatabase(g, query)
 		defer rows.Close()
 		if err != nil {
 			CronLog("Failed to update row for " + cron.Cronname)
@@ -153,18 +151,18 @@ func checkRevivedJobs(query string) {
 
 		subject := cron.Cronname + ": " + cron.Account + " is back online" + "\n"
 		message := "The cronjob " + cron.Cronname + " for account " + cron.Account + " is back online"
-		alert(cron, subject, message)
+		g.alert(cron, subject, message)
 	}
 }
 
 
-func alert(cron Cron, subject string, message string) bool {
+func (g Gocron) alert(cron Cron, subject string, message string) bool {
 
     // Immediately log the alert
     CronLog(subject)
 
     result := false
-	if slackAlert(subject, message) == true {
+	if g.slackAlert(subject, message) == true {
 		result = true
 	}
 
@@ -180,9 +178,9 @@ func alert(cron Cron, subject string, message string) bool {
 }
 
 
-func slackAlert(subject string, message string) bool {
+func (g Gocron) slackAlert(subject string, message string) bool {
     var slackmessage slacklib.SlackPost
-    slackmessage.Channel = config.SlackChannel
+    slackmessage.Channel = g.SlackChannel
     slackmessage.Text = message
-    return slacklib.BasicMessage(slackmessage, config.SlackHookURL)
+    return slacklib.BasicMessage(slackmessage, g.SlackHookURL)
 }
