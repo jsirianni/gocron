@@ -10,11 +10,9 @@ import (
 
 
 // StartFrontend starts the gocron frontend server
-func StartFrontend(c Config, frontendPort string, v bool) {
-	config = c
-	verbose = v
+func (c Config) StartFrontend(frontendPort string, v bool) {
 
-	if verbose == true {
+	if v == true {
 		CronLog("verbose mode enabled")
 		CronLog("gocron-front version: " + VERSION)
 		CronLog("starting web server on port: " + frontendPort)

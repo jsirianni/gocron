@@ -1,7 +1,5 @@
 package cmd
 import (
-	"gocron/libgocron"
-
 	"github.com/spf13/cobra"
 )
 
@@ -23,5 +21,5 @@ func init() {
 }
 
 func start() {
-	libgocron.StartFrontend(config, frontendPort, verbose)
+	config.StartFrontend(frontendPort, verbose)
 }
