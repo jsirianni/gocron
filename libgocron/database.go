@@ -49,12 +49,12 @@ func (g Gocron) updateDatabase(c Cron) bool {
 	// Execute query
 	rows, err := queryDatabase(g, query)
 	if err != nil {
-        log.LogError(err)
+        log.Error(err)
         return false
 	}
     defer rows.Close()
 
-    log.CronLog("Heartbeat from "+c.Cronname+": "+c.Account+" \n")
+    log.Message("Heartbeat from "+c.Cronname+": "+c.Account+" \n")
     return true
 }
 
@@ -67,8 +67,8 @@ func (g Gocron) createGocronTable() error {
         "site boolean, PRIMARY KEY(cronname, account));"
     _, err := queryDatabase(g, query)
     if err != nil {
-        log.LogError(err)
-        log.LogError(errors.New("table 'gocron' is missing. Creation failed. Validate permissions in the config"))
+        log.Error(err)
+        log.Error(errors.New("table 'gocron' is missing. Creation failed. Validate permissions in the config"))
         os.Exit(1)
     }
 

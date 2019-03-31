@@ -5,12 +5,12 @@ import (
 )
 
 
-// CronLog writes messages to syslog and (optionally) to standard out
-func CronLog(message string) {
+// Message writes messages to syslog and (optionally) to standard out
+func Message(message string) {
     fmt.Println(message)
 }
 
-// LogError takes an error and prints it to standard error
-func LogError(err error) {
+// Error takes an error and prints it to standard error
+func Error(err error) {
     fmt.Fprintln(os.Stderr, err.Error())
 }

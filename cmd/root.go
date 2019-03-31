@@ -28,7 +28,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		log.LogError(err)
+		log.Error(err)
 		os.Exit(1)
 	}
 }
@@ -52,13 +52,13 @@ func initConfig() {
 
 	gocron.Interval, err = strconv.Atoi(os.Getenv("GC_INTERVAL"))
 	if err != nil {
-		log.LogError(err)
+		log.Error(err)
 		os.Exit(1)
 	}
 
 	err = gocron.Validate()
 	if err != nil {
-		log.LogError(err)
+		log.Error(err)
 		os.Exit(1)
 	}
 }

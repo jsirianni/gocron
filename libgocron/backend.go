@@ -15,7 +15,7 @@ func (g Gocron) StartBackend() error {
 	// create the gocron table, if not exists
 	err := g.createGocronTable()
 	if err != nil {
-		log.LogError(err)
+		log.Error(err)
 		os.Exit(1)
 	}
 
@@ -23,7 +23,7 @@ func (g Gocron) StartBackend() error {
 	// jobs at the set interval
 	for {
 		time.Sleep((time.Duration(g.Interval) * time.Second))
-		log.CronLog("Checking for missed jobs.")
+		log.Message("Checking for missed jobs.")
 		g.cronStatus()
 	}
 }
@@ -35,8 +35,8 @@ func (g Gocron) GetSummary() {
 	rows, err := queryDatabase(g, missedJobs)
 	defer rows.Close()
 	if err != nil {
-		log.LogError(err)
-		log.LogError(errors.New("Failed to perform query while attempting to build a summary: " + missedJobs))
+		log.Error(err)
+		log.Error(errors.New("Failed to perform query while attempting to build a summary: " + missedJobs))
 		return
 	}
 
@@ -57,10 +57,10 @@ func (g Gocron) GetSummary() {
 
 	// Send slack alert
 	if g.slackAlert("gocron alert summary", message) == true {
-		log.CronLog(message)
+		log.Message(message)
 
 	} else {
-		log.CronLog("GOCRON: Failed to build alert summary.")
+		log.Message("GOCRON: Failed to build alert summary.")
 	}
 }
 
@@ -75,8 +75,8 @@ func (g Gocron) checkMissedJobs(query string) {
 	rows, err := queryDatabase(g, query)
 	defer rows.Close()
 	if err != nil {
-		log.LogError(err)
-		log.LogError(errors.New("Failed to perform query: " + query))
+		log.Error(err)
+		log.Error(errors.New("Failed to perform query: " + query))
 		return
 	}
 
@@ -104,13 +104,13 @@ func (g Gocron) checkMissedJobs(query string) {
 				rows, err := queryDatabase(g, query)
 				defer rows.Close()
 				if err != nil {
-					log.LogError(err)
-					log.LogError(errors.New("Failed to update row for " + cron.Cronname))
+					log.Error(err)
+					log.Error(errors.New("Failed to update row for " + cron.Cronname))
 				}
 			}
 
 		} else {
-			log.CronLog("Alert for "+cron.Cronname+": "+cron.Account+
+			log.Message("Alert for "+cron.Cronname+": "+cron.Account+
 				" has been supressed. Already alerted")
 		}
 	}
@@ -121,8 +121,8 @@ func (g Gocron) checkRevivedJobs(query string) {
 	rows, err := queryDatabase(g, query)
 	defer rows.Close()
 	if err != nil {
-		log.LogError(err)
-		log.LogError(errors.New("Failed to perform query: " + query))
+		log.Error(err)
+		log.Error(errors.New("Failed to perform query: " + query))
 		return
 	}
 
@@ -143,7 +143,7 @@ func (g Gocron) checkRevivedJobs(query string) {
 		rows, err := queryDatabase(g, query)
 		defer rows.Close()
 		if err != nil {
-			log.CronLog("Failed to update row for " + cron.Cronname)
+			log.Message("Failed to update row for " + cron.Cronname)
 
 		}
 
@@ -157,7 +157,7 @@ func (g Gocron) checkRevivedJobs(query string) {
 func (g Gocron) alert(cron Cron, subject string, message string) bool {
 
     // Immediately log the alert
-    log.CronLog(subject)
+    log.Message(subject)
 
     result := false
 	if g.slackAlert(subject, message) == true {
@@ -165,11 +165,11 @@ func (g Gocron) alert(cron Cron, subject string, message string) bool {
 	}
 
     if result == true {
-        log.CronLog("gocron success: alert for " + cron.Cronname + " sent")
+        log.Message("gocron success: alert for " + cron.Cronname + " sent")
         return true
     }
 
-    log.CronLog("gocron fail: alert for " + cron.Cronname)
+    log.Message("gocron fail: alert for " + cron.Cronname)
     return false
 }
 

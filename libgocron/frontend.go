@@ -17,8 +17,8 @@ func (g Gocron) StartFrontend(frontendPort string) {
 
 	//if v == true {
 	//	CronLog("verbose mode enabled")
-	log.CronLog("gocron-front version: " + Version)
-	log.CronLog("starting web server on port: " + frontendPort)
+	log.Message("gocron-front version: " + Version)
+	log.Message("starting web server on port: " + frontendPort)
 	//}
 
 	http.HandleFunc("/", g.incomingCron)
@@ -31,7 +31,7 @@ func (g Gocron) StartFrontend(frontendPort string) {
 func frontEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
     r := strings.Split(req.RemoteAddr, ":")[0]
 	//if verbose == true {
-	log.CronLog("healthcheck from: " + r)
+	log.Message("healthcheck from: " + r)
 	//}
 	returnOk(resp)
 }
@@ -73,11 +73,11 @@ func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 		payload, err := ioutil.ReadAll(req.Body)
 		defer req.Body.Close()
 		if err != nil {
-		 	log.CronLog(err.Error())
+		 	log.Message(err.Error())
 		}
 
 		if err := json.Unmarshal(payload, &c); err != nil {
-			log.CronLog(err.Error())
+			log.Message(err.Error())
 		}
 		c.Lastruntime = currentTime
 		c.Ipaddress = socket[0]
@@ -85,7 +85,7 @@ func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 
 	default:
 		// Log an error and do not respond
-		log.CronLog("Incoming request from "+c.Ipaddress+" is not a GET or POST.")
+		log.Message("Incoming request from "+c.Ipaddress+" is not a GET or POST.")
 		return
 	}
 
@@ -99,7 +99,7 @@ func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 
 	} else {
 		returnNotFound(resp)
-		log.CronLog(method+" from "+c.Ipaddress+" not valid. Dropping.")
+		log.Message(method+" from "+c.Ipaddress+" not valid. Dropping.")
 	}
 }
 
@@ -186,8 +186,8 @@ func (c Cron) CheckLength() bool {
 func stringToInt(x string) int {
     y, err := strconv.Atoi(x)
     if err != nil {
-        log.LogError(err)
-        log.LogError(errors.New("failed to convert int to string. Probably a bad GET"))
+        log.Error(err)
+        log.Error(errors.New("failed to convert int to string. Probably a bad GET"))
         return -1
     }
 
