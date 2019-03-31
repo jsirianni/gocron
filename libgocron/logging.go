@@ -10,6 +10,7 @@ func CronLog(message string) {
     fmt.Println(message)
 }
 
+// LogError takes an error and prints it to standard error
 func LogError(err error) {
     fmt.Fprintln(os.Stderr, err.Error())
 }

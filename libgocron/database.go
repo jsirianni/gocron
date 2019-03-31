@@ -67,7 +67,7 @@ func (g Gocron) createGocronTable() error {
     _, err := queryDatabase(g, query)
     if err != nil {
         LogError(err)
-        LogError(errors.New("Table 'gocron' is missing. Creation failed. Validate permissions in the config."))
+        LogError(errors.New("table 'gocron' is missing. Creation failed. Validate permissions in the config"))
         os.Exit(1)
     }
 

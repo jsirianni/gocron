@@ -1,7 +1,6 @@
 package libgocron
 import (
 	"os"
-	"fmt"
 	"time"
 	"errors"
 
@@ -11,9 +10,6 @@ import (
 
 // StartBackend calls checkCronStatus() on a set interval
 func (g Gocron) StartBackend() error {
-
-	fmt.Println(g.Dbfqdn)
-
 	// create the gocron table, if not exists
 	err := g.createGocronTable()
 	if err != nil {
@@ -165,8 +161,6 @@ func (g Gocron) alert(cron Cron, subject string, message string) bool {
 	if g.slackAlert(subject, message) == true {
 		result = true
 	}
-
-	// NOTE: future alert methods will go here. Removed SMTP due to complexity
 
     if result == true {
         CronLog("gocron success: alert for " + cron.Cronname + " sent")

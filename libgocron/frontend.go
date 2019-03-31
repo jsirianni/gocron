@@ -185,7 +185,7 @@ func stringToInt(x string) int {
     y, err := strconv.Atoi(x)
     if err != nil {
         LogError(err)
-        LogError(errors.New("Failed to convert int to string. Probably a bad GET."))
+        LogError(errors.New("failed to convert int to string. Probably a bad GET"))
         return -1
     }
 

@@ -20,7 +20,7 @@ type Cron struct {
       Alerted     bool     // set to true if an alert has already been thrown
 }
 
-// Config defines a global configuration used at runtime
+// Gocron defines a global configuration used at runtime
 type Gocron struct {
       Dbfqdn       string `yaml:"dbfqdn"`
       Dbport       string `yaml:"dbport"`
