@@ -8,7 +8,7 @@ import (
 )
 
 
-// Timer calls checkCronStatus() on a set interval
+// StartBackend calls checkCronStatus() on a set interval
 func (c Config) StartBackend(v bool) {
 
 	// create the gocron table, if not exists
@@ -25,9 +25,9 @@ func (c Config) StartBackend(v bool) {
 	}
 }
 
-
+// GetSummary prints a summary to standard out
 func (c Config) GetSummary(v bool) {
-	var message string = "gocron summary - missed jobs:\n"
+	message := "gocron summary - missed jobs:\n"
 
 	rows, status := queryDatabase(missedJobs)
 	defer rows.Close()
@@ -156,7 +156,7 @@ func alert(cron Cron, subject string, message string) bool {
     // Immediately log the alert
     CronLog(subject)
 
-    var result bool = false
+    result := false
 	if slackAlert(subject, message) == true {
 		result = true
 	}
@@ -166,10 +166,10 @@ func alert(cron Cron, subject string, message string) bool {
     if result == true {
         CronLog("gocron success: alert for " + cron.Cronname + " sent")
         return true
-    } else {
-        CronLog("gocron fail: alert for " + cron.Cronname)
-        return false
     }
+	
+    CronLog("gocron fail: alert for " + cron.Cronname)
+    return false
 }
 
 
