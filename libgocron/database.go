@@ -3,7 +3,7 @@ import (
     "os"
     "strconv"
 
-	"database/sql"; _ "github.com/lib/pq";
+	"database/sql"
 )
 
 
@@ -12,46 +12,25 @@ const revivedJobs = "SELECT * FROM gocron WHERE alerted = true AND (extract(epoc
 
 
 // Function handles database queries
-// Returns false if bad query
-func queryDatabase(query string) (*sql.Rows, bool) {
-      var (
-            db *sql.DB
-            rows *sql.Rows
-            err error
-            status bool
-      )
+func queryDatabase(query string) (*sql.Rows, error) {
+    db, err := sql.Open("postgres", "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable")
+    defer db.Close()
+    if err != nil {
+        CheckError(err)
+    }
 
-      db, err = sql.Open("postgres", "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable")
-      defer db.Close()
-      if err != nil {
-            CheckError(err)
-      }
-
-      rows, err = db.Query(query)
-      if err != nil {
-            CheckError(err)
-            status = false
-      } else {
-            status = true
-      }
-
-      // Return query result and status
-      return rows, status
+    return db.Query(query)
 }
 
 
 func updateDatabase(c Cron) bool {
-	var (
-		query  string
-		result bool
+	frequency   := strconv.Itoa(c.Frequency)
+	lastruntime := strconv.Itoa(c.Lastruntime)
+	site        := strconv.FormatBool(c.Site)
 
-		frequency   string = strconv.Itoa(c.Frequency)
-		lastruntime string = strconv.Itoa(c.Lastruntime)
-		site        string = strconv.FormatBool(c.Site)
-	)
 
 	// Insert and update if already exist
-	query = "INSERT INTO gocron " +
+	query := "INSERT INTO gocron " +
 		"(cronname, account, email, ipaddress, frequency, lastruntime, alerted, site) " +
 		"VALUES ('" +
 		c.Cronname + "','" + c.Account + "','" + c.Email + "','" + c.Ipaddress + "','" +
@@ -62,29 +41,30 @@ func updateDatabase(c Cron) bool {
 		"site = " + "'" + site + "';"
 
 	// Execute query
-	rows, result := queryDatabase(query)
+	rows, err := queryDatabase(query)
 	defer rows.Close()
-	if result == true {
-		CronLog("Heartbeat from "+c.Cronname+": "+c.Account+" \n")
-		return true
-
-	} else {
-		return false
+	if err != nil {
+        CheckError(err)
+        return false
 	}
+
+    CronLog("Heartbeat from "+c.Cronname+": "+c.Account+" \n")
+    return true
 }
 
 
 // Creates the gocron database table, if it does not exist
 // Returns false if not successful, else true
-func createGocronTable() bool {
+func createGocronTable() error {
     query := "CREATE TABLE IF NOT EXISTS gocron(cronName varchar, " +
         "account varchar, email varchar, ipaddress varchar, " +
         "frequency integer, lastruntime integer, alerted boolean, " +
         "site boolean, PRIMARY KEY(cronname, account));"
-    _, result := queryDatabase(query)
-    if result == false {
+    _, err := queryDatabase(query)
+    if err != nil {
+        CheckError(err)
         CronLog("Table 'gocron' is missing. Creation failed. Validate permissions in the config.")
         os.Exit(1)
     }
-    return result
+    return err
 }

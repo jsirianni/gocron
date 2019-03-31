@@ -12,7 +12,9 @@ import (
 func (c Config) StartBackend(v bool) {
 
 	// create the gocron table, if not exists
-	if createGocronTable() == false {
+	err := createGocronTable()
+	if err != nil {
+		CheckError(err)
 		os.Exit(1)
 	}
 
@@ -29,9 +31,10 @@ func (c Config) StartBackend(v bool) {
 func (c Config) GetSummary(v bool) {
 	message := "gocron summary - missed jobs:\n"
 
-	rows, status := queryDatabase(missedJobs)
+	rows, err := queryDatabase(missedJobs)
 	defer rows.Close()
-	if status == false {
+	if err != nil {
+		CheckError(err)
 		CronLog("Failed to perform query while attempting to build a summary: " + missedJobs)
 		return
 	}
@@ -72,9 +75,10 @@ func cronStatus() {
 
 
 func checkMissedJobs(query string) {
-	rows, status := queryDatabase(query)
+	rows, err := queryDatabase(query)
 	defer rows.Close()
-	if status == false {
+	if err != nil {
+		CheckError(err)
 		CronLog("Failed to perform query: "+query)
 		return
 	}
@@ -100,9 +104,10 @@ func checkMissedJobs(query string) {
 				query = "UPDATE gocron SET alerted = true " +
 					"WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-				rows, result := queryDatabase(query)
+				rows, err := queryDatabase(query)
 				defer rows.Close()
-				if result == false {
+				if err != nil {
+					CheckError(err)
 					CronLog("Failed to update row for " + cron.Cronname)
 				}
 			}
@@ -116,9 +121,10 @@ func checkMissedJobs(query string) {
 
 
 func checkRevivedJobs(query string) {
-	rows, status := queryDatabase(query)
+	rows, err := queryDatabase(query)
 	defer rows.Close()
-	if status == false {
+	if err != nil {
+		CheckError(err)
 		CronLog("Failed to perform query: "+query)
 		return
 	}
@@ -137,9 +143,9 @@ func checkRevivedJobs(query string) {
 		query = "UPDATE gocron SET alerted = false " +
 			"WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-		rows, result := queryDatabase(query)
+		rows, err := queryDatabase(query)
 		defer rows.Close()
-		if result == false {
+		if err != nil {
 			CronLog("Failed to update row for " + cron.Cronname)
 
 		}
@@ -167,7 +173,7 @@ func alert(cron Cron, subject string, message string) bool {
         CronLog("gocron success: alert for " + cron.Cronname + " sent")
         return true
     }
-	
+
     CronLog("gocron fail: alert for " + cron.Cronname)
     return false
 }
