@@ -83,6 +83,12 @@ func initConfig() {
 		libgocron.CronLog("slackhookurl: " +  config.SlackHookUrl)
 	}
 
+	err = config.Validate()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+
 
 
 	// TODO: implement this, which will likely require some logic that
