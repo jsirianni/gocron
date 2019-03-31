@@ -17,7 +17,7 @@ type Slack struct {
     Post    APIPost
 }
 
-// ApiPost struct defines a slack post
+// APIPost struct defines a slack post
 type APIPost struct {
     Channel string `json:"channel"`
     Text    string `json:"text"`
