@@ -159,19 +159,15 @@ func (g Gocron) alert(cron Cron, subject string, message string) bool {
     // Immediately log the alert
     log.Message(subject)
 
-    result := true
 	err := g.slackAlert(subject, message)
 	if err != nil {
-		result = false
+		log.Error(errors.New("gocron fail: alert for " + cron.Cronname))
+		log.Error(err)
+		return false
 	}
 
-    if result == true {
-        log.Message("gocron success: alert for " + cron.Cronname + " sent")
-        return true
-    }
-
-    log.Message("gocron fail: alert for " + cron.Cronname)
-    return false
+    log.Message("gocron success: alert for " + cron.Cronname + " sent")
+    return true
 }
 
 
