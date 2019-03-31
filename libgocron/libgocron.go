@@ -38,7 +38,8 @@ type Config struct {
 
 // Validate checks if config parameters are valid
 func (c Config) Validate() error {
-    m := "Errors found in the configuration:\n"
+    message := "Errors found in the configuration:\n"
+    m := ""
 
     if len(c.Dbdatabase) == 0 {
         m = m + "dbdatabase is length 0\n"
@@ -81,5 +82,8 @@ func (c Config) Validate() error {
         }
     }
 
-    return errors.New(m)
+    if len(m) > 0 {
+        return errors.New(message + m)
+    }
+    return nil
 }
