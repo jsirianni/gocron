@@ -4,7 +4,7 @@ import (
     "testing"
 )
 
-func TestqueryDatabase(t testing.T) {
+func TestqueryDatabase(t *testing.T) {
     g := getTestConfig()
     q := "SELECR * FROM gocron;"
 
@@ -14,7 +14,7 @@ func TestqueryDatabase(t testing.T) {
     }
 }
 
-func TestupdateDatabase(t testing.T) {
+func TestupdateDatabase(t *testing.T) {
     g := getTestConfig()
     c := getTestCron()
 
@@ -23,7 +23,7 @@ func TestupdateDatabase(t testing.T) {
     }
 }
 
-func TestcreateGocronTable(t testing.T) {
+func TestcreateGocronTable(t *testing.T) {
     g := getTestConfig()
 
     if err := g.createGocronTable(); err == nil {
