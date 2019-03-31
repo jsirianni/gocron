@@ -25,6 +25,10 @@ type APIPost struct {
 
 // Message sends a slack message
 func (s Slack) Message() error {
+    if err := s.validate(); err != nil {
+        return err
+    }
+
     payload, err := json.Marshal(s.Post)
     if err != nil {
         return err
@@ -51,4 +55,11 @@ func (s Slack) sendPayload(p []byte) error {
 		return errors.New("Slack returned status: " + strconv.Itoa(resp.StatusCode))
 	}
 	return nil
+}
+
+func (s Slack) validate() error {
+    if len(s.Post.Text) == 0 {
+        return errors.New("slack message is empty")
+    }
+    return nil
 }
