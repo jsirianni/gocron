@@ -9,9 +9,7 @@ import (
 
 
 // Timer calls checkCronStatus() on a set interval
-func StartBackend(c Config, v bool) {
-	config = c
-	verbose = v
+func (c Config) StartBackend(v bool) {
 
 	// create the gocron table, if not exists
 	if createGocronTable() == false {
@@ -21,7 +19,7 @@ func StartBackend(c Config, v bool) {
 	// backend server is just a never ending loop that checks for missed
 	// jobs at the set interval
 	for {
-		time.Sleep((time.Duration(config.Interval) * time.Second))
+		time.Sleep((time.Duration(c.Interval) * time.Second))
 		CronLog("Checking for missed jobs.")
 		cronStatus()
 	}

@@ -28,5 +28,5 @@ func startBackend() {
 		return
 	}
 
-	libgocron.StartBackend(config, verbose)
+	config.StartBackend(verbose)
 }
