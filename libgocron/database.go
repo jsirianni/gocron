@@ -14,10 +14,10 @@ const revivedJobs = "SELECT * FROM gocron WHERE alerted = true AND (extract(epoc
 // Function handles database queries
 func queryDatabase(query string) (*sql.Rows, error) {
     db, err := sql.Open("postgres", "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable")
-    defer db.Close()
     if err != nil {
-        CheckError(err)
+        return nil, err
     }
+    defer db.Close()
 
     return db.Query(query)
 }
@@ -42,11 +42,11 @@ func updateDatabase(c Cron) bool {
 
 	// Execute query
 	rows, err := queryDatabase(query)
-	defer rows.Close()
 	if err != nil {
         CheckError(err)
         return false
 	}
+    defer rows.Close()
 
     CronLog("Heartbeat from "+c.Cronname+": "+c.Account+" \n")
     return true
