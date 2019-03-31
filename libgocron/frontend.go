@@ -14,7 +14,7 @@ func (c Config) StartFrontend(frontendPort string, v bool) {
 
 	if v == true {
 		CronLog("verbose mode enabled")
-		CronLog("gocron-front version: " + version)
+		CronLog("gocron-front version: " + Version)
 		CronLog("starting web server on port: " + frontendPort)
 	}
 

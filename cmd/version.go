@@ -23,5 +23,5 @@ func init() {
 
 
 func getVersion() {
-	fmt.Println("gocron version:", libgocron.VERSION)
+	fmt.Println("gocron version:", libgocron.Version)
 }

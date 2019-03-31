@@ -5,7 +5,8 @@ import (
     "net/url"
 )
 
-const version string = "5.0"
+// Version holds the current version of gocron
+const Version string = "5.0"
 
 var config Config
 var verbose bool
