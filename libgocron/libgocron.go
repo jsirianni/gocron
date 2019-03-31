@@ -5,11 +5,12 @@ import (
     "net/url"
 )
 
-const VERSION string = "5.0"
+const version string = "5.0"
 
 var config Config
 var verbose bool
 
+// Cron defines a cronjob
 type Cron struct {
       Cronname    string `json:cronname`  // Name of the cronjob
       Account     string `json:account`   // Account the job belongs to
@@ -21,7 +22,7 @@ type Cron struct {
       Alerted     bool     // set to true if an alert has already been thrown
 }
 
-
+// Config defines a global configuration used at runtime
 type Config struct {
       Dbfqdn       string `yaml:"dbfqdn"`
       Dbport       string `yaml:"dbport"`
@@ -29,11 +30,12 @@ type Config struct {
       Dbpass       string `yaml:"dbpass"`
       Dbdatabase   string `yaml:"dbdatabase"`
       Interval     int    `yaml:"interval"`
-      SlackHookUrl string `yaml:"slackhookurl"`
+      SlackHookURL string `yaml:"slackhookurl"`
       SlackChannel string `yaml:"slackchannel"`
       PreferSlack  bool   `yaml:"preferslack"`
 }
 
+// Validate checks if config parameters are valid
 func (c Config) Validate() error {
     m := "Errors found in the configuration:\n"
 
@@ -68,10 +70,10 @@ func (c Config) Validate() error {
         m = m + "slack_channel is length 0\n"
     }
 
-    if len(c.SlackHookUrl) == 0 {
+    if len(c.SlackHookURL) == 0 {
         m = m + "slack_hook_url is length 0\n"
     } else {
-        _, err := url.Parse(c.SlackHookUrl)
+        _, err := url.Parse(c.SlackHookURL)
         if err != nil {
             m = m + "slack_hook_url: "
             m = m + err.Error()

@@ -182,5 +182,5 @@ func slackAlert(subject string, message string) bool {
     var slackmessage slacklib.SlackPost
     slackmessage.Channel = config.SlackChannel
     slackmessage.Text = message
-    return slacklib.BasicMessage(slackmessage, config.SlackHookUrl)
+    return slacklib.BasicMessage(slackmessage, config.SlackHookURL)
 }
