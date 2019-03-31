@@ -26,9 +26,9 @@ func (c Config) StartFrontend(frontendPort string, v bool) {
 
 // return http status 200 if connection to database is healthy
 func frontEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
-    remote_ip := strings.Split(req.RemoteAddr, ":")[0]
+    r := strings.Split(req.RemoteAddr, ":")[0]
 	if verbose == true {
-		CronLog("healthcheck from: " + remote_ip)
+		CronLog("healthcheck from: " + r)
 	}
 	returnOk(resp)
 }
@@ -40,7 +40,7 @@ func incomingCron(resp http.ResponseWriter, req *http.Request) {
 		currentTime int = int(time.Now().Unix())
 		socket          = strings.Split(req.RemoteAddr, ":")
 		c           Cron
-		method      string = ""
+		method      string
 	)
 
 	switch req.Method {
@@ -129,10 +129,10 @@ func returnNotFound(resp http.ResponseWriter) {
 }
 
 
-// Function validates SQL variables
+// ValidateParams validates SQL variables
 func (c Cron) ValidateParams() bool {
 
-	var valid bool = false // Flag determines the return value
+	valid  := false // Flag determines the return value
 
 	if c.CheckLength() == true {
 		valid = true
@@ -142,19 +142,17 @@ func (c Cron) ValidateParams() bool {
 		if valid == true {
 			CronLog("Parameters from "+c.Ipaddress+" passed validation")
 			return true
-
-		} else {
-			CronLog("Parameters from "+c.Ipaddress+" failed validation!")
-			return false
 		}
+
+		CronLog("Parameters from "+c.Ipaddress+" failed validation!")
+		return false
 	}
 
 	return valid
 }
 
 
-// Validate that parameters are present
-// Validate that ints are not -1 (failed conversion in gocronlib StringToInt())
+// CheckLength validates that parameters are present
 func (c Cron) CheckLength() bool {
 	if len(c.Account) == 0 {
 		return false
@@ -183,13 +181,13 @@ func (c Cron) CheckLength() bool {
 // Convert a String to an int and return it
 // If -1 returns, validation will fail
 func stringToInt(x string) int {
-      y, err := strconv.Atoi(x)
-      if err != nil {
-            CheckError(err)
-            CronLog("Failed to convert int to string. Probably a bad GET.")
-            return -1
+    y, err := strconv.Atoi(x)
+    if err != nil {
+        CheckError(err)
+        CronLog("Failed to convert int to string. Probably a bad GET.")
+        return -1
 
-      } else {
-            return y
-      }
+    }
+	
+    return y
 }
