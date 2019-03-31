@@ -1,9 +1,11 @@
-FROM golang:alpine AS build-env
+FROM golang:1.12.1-alpine3.9 AS build-env
 WORKDIR /src/gocron
 ENV GOPATH=/
 ADD . /src/gocron
 RUN apk add git
-RUN go get . && go build -o gocron
+RUN go get .
+RUN env CGO_ENABLED=0 go test ./...
+RUN env CGO_ENABLED=0 go build -o gocron
 
 
 FROM alpine:latest
