@@ -1,7 +1,5 @@
 package cmd
 import (
-	"gocron/libgocron"
-
 	"github.com/spf13/cobra"
 )
 
@@ -18,15 +16,9 @@ var backendCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(backendCmd)
-	backendCmd.Flags().BoolVar(&summary, "summary", false, "Get summary")
 }
 
 
 func startBackend() {
-	if summary == true {
-		libgocron.GetSummary(config, verbose)
-		return
-	}
-
-	libgocron.StartBackend(config, verbose)
+	gocron.StartBackend()
 }

@@ -6,21 +6,22 @@ import (
 	"time"
 	"io/ioutil"
     "encoding/json"
+	"errors"
+
+	"gocron/util/log"
 )
 
 
 // StartFrontend starts the gocron frontend server
-func StartFrontend(c Config, frontendPort string, v bool) {
-	config = c
-	verbose = v
+func (g Gocron) StartFrontend(frontendPort string) {
 
-	if verbose == true {
-		CronLog("verbose mode enabled")
-		CronLog("gocron-front version: " + VERSION)
-		CronLog("starting web server on port: " + frontendPort)
-	}
+	//if v == true {
+	//	CronLog("verbose mode enabled")
+	log.Message("gocron-front version: " + Version)
+	log.Message("starting web server on port: " + frontendPort)
+	//}
 
-	http.HandleFunc("/", incomingCron)
+	http.HandleFunc("/", g.incomingCron)
 	http.HandleFunc("/healthcheck", frontEndHealthCheck)
 	http.ListenAndServe(":"+frontendPort, nil)
 }
@@ -28,21 +29,21 @@ func StartFrontend(c Config, frontendPort string, v bool) {
 
 // return http status 200 if connection to database is healthy
 func frontEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
-    remote_ip := strings.Split(req.RemoteAddr, ":")[0]
-	if verbose == true {
-		CronLog("healthcheck from: " + remote_ip)
-	}
+    r := strings.Split(req.RemoteAddr, ":")[0]
+	//if verbose == true {
+	log.Message("healthcheck from: " + r)
+	//}
 	returnOk(resp)
 }
 
 
 // Validate the request and then pass to updateDatabase()
-func incomingCron(resp http.ResponseWriter, req *http.Request) {
+func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 	var (
 		currentTime int = int(time.Now().Unix())
 		socket          = strings.Split(req.RemoteAddr, ":")
 		c           Cron
-		method      string = ""
+		method      string
 	)
 
 	switch req.Method {
@@ -72,11 +73,11 @@ func incomingCron(resp http.ResponseWriter, req *http.Request) {
 		payload, err := ioutil.ReadAll(req.Body)
 		defer req.Body.Close()
 		if err != nil {
-		 	CronLog(err.Error())
+		 	log.Message(err.Error())
 		}
 
 		if err := json.Unmarshal(payload, &c); err != nil {
-			CronLog(err.Error())
+			log.Message(err.Error())
 		}
 		c.Lastruntime = currentTime
 		c.Ipaddress = socket[0]
@@ -84,12 +85,12 @@ func incomingCron(resp http.ResponseWriter, req *http.Request) {
 
 	default:
 		// Log an error and do not respond
-		CronLog("Incoming request from "+c.Ipaddress+" is not a GET or POST.")
+		log.Message("Incoming request from "+c.Ipaddress+" is not a GET or POST.")
 		return
 	}
 
-	if validateParams(c) == true {
-		if updateDatabase(c) == true {
+	if c.ValidateParams() == true {
+		if g.updateDatabase(c) == true {
 			returnCreated(resp)
 
 		} else {
@@ -98,7 +99,7 @@ func incomingCron(resp http.ResponseWriter, req *http.Request) {
 
 	} else {
 		returnNotFound(resp)
-		CronLog(method+" from "+c.Ipaddress+" not valid. Dropping.")
+		log.Message(method+" from "+c.Ipaddress+" not valid. Dropping.")
 	}
 }
 
@@ -131,33 +132,31 @@ func returnNotFound(resp http.ResponseWriter) {
 }
 
 
-// Function validates SQL variables
-func validateParams(c Cron) bool {
+// ValidateParams validates SQL variables
+func (c Cron) ValidateParams() bool {
 
-	var valid bool = false // Flag determines the return value
+	valid  := false // Flag determines the return value
 
-	if checkLength(c) == true {
+	if c.CheckLength() == true {
 		valid = true
 	}
 
-	if verbose == true {
+	/*if verbose == true {
 		if valid == true {
 			CronLog("Parameters from "+c.Ipaddress+" passed validation")
 			return true
-
-		} else {
-			CronLog("Parameters from "+c.Ipaddress+" failed validation!")
-			return false
 		}
-	}
+
+		CronLog("Parameters from "+c.Ipaddress+" failed validation!")
+		return false
+	}*/
 
 	return valid
 }
 
 
-// Validate that parameters are present
-// Validate that ints are not -1 (failed conversion in gocronlib StringToInt())
-func checkLength(c Cron) bool {
+// CheckLength validates that parameters are present
+func (c Cron) CheckLength() bool {
 	if len(c.Account) == 0 {
 		return false
 
@@ -185,13 +184,12 @@ func checkLength(c Cron) bool {
 // Convert a String to an int and return it
 // If -1 returns, validation will fail
 func stringToInt(x string) int {
-      y, err := strconv.Atoi(x)
-      if err != nil {
-            CheckError(err)
-            CronLog("Failed to convert int to string. Probably a bad GET.")
-            return -1
+    y, err := strconv.Atoi(x)
+    if err != nil {
+        log.Error(err)
+        log.Error(errors.New("failed to convert int to string. Probably a bad GET"))
+        return -1
+    }
 
-      } else {
-            return y
-      }
+    return y
 }
