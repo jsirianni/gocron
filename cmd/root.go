@@ -1,6 +1,5 @@
 package cmd
 import (
-	"fmt"
 	"os"
 	"strconv"
 
@@ -30,7 +29,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		libgocron.LogError(err)
 		os.Exit(1)
 	}
 }
@@ -69,7 +68,7 @@ func initConfig() {
 	//
 	err := viper.Unmarshal(&config)
 	if err != nil {
-		libgocron.CronLog(err.Error())
+		libgocron.LogError(err)
 		os.Exit(1)
 	} else {
 		libgocron.CronLog("Starting gocron with config: ")
@@ -85,19 +84,7 @@ func initConfig() {
 
 	err = config.Validate()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
+		libgocron.LogError(err)
 		os.Exit(1)
 	}
-
-
-
-	// TODO: implement this, which will likely require some logic that
-	// /includes a dedicated "read config" function
-	/*viper.WatchConfig()
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed:", e.Name)
-	})
-	read the config file into Config struct
-	var c Config = GetConfig(verbose)
-	*/
 }

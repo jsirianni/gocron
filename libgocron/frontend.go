@@ -6,6 +6,7 @@ import (
 	"time"
 	"io/ioutil"
     "encoding/json"
+	"errors"
 )
 
 
@@ -183,10 +184,9 @@ func (c Cron) CheckLength() bool {
 func stringToInt(x string) int {
     y, err := strconv.Atoi(x)
     if err != nil {
-        CheckError(err)
-        CronLog("Failed to convert int to string. Probably a bad GET.")
+        LogError(err)
+        LogError(errors.New("Failed to convert int to string. Probably a bad GET."))
         return -1
-
     }
 
     return y

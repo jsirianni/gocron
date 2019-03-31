@@ -3,6 +3,7 @@ import (
 	"os"
 	"fmt"
 	"time"
+	"errors"
 
 	"github.com/jsirianni/slacklib/slacklib"
 )
@@ -14,7 +15,7 @@ func (c Config) StartBackend(v bool) {
 	// create the gocron table, if not exists
 	err := createGocronTable()
 	if err != nil {
-		CheckError(err)
+		LogError(err)
 		os.Exit(1)
 	}
 
@@ -34,8 +35,8 @@ func (c Config) GetSummary(v bool) {
 	rows, err := queryDatabase(missedJobs)
 	defer rows.Close()
 	if err != nil {
-		CheckError(err)
-		CronLog("Failed to perform query while attempting to build a summary: " + missedJobs)
+		LogError(err)
+		LogError(errors.New("Failed to perform query while attempting to build a summary: " + missedJobs))
 		return
 	}
 
@@ -78,8 +79,8 @@ func checkMissedJobs(query string) {
 	rows, err := queryDatabase(query)
 	defer rows.Close()
 	if err != nil {
-		CheckError(err)
-		CronLog("Failed to perform query: "+query)
+		LogError(err)
+		LogError(errors.New("Failed to perform query: " + query))
 		return
 	}
 
@@ -107,8 +108,8 @@ func checkMissedJobs(query string) {
 				rows, err := queryDatabase(query)
 				defer rows.Close()
 				if err != nil {
-					CheckError(err)
-					CronLog("Failed to update row for " + cron.Cronname)
+					LogError(err)
+					LogError(errors.New("Failed to update row for " + cron.Cronname))
 				}
 			}
 
@@ -124,8 +125,8 @@ func checkRevivedJobs(query string) {
 	rows, err := queryDatabase(query)
 	defer rows.Close()
 	if err != nil {
-		CheckError(err)
-		CronLog("Failed to perform query: "+query)
+		LogError(err)
+		LogError(errors.New("Failed to perform query: " + query))
 		return
 	}
 
