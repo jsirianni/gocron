@@ -39,7 +39,7 @@ sudo -u postgres -H -- psql -c "grant all privileges on database gocron to gocro
 
 # build /gocron/docker/docker.env
 cat << EOF > /gocron/docker/docker.env
-GC_DBFQDN=localhost
+GC_DBFQDN=`ifconfig | grep "inet 10" | awk '{print $2}'`
 GC_DBPORT=5432
 GC_DBUSER=gocron
 GC_DBPASS=password
