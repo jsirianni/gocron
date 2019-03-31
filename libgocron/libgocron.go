@@ -1,7 +1,6 @@
 package libgocron
 
 import (
-    "fmt"
     "errors"
     "net/url"
 )
