@@ -80,7 +80,7 @@ func initConfig() {
 		libgocron.CronLog("interval: " +  strconv.Itoa(config.Interval))
 		libgocron.CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack))
 		libgocron.CronLog("slackchannel: " +  config.SlackChannel)
-		libgocron.CronLog("slackhookurl: " +  config.SlackHookUrl)
+		libgocron.CronLog("slackhookurl: " +  config.SlackHookURL)
 	}
 
 	err = config.Validate()
