@@ -2,7 +2,7 @@
 
 ## CI
 
-Google Cloud Build is configured to run on every commit
+Google Cloud Build and Docker Hub are configured to run on every commit
 
 ## Vagrant
 A Vagrant configuration is provided. It will install and configure
