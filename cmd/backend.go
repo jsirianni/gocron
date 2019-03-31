@@ -16,15 +16,9 @@ var backendCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(backendCmd)
-	backendCmd.Flags().BoolVar(&summary, "summary", false, "Get summary")
 }
 
 
 func startBackend() {
-	if summary == true {
-		gocron.GetSummary()
-		return
-	}
-
 	gocron.StartBackend()
 }

@@ -6,7 +6,7 @@ import (
 )
 
 // Version holds the current version of gocron
-const Version string = "5.1.0"
+const Version string = "6.0.0"
 
 // Cron defines a cronjob
 type Cron struct {
