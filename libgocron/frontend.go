@@ -134,22 +134,10 @@ func returnNotFound(resp http.ResponseWriter) {
 
 // ValidateParams validates SQL variables
 func (c Cron) ValidateParams() bool {
-
-	valid  := false // Flag determines the return value
-
+	valid  := false 
 	if c.CheckLength() == true {
 		valid = true
 	}
-
-	/*if verbose == true {
-		if valid == true {
-			CronLog("Parameters from "+c.Ipaddress+" passed validation")
-			return true
-		}
-
-		CronLog("Parameters from "+c.Ipaddress+" failed validation!")
-		return false
-	}*/
 
 	return valid
 }
