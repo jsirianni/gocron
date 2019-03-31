@@ -33,7 +33,6 @@ type Config struct {
       Interval     int    `yaml:"interval"`
       SlackHookURL string `yaml:"slackhookurl"`
       SlackChannel string `yaml:"slackchannel"`
-      PreferSlack  bool   `yaml:"preferslack"`
 }
 
 // Validate checks if config parameters are valid
@@ -64,9 +63,6 @@ func (c Config) Validate() error {
     if c.Interval < 1 {
         m = m + "interval is less than 1\n"
     }
-
-    //if len(c.PreferSlack) == 0 {
-    //}
 
     if len(c.SlackChannel) == 0 {
         m = m + "slack_channel is length 0\n"
