@@ -6,7 +6,7 @@ import (
 	"gocron/libgocron"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	//"github.com/spf13/viper"
 )
 
 // global CLI variables
@@ -43,43 +43,21 @@ func init() {
 }
 
 
-// initConfig reads in config file and ENV variables
+// initConfig reads ENV variables
 func initConfig() {
+	var err error
+	config.Dbdatabase = os.Getenv("GC_DBDATABASE")
+	config.Dbfqdn = os.Getenv("GC_DBFQDN")
+	config.Dbpass = os.Getenv("GC_DBPASS")
+	config.Dbport = os.Getenv("GC_DBPORT")
+	config.Dbuser = os.Getenv("GC_DBUSER")
+	config.SlackChannel = os.Getenv("GC_SLACK_CHANNEL")
+	config.SlackHookURL = os.Getenv("GC_SLACK_HOOK_URL")
 
-	// set the config file to be read
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	}
-
-	// read the config file
-	if err := viper.ReadInConfig(); err == nil {
-		libgocron.CronLog("Starting gocron . . .")
-		libgocron.CronLog("Using config file: " + viper.ConfigFileUsed())
-	} else {
-		libgocron.CronLog("Config file not found: " + cfgFile)
-	}
-
-	// read the environment variables
-	viper.SetEnvPrefix("GC")
-	viper.AutomaticEnv()
-
-	// Unmarshal the configuration into config (Config struct)
-	// environment values will replace values found in the config file
-	//
-	err := viper.Unmarshal(&config)
+	config.Interval, err = strconv.Atoi(os.Getenv("GC_INTERVAL"))
 	if err != nil {
 		libgocron.LogError(err)
 		os.Exit(1)
-	} else {
-		libgocron.CronLog("Starting gocron with config: ")
-		libgocron.CronLog("dbfqdn: " + config.Dbfqdn)
-		libgocron.CronLog("dbport: " +  config.Dbport)
-		libgocron.CronLog("dbuser: " +  config.Dbuser)
-		libgocron.CronLog("dbdatabase: " +  config.Dbdatabase)
-		libgocron.CronLog("interval: " +  strconv.Itoa(config.Interval))
-		libgocron.CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack))
-		libgocron.CronLog("slackchannel: " +  config.SlackChannel)
-		libgocron.CronLog("slackhookurl: " +  config.SlackHookURL)
 	}
 
 	err = config.Validate()
