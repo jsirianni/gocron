@@ -6,14 +6,12 @@ import (
 	"gocron/libgocron"
 
 	"github.com/spf13/cobra"
-	//"github.com/spf13/viper"
 )
 
-// global CLI variables
+// global variables
 var cfgFile      string
 var frontendPort string
 var summary      bool
-var verbose      bool
 var gocron       libgocron.Gocron
 
 
