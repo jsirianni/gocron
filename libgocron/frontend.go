@@ -153,7 +153,7 @@ func (c Cron) CheckLength() error {
 	if len(c.Email) == 0 {
 		m = m + "Email, "
 	}
-	if c.Frequency == -1 {
+	if c.Frequency < 1 {
 		m = m + "Frequency, "
 	}
 	if len(c.Ipaddress) == 0 {
