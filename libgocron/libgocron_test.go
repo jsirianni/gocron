@@ -1,4 +1,7 @@
 package libgocron
+import (
+    "testing"
+)
 
 func getTestConfig() Gocron {
     var g Gocron
@@ -10,7 +13,7 @@ func getTestConfig() Gocron {
     g.Dbuser = "test"
     g.Interval = 5
     g.SlackChannel = "test"
-    g.SlackHookURL = ""
+    g.SlackHookURL = "http://valid.com"
 
     return g
 }
@@ -28,4 +31,12 @@ func getTestCron() Cron {
     c.Site = false
 
     return c
+}
+
+func TestValidate(t *testing.T) {
+    g := getTestConfig()
+
+    if err := g.Validate(); err != nil {
+        t.Errorf("Expected Validate() to return nil when using a valid config")
+    }
 }
