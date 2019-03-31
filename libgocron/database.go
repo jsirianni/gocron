@@ -17,7 +17,8 @@ const revivedJobs = "SELECT * FROM gocron WHERE alerted = true AND (extract(epoc
 
 // Function handles database queries
 func queryDatabase(query string) (*sql.Rows, error) {
-    db, err := sql.Open("postgres", "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable")
+    conn := "postgres://" + config.Dbuser + ":" + config.Dbpass + "@" + config.Dbfqdn + "/gocron" + "?sslmode=" + "disable"
+    db, err := sql.Open("postgres", conn)
     if err != nil {
         return nil, err
     }
