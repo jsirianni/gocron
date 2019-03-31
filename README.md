@@ -42,6 +42,9 @@ Append to an existing crontab entry with:
 
 
 ### Weekly Summary
+***NOTE:*** as of version 6.0.0, this feature is not available. If you
+want to use it, download 5.1.0 and follow these instructions.
+
 The backend service binary can provide a summary of all missed jobs
 ```
 # print a summary of current missed jobs
@@ -76,7 +79,7 @@ Setup docker swarm
 ```
 sudo docker swarm init
 ```
-Setup environment:
+Setup environment. See doc/ENVIRONMENT.md
 ```
 sudo vim docker/docker.env
 ```
@@ -89,7 +92,7 @@ sudo docker stack deploy gocron --compose-file docker/docker-compose.yml
 ## Building
 
 ### Compile
-The primary way to build (and run) `GOCRON` is with Docker. 
+The primary way to build (and run) `GOCRON` is with Docker.
 ```
 sudo docker build -t <tag>:<version> .
 ```
@@ -98,7 +101,8 @@ Compile manually with GO. This repo must be placed within your `$GOPATH`
 ```
 cd $GOPATH/src/gocron
 go get .
-go build -o gocron
+env CGO_ENABLED=0 go test ./...
+env CGO_ENABLED=0 go build -o gocron
 ```
 
 

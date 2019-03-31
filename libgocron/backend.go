@@ -1,43 +1,41 @@
 package libgocron
 import (
 	"os"
-	"fmt"
 	"time"
+	"errors"
 
-	"github.com/jsirianni/slacklib/slacklib"
+	"gocron/util/log"
+	"gocron/util/slack"
 )
 
 
-// Timer calls checkCronStatus() on a set interval
-func StartBackend(c Config, v bool) {
-	config = c
-	verbose = v
-
+// StartBackend calls checkCronStatus() on a set interval
+func (g Gocron) StartBackend() error {
 	// create the gocron table, if not exists
-	if createGocronTable() == false {
+	err := g.createGocronTable()
+	if err != nil {
+		log.Error(err)
 		os.Exit(1)
 	}
 
 	// backend server is just a never ending loop that checks for missed
 	// jobs at the set interval
 	for {
-		time.Sleep((time.Duration(config.Interval) * time.Second))
-		CronLog("Checking for missed jobs.")
-		cronStatus()
+		time.Sleep((time.Duration(g.Interval) * time.Second))
+		log.Message("Checking for missed jobs.")
+		g.cronStatus()
 	}
 }
 
+// GetSummary prints a summary to standard out
+func (g Gocron) GetSummary() {
+	message := "gocron summary - missed jobs:\n"
 
-func GetSummary(c Config, v bool) {
-	config = c
-	verbose = v
-
-	var message string = "gocron summary - missed jobs:\n"
-
-	rows, status := queryDatabase(missedJobs)
+	rows, err := queryDatabase(g, missedJobs)
 	defer rows.Close()
-	if status == false {
-		CronLog("Failed to perform query while attempting to build a summary: " + missedJobs)
+	if err != nil {
+		log.Error(err)
+		log.Error(errors.New("Failed to perform query while attempting to build a summary: " + missedJobs))
 		return
 	}
 
@@ -56,31 +54,29 @@ func GetSummary(c Config, v bool) {
 	}
 
 
-	// Send slack alert and pass dummy cron object
-	if verbose == true && slackAlert("gocron alert summary", message) == true {
-		CronLog(message)
-		return
-
-	} else if verbose == false {
-		fmt.Println(message)
-
+	// Send slack alert
+	err = g.slackAlert("gocron alert summary", message)
+	if err != nil {
+		log.Message("GOCRON: Failed to build alert summary.")
 	} else {
-		CronLog("GOCRON: Failed to build alert summary.")
+		log.Message(message)
 	}
+
 }
 
 
-func cronStatus() {
-	checkMissedJobs(missedJobs)
-	checkRevivedJobs(revivedJobs)
+func (g Gocron) cronStatus() {
+	g.checkMissedJobs(missedJobs)
+	g.checkRevivedJobs(revivedJobs)
 }
 
 
-func checkMissedJobs(query string) {
-	rows, status := queryDatabase(query)
+func (g Gocron) checkMissedJobs(query string) {
+	rows, err := queryDatabase(g, query)
 	defer rows.Close()
-	if status == false {
-		CronLog("Failed to perform query: "+query)
+	if err != nil {
+		log.Error(err)
+		log.Error(errors.New("Failed to perform query: " + query))
 		return
 	}
 
@@ -101,30 +97,32 @@ func checkMissedJobs(query string) {
 			message := "The cronjob " + cron.Cronname + " for account " + cron.Account + " has not checked in on time"
 
 			// Only update database if alert sent successful
-			if alert(cron, subject, message) == true {
+			if g.alert(cron, subject, message) == true {
 				query = "UPDATE gocron SET alerted = true " +
 					"WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-				rows, result := queryDatabase(query)
+				rows, err := queryDatabase(g, query)
 				defer rows.Close()
-				if result == false {
-					CronLog("Failed to update row for " + cron.Cronname)
+				if err != nil {
+					log.Error(err)
+					log.Error(errors.New("Failed to update row for " + cron.Cronname))
 				}
 			}
 
 		} else {
-			CronLog("Alert for "+cron.Cronname+": "+cron.Account+
+			log.Message("Alert for "+cron.Cronname+": "+cron.Account+
 				" has been supressed. Already alerted")
 		}
 	}
 }
 
 
-func checkRevivedJobs(query string) {
-	rows, status := queryDatabase(query)
+func (g Gocron) checkRevivedJobs(query string) {
+	rows, err := queryDatabase(g, query)
 	defer rows.Close()
-	if status == false {
-		CronLog("Failed to perform query: "+query)
+	if err != nil {
+		log.Error(err)
+		log.Error(errors.New("Failed to perform query: " + query))
 		return
 	}
 
@@ -142,45 +140,41 @@ func checkRevivedJobs(query string) {
 		query = "UPDATE gocron SET alerted = false " +
 			"WHERE cronname = '" + cron.Cronname + "' AND account = '" + cron.Account + "';"
 
-		rows, result := queryDatabase(query)
+		rows, err := queryDatabase(g, query)
 		defer rows.Close()
-		if result == false {
-			CronLog("Failed to update row for " + cron.Cronname)
+		if err != nil {
+			log.Message("Failed to update row for " + cron.Cronname)
 
 		}
 
 		subject := cron.Cronname + ": " + cron.Account + " is back online" + "\n"
 		message := "The cronjob " + cron.Cronname + " for account " + cron.Account + " is back online"
-		alert(cron, subject, message)
+		g.alert(cron, subject, message)
 	}
 }
 
 
-func alert(cron Cron, subject string, message string) bool {
+func (g Gocron) alert(cron Cron, subject string, message string) bool {
 
     // Immediately log the alert
-    CronLog(subject)
+    log.Message(subject)
 
-    var result bool = false
-	if slackAlert(subject, message) == true {
-		result = true
+	err := g.slackAlert(subject, message)
+	if err != nil {
+		log.Error(errors.New("gocron fail: alert for " + cron.Cronname))
+		log.Error(err)
+		return false
 	}
 
-	// NOTE: future alert methods will go here. Removed SMTP due to complexity
-
-    if result == true {
-        CronLog("gocron success: alert for " + cron.Cronname + " sent")
-        return true
-    } else {
-        CronLog("gocron fail: alert for " + cron.Cronname)
-        return false
-    }
+    log.Message("gocron success: alert for " + cron.Cronname + " sent")
+    return true
 }
 
 
-func slackAlert(subject string, message string) bool {
-    var slackmessage slacklib.SlackPost
-    slackmessage.Channel = config.SlackChannel
-    slackmessage.Text = message
-    return slacklib.BasicMessage(slackmessage, config.SlackHookUrl)
+func (g Gocron) slackAlert(subject string, message string) error {
+	var slack slack.Slack
+	slack.HookURL      = g.SlackHookURL
+	slack.Post.Channel = g.SlackChannel
+	slack.Post.Text    = message
+	return slack.Message()
 }

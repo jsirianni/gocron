@@ -28,3 +28,6 @@ gocron
 # ignore env files
 gocron.env
 docker.env
+
+# ignore logs from vagrant
+*.log

@@ -1,21 +1,19 @@
 package cmd
 import (
-	"fmt"
 	"os"
 	"strconv"
 
 	"gocron/libgocron"
+	"gocron/util/log"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-// global CLI variables
+// global variables
 var cfgFile      string
 var frontendPort string
 var summary      bool
-var verbose      bool
-var config       libgocron.Config
+var gocron       libgocron.Gocron
 
 
 // rootCmd represents the base command when called without any subcommands
@@ -30,7 +28,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		log.Error(err)
 		os.Exit(1)
 	}
 }
@@ -38,60 +36,29 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "/etc/gocron/config.yml", "config file (default is /etc/gocron/config.yml")
-	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "enable standard out output with --verbose (default is disabled)" )
 }
 
 
-// initConfig reads in config file and ENV variables
+// initConfig reads ENV variables
 func initConfig() {
+	var err error
+	gocron.Dbdatabase = os.Getenv("GC_DBDATABASE")
+	gocron.Dbfqdn = os.Getenv("GC_DBFQDN")
+	gocron.Dbpass = os.Getenv("GC_DBPASS")
+	gocron.Dbport = os.Getenv("GC_DBPORT")
+	gocron.Dbuser = os.Getenv("GC_DBUSER")
+	gocron.SlackChannel = os.Getenv("GC_SLACKCHANNEL")
+	gocron.SlackHookURL = os.Getenv("GC_SLACKHOOKURL")
 
-	// set the config file to be read
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	}
-
-	// read the config file
-	if err := viper.ReadInConfig(); err == nil {
-		libgocron.CronLog("Starting gocron . . .")
-		libgocron.CronLog("Using config file: " + viper.ConfigFileUsed())
-	} else {
-		libgocron.CronLog("Config file not found: " + cfgFile)
-	}
-
-	// read the environment variables
-	viper.SetEnvPrefix("GC")
-	viper.AutomaticEnv()
-
-	// Unmarshal the configuration into config (Config struct)
-	// environment values will replace values found in the config file
-	//
-	err := viper.Unmarshal(&config)
+	gocron.Interval, err = strconv.Atoi(os.Getenv("GC_INTERVAL"))
 	if err != nil {
-		libgocron.CronLog(err.Error())
+		log.Error(err)
 		os.Exit(1)
-	} else {
-		libgocron.CronLog("Starting gocron with config: ")
-		libgocron.CronLog("dbfqdn: " + config.Dbfqdn)
-		libgocron.CronLog("dbport: " +  config.Dbport)
-		libgocron.CronLog("dbuser: " +  config.Dbuser)
-		libgocron.CronLog("dbdatabase: " +  config.Dbdatabase)
-		libgocron.CronLog("interval: " +  strconv.Itoa(config.Interval))
-		libgocron.CronLog("preferslack: " +  strconv.FormatBool(config.PreferSlack))
-		libgocron.CronLog("slackchannel: " +  config.SlackChannel)
-		libgocron.CronLog("slackhookurl: " +  config.SlackHookUrl)
 	}
 
-
-
-	// TODO: implement this, which will likely require some logic that
-	// /includes a dedicated "read config" function
-	/*viper.WatchConfig()
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed:", e.Name)
-	})
-	read the config file into Config struct
-	var c Config = GetConfig(verbose)
-	*/
+	err = gocron.Validate()
+	if err != nil {
+		log.Error(err)
+		os.Exit(1)
+	}
 }
