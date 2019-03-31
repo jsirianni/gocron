@@ -10,7 +10,7 @@ import (
 
 
 // StartBackend calls checkCronStatus() on a set interval
-func (c Config) StartBackend(v bool) {
+func (c Config) StartBackend(v bool) error {
 
 	// create the gocron table, if not exists
 	err := createGocronTable()
