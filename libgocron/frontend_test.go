@@ -42,7 +42,7 @@ func TestValidateParams(t *testing.T) {
     if c.ValidateParams() == true {
         t.Errorf("Expected ValidateParams() to return false, when using bad IP Address")
     }
-    
+
     c = getTestCron()
     c.Lastruntime = -1
     if c.ValidateParams() == true {
@@ -61,26 +61,37 @@ func TestCheckLength(t *testing.T) {
     }
 
     // Invalid parameters
+    c = getTestCron()
     c.Account = ""
     if c.CheckLength() == nil {
         t.Errorf("Expected ValidateParams() to return an error, when using bad Account")
     }
+
+    c = getTestCron()
     c.Cronname = ""
     if c.CheckLength() == nil {
         t.Errorf("Expected ValidateParams() to return an error, when using bad Cronname")
     }
+
+    c = getTestCron()
     c.Email = ""
     if c.CheckLength() == nil {
         t.Errorf("Expected ValidateParams() to return an error, when using bad Email")
     }
+
+    c = getTestCron()
     c.Frequency = 0
     if c.CheckLength() == nil {
         t.Errorf("Expected ValidateParams() to return an error, when using bad Frequency")
     }
+
+    c = getTestCron()
     c.Ipaddress = ""
     if c.CheckLength() == nil {
         t.Errorf("Expected ValidateParams() to return an error, when using bad IP Address")
     }
+
+    c = getTestCron()
     c.Lastruntime = -1
     if c.CheckLength() == nil {
         t.Errorf("Expected ValidateParams() to return an error, when using bad Lastruntime")
