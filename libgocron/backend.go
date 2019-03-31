@@ -173,7 +173,8 @@ func (g Gocron) alert(cron Cron, subject string, message string) bool {
 
 func (g Gocron) slackAlert(subject string, message string) error {
 	var slack slack.Slack
-	slack.Post.Text = message
+	slack.HookURL      = g.SlackHookURL
 	slack.Post.Channel = g.SlackChannel
+	slack.Post.Text    = message
 	return slack.Message()
 }
