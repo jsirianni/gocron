@@ -5,8 +5,7 @@ import (
 	"errors"
 
 	"gocron/util/log"
-
-	"github.com/jsirianni/slacklib/slacklib"
+	"gocron/util/slack"
 )
 
 
@@ -56,12 +55,13 @@ func (g Gocron) GetSummary() {
 
 
 	// Send slack alert
-	if g.slackAlert("gocron alert summary", message) == true {
-		log.Message(message)
-
-	} else {
+	err = g.slackAlert("gocron alert summary", message)
+	if err != nil {
 		log.Message("GOCRON: Failed to build alert summary.")
+	} else {
+		log.Message(message)
 	}
+
 }
 
 
@@ -159,9 +159,10 @@ func (g Gocron) alert(cron Cron, subject string, message string) bool {
     // Immediately log the alert
     log.Message(subject)
 
-    result := false
-	if g.slackAlert(subject, message) == true {
-		result = true
+    result := true
+	err := g.slackAlert(subject, message)
+	if err != nil {
+		result = false
 	}
 
     if result == true {
@@ -174,9 +175,9 @@ func (g Gocron) alert(cron Cron, subject string, message string) bool {
 }
 
 
-func (g Gocron) slackAlert(subject string, message string) bool {
-    var slackmessage slacklib.SlackPost
-    slackmessage.Channel = g.SlackChannel
-    slackmessage.Text = message
-    return slacklib.BasicMessage(slackmessage, g.SlackHookURL)
+func (g Gocron) slackAlert(subject string, message string) error {
+	var slack slack.Slack
+	slack.Post.Text = message
+	slack.Post.Channel = g.SlackChannel
+	return slack.Message()
 }
