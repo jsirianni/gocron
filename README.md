@@ -76,7 +76,7 @@ Setup docker swarm
 ```
 sudo docker swarm init
 ```
-Setup environment:
+Setup environment. See doc/ENVIRONMENT.md
 ```
 sudo vim docker/docker.env
 ```
@@ -89,7 +89,7 @@ sudo docker stack deploy gocron --compose-file docker/docker-compose.yml
 ## Building
 
 ### Compile
-The primary way to build (and run) `GOCRON` is with Docker. 
+The primary way to build (and run) `GOCRON` is with Docker.
 ```
 sudo docker build -t <tag>:<version> .
 ```
@@ -98,7 +98,8 @@ Compile manually with GO. This repo must be placed within your `$GOPATH`
 ```
 cd $GOPATH/src/gocron
 go get .
-go build -o gocron
+env CGO_ENABLED=0 go test ./...
+env CGO_ENABLED=0 go build -o gocron
 ```
 
 
