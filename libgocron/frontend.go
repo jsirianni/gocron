@@ -134,50 +134,39 @@ func returnNotFound(resp http.ResponseWriter) {
 
 // ValidateParams validates SQL variables
 func (c Cron) ValidateParams() bool {
-
-	valid  := false // Flag determines the return value
-
-	if c.CheckLength() == true {
-		valid = true
-	}
-
-	/*if verbose == true {
-		if valid == true {
-			CronLog("Parameters from "+c.Ipaddress+" passed validation")
-			return true
-		}
-
-		CronLog("Parameters from "+c.Ipaddress+" failed validation!")
+	if err := c.CheckLength(); err != nil {
 		return false
-	}*/
-
-	return valid
+	}
+	return true
 }
 
 
 // CheckLength validates that parameters are present
-func (c Cron) CheckLength() bool {
+func (c Cron) CheckLength() error {
+	var m string
 	if len(c.Account) == 0 {
-		return false
-
-	} else if len(c.Cronname) == 0 {
-		return false
-
-	} else if len(c.Email) == 0 {
-		return false
-
-	} else if c.Frequency == -1 {
-		return false
-
-	} else if len(c.Ipaddress) == 0 {
-		return false
-
-	} else if c.Lastruntime == -1 {
-		return false
-
-	} else {
-		return true
+		m = m + "Account, "
 	}
+	if len(c.Cronname) == 0 {
+		m = m + "Cronname, "
+	}
+	if len(c.Email) == 0 {
+		m = m + "Email, "
+	}
+	if c.Frequency < 1 {
+		m = m + "Frequency, "
+	}
+	if len(c.Ipaddress) == 0 {
+		m = m + "Ipaddress, "
+	}
+	if c.Lastruntime == -1 {
+		m = m + "Lastruntime"
+	}
+
+	if len(m) != 0 {
+		return errors.New("Length check failed for parameters: ")
+	}
+	return nil
 }
 
 
