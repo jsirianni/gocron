@@ -54,8 +54,8 @@ else
    exit 1
 fi
 
-# sleep 5 seconds to allow alert to be sent
-sleep 5
+# sleep 8 seconds to allow alert to be sent
+sleep 8
 
 # test for 201 status code when sending a valid GET
 # test for "back online" alert
@@ -69,8 +69,9 @@ else
    exit 1
 fi
 
-# sleep 5 seconds to allow alert to be sent
-sleep 5
+# sleep 12 seconds to allow alert to be sent
+# and to allow for allert to be suppressed in the log
+sleep 12
 
 # test for 404 status when sending invalid query string
 echo "testing for 404 response from frontend (bad GET)"
@@ -93,4 +94,11 @@ grep "Heartbeat from mycronjob: myaccount" frontend_log | wc -l | grep 2 || exit
 grep "GET from 127.0.0.1 not valid" frontend_log | wc -l | grep 1 || exit 1
 echo "PASS: frontend log"
 echo "checking backend log"
-cat backend_log
+grep "Checking for missed jobs" backend_log || exit 1
+grep "mycronjob: myaccount failed to check in" backend_log || exit 1
+grep '{"channel":"test","text":"The cronjob mycronjob for account myaccount has not checked in on time"}' backend_log || exit 1
+grep "gocron success: alert for mycronjob sent" backend_log | wc -l | grep 2 || exit 1
+grep "Alert for mycronjob: myaccount has been supressed. Already alerted" backend_log || exit 1
+grep "mycronjob: myaccount is back online" backend_log || exit 1
+grep '{"channel":"test","text":"The cronjob mycronjob for account myaccount is back online"}' backend_log || exit 1
+echo "PASS: backend log"
