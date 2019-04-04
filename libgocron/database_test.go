@@ -46,3 +46,11 @@ func TestgetDatabaseVersion(t *testing.T) {
         t.Errorf("Expected getDatabaseVersion() to return an error, due to no database to connect to")
     }
 }
+
+func TestgetCronsByAccount(t *testing.T) {
+    g := getTestConfig()
+
+    if _, err := g.getCronsByAccount("test"); err == nil {
+        t.Errorf("Expected getCronsByAccount() to return an error, due to no database to connect to")
+    }
+}

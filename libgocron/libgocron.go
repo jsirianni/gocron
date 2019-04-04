@@ -8,6 +8,13 @@ import (
 // Version holds the current version of gocron
 const Version string = "6.2.0"
 
+// AccountCrons defines all crons for a given account
+type AccountCrons struct {
+    Account string
+    Count   int
+    Crons   []Cron
+}
+
 // Cron defines a cronjob
 type Cron struct {
       Cronname    string `json:cronname`  // Name of the cronjob

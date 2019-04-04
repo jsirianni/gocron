@@ -98,3 +98,35 @@ func (g Gocron) getDatabaseVersion() (string, error) {
     }
     return v, nil
 }
+
+// returns an array of Cron structs for a specific account
+func (g Gocron) getCronsByAccount(account string) (AccountCrons, error) {
+    var a AccountCrons
+    query := "SELECT * FROM gocron WHERE account = '" + account + "';"
+    if len(account) == 0 {
+        return a, errors.New("call to getCronsByAccount contained an empty account")
+    }
+
+    rows, err := queryDatabase(g, query)
+    if err != nil {
+        return a, err
+    }
+
+    for rows.Next() {
+        var c Cron
+        rows.Scan(&c.Cronname,
+            &c.Account,
+            &c.Email,
+            &c.Ipaddress,
+            &c.Frequency,
+            &c.Lastruntime,
+            &c.Alerted,
+            &c.Site)
+        a.Crons = append(a.Crons, c)
+    }
+
+    a.Account = account
+    a.Count = len(a.Crons)
+
+    return a, nil
+}
