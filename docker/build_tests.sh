@@ -88,11 +88,25 @@ fi
 STATUS_CODE=`curl -sL -w "%{http_code}\\n" "localhost:3000/healthcheck" -o /dev/null`
 if [ "$STATUS_CODE" = "200" ];
 then
-   echo "PASS: frontend returned 200" ;
+   echo "PASS: backend returned 200" ;
 else
-   echo "FAIL: frontend returned ${STATUS_CODE}, expected 200" ;
+   echo "FAIL: backend returned ${STATUS_CODE}, expected 200" ;
    exit 1
 fi
+
+# validate backend version api works and is valid json
+echo "checking backend /version endpoint"
+STATUS_CODE=`curl -sL -w "%{http_code}\\n" "localhost:3000/version" -o /dev/null`
+if [ "$STATUS_CODE" = "200" ];
+then
+    curl -s localhost:3000/version | jq '.version' || exit 1
+    curl -s localhost:3000/version | jq '.database' || exit 1
+    echo "PASS: backend /version"
+else
+   echo "FAIL: backend /version returned ${STATUS_CODE}, expected 200" ;
+   exit 1
+fi
+
 
 # # # # # # #
 # Test logs by parsing their contents
