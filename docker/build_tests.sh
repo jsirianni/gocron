@@ -84,6 +84,15 @@ else
    exit 1
 fi
 
+# test backend healthcheck
+STATUS_CODE=`curl -sL -w "%{http_code}\\n" "localhost:3000/healthcheck" -o /dev/null`
+if [ "$STATUS_CODE" = "200" ];
+then
+   echo "PASS: frontend returned 200" ;
+else
+   echo "FAIL: frontend returned ${STATUS_CODE}, expected 200" ;
+   exit 1
+fi
 
 # # # # # # #
 # Test logs by parsing their contents
@@ -101,4 +110,5 @@ grep "gocron success: alert for mycronjob sent" backend_log | wc -l | grep 2 || 
 grep "Alert for mycronjob: myaccount has been supressed. Already alerted" backend_log || exit 1
 grep "mycronjob: myaccount is back online" backend_log || exit 1
 grep '{"channel":"test","text":"The cronjob mycronjob for account myaccount is back online"}' backend_log || exit 1
+grep "healthcheck from: 127.0.0.1" backend_log | wc -l | grep 1 || exit 1
 echo "PASS: backend log"
