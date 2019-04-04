@@ -19,16 +19,22 @@ func (g Gocron) StartFrontend(frontendPort string) {
 	log.Message("starting web server on port: " + frontendPort)
 
 	http.HandleFunc("/", g.incomingCron)
-	http.HandleFunc("/healthcheck", frontEndHealthCheck)
+	http.HandleFunc("/healthcheck", g.frontEndHealthCheck)
 	http.ListenAndServe(":"+frontendPort, nil)
 }
 
 
 // return http status 200 if connection to database is healthy
-func frontEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
+func (g Gocron) frontEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
     r := strings.Split(req.RemoteAddr, ":")[0]
 	log.Message("healthcheck from: " + r)
-	httphelper.ReturnOk(resp)
+	err := g.testDatabaseConnection()
+	if err != nil {
+		log.Error(err)
+		httphelper.ReturnServerError(resp, "a connection to the database could not be validated")
+	} else {
+		httphelper.ReturnOk(resp)
+	}
 }
 
 
