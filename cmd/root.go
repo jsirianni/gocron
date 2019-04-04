@@ -13,6 +13,7 @@ import (
 // global variables
 var cfgFile      string
 var frontendPort string
+var backendPort  string
 var summary      bool
 var gocron       libgocron.Gocron
 

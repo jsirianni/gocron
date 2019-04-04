@@ -16,9 +16,11 @@ var backendCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(backendCmd)
+	backendCmd.Flags().StringVar(&backendPort, "port", "3000", "Listening port (defaults to 3000)")
+
 }
 
 
 func startBackend() {
-	gocron.StartBackend()
+	gocron.StartBackend(backendPort)
 }
