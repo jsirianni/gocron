@@ -30,3 +30,11 @@ func TestcreateGocronTable(t *testing.T) {
         t.Errorf("Expected createGocronTable() to return an error, due to no database to connect to")
     }
 }
+
+func TesttestDatabaseConnection(t *testing.T) {
+    g := getTestConfig()
+
+    if err := g.testDatabaseConnection(); err == nil {
+        t.Errorf("Expected testDatabaseConnection() to return an error, due to no database to connect to")
+    }
+}
