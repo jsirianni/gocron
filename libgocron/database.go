@@ -87,7 +87,7 @@ func (g Gocron) getDatabaseVersion() (string, error) {
     var err error
     var v   string
 
-    db, err := sql.Open("postgres", "user=" + g.Dbuser + " password=" + g.Dbpass + " dbname=" + g.Dbdatabase + " sslmode=disable")
+    db, err := sql.Open("postgres", "host="+ g.Dbfqdn + " user=" + g.Dbuser + " password=" + g.Dbpass + " dbname=" + g.Dbdatabase + " sslmode=disable")
     if err != nil {
       return "", err
     }
