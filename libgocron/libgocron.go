@@ -6,7 +6,7 @@ import (
 )
 
 // Version holds the current version of gocron
-const Version string = "6.1.0"
+const Version string = "6.2.0"
 
 // Cron defines a cronjob
 type Cron struct {
@@ -14,7 +14,7 @@ type Cron struct {
       Account     string `json:account`   // Account the job belongs to
       Email       string `json:email`     // Address to send alerts to
       Frequency   int    `json:frequency` // How often a job should check in
-      Site        bool   `json:site`      // Not implemented, required for database backward compatability 
+      Site        bool   `json:site`      // Not implemented, required for database backward compatability
       Ipaddress   string   // Source IP address
       Lastruntime int      // Unix timestamp
       Alerted     bool     // set to true if an alert has already been thrown
@@ -30,6 +30,15 @@ type Gocron struct {
       Interval     int    `yaml:"interval"`
       SlackHookURL string `yaml:"slackhookurl"`
       SlackChannel string `yaml:"slackchannel"`
+}
+
+// BackendVersion defines the backend api  json response for /version
+type BackendVersion struct {
+    Version string `json:"version"`
+    Database struct {
+        Type string `json:"type"`
+        Version string `json:"version"`
+    } `json:"database"`
 }
 
 // Validate checks if config parameters are valid

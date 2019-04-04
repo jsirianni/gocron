@@ -81,3 +81,20 @@ func (g Gocron) createGocronTable() error {
 
     return err
 }
+
+// returns the database version
+func (g Gocron) getDatabaseVersion() (string, error) {
+    var err error
+    var v   string
+
+    db, err := sql.Open("postgres", "user=" + g.Dbuser + " password=" + g.Dbpass + " dbname=" + g.Dbdatabase + " sslmode=disable")
+    if err != nil {
+      return "", err
+    }
+
+    err = db.QueryRow("SELECT version();").Scan(&v)
+    if err != nil {
+        return "", errors.New(err.Error())
+    }
+    return v, nil
+}

@@ -31,7 +31,7 @@ func (g Gocron) frontEndHealthCheck(resp http.ResponseWriter, req *http.Request)
 	err := g.testDatabaseConnection()
 	if err != nil {
 		log.Error(err)
-		httphelper.ReturnServerError(resp, "a connection to the database could not be validated")
+		httphelper.ReturnServerError(resp, "a connection to the database could not be validated", true)
 	} else {
 		httphelper.ReturnOk(resp)
 	}
@@ -85,7 +85,7 @@ func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 			httphelper.ReturnCreated(resp)
 
 		} else {
-			httphelper.ReturnServerError(resp, "failed to update the database")
+			httphelper.ReturnServerError(resp, "failed to update the database", false)
 		}
 
 	} else {

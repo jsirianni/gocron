@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"encoding/json"
 
 	"gocron/util/log"
 	"gocron/util/slack"
@@ -41,6 +42,7 @@ func (g Gocron) BackendAPI(backendPort string) {
 	log.Message("starting backend api on port: " + backendPort)
 
 	http.HandleFunc("/healthcheck", g.backEndHealthCheck)
+	http.HandleFunc("/version", g.backendVersionAPI)
 	http.ListenAndServe(":" + backendPort, nil)
 }
 
@@ -50,8 +52,24 @@ func (g Gocron) backEndHealthCheck(resp http.ResponseWriter, req *http.Request) 
 	err := g.testDatabaseConnection()
 	if err != nil {
 		log.Error(err)
-		httphelper.ReturnServerError(resp, "a connection to the database could not be validated")
+		httphelper.ReturnServerError(resp, "a connection to the database could not be validated", true)
 	} else {
+		httphelper.ReturnOk(resp)
+	}
+}
+
+func (g Gocron) backendVersionAPI(resp http.ResponseWriter, req *http.Request) {
+	var b BackendVersion
+	var err error
+	b.Version = Version
+	b.Database.Type = "postgres"
+	b.Database.Version, err = g.getDatabaseVersion()
+	if err != nil {
+		log.Error(err)
+		httphelper.ReturnServerError(resp, err.Error(), true)
+	} else {
+		resp.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(resp).Encode(b)
 		httphelper.ReturnOk(resp)
 	}
 }
