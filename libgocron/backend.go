@@ -11,7 +11,7 @@ import (
 
 
 // StartBackend calls checkCronStatus() on a set interval
-func (g Gocron) StartBackend(backendPort string) error {
+func (g Gocron) StartBackend() error {
 	log.Message("gocron-back version: " + Version)
 
 	// create the gocron table, if not exists
@@ -20,9 +20,6 @@ func (g Gocron) StartBackend(backendPort string) error {
 		log.Error(err)
 		os.Exit(1)
 	}
-
-	// start the api on a new thread
-	go g.Api(backendPort)
 
 	// backend server is just a never ending loop that checks for missed
 	// jobs at the set interval

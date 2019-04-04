@@ -13,7 +13,7 @@ import (
 // global variables
 var cfgFile      string
 var frontendPort string
-var backendPort  string
+var apiPort      string
 var summary      bool
 var gocron       libgocron.Gocron
 
@@ -38,6 +38,8 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	rootCmd.PersistentFlags().StringVar(&apiPort, "port", "3000", "API listening port (defaults to 3000)")
+
 }
 
 
