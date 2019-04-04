@@ -3,6 +3,8 @@ import (
 	"os"
 	"time"
 	"errors"
+	"net/http"
+	"strings"
 
 	"gocron/util/log"
 	"gocron/util/slack"
@@ -10,13 +12,18 @@ import (
 
 
 // StartBackend calls checkCronStatus() on a set interval
-func (g Gocron) StartBackend() error {
+func (g Gocron) StartBackend(backendPort string) error {
+	log.Message("gocron-back version: " + Version)
+
 	// create the gocron table, if not exists
 	err := g.createGocronTable()
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
 	}
+
+	// start the backend api on a new thread
+	go g.BackendAPI(backendPort)
 
 	// backend server is just a never ending loop that checks for missed
 	// jobs at the set interval
@@ -25,6 +32,20 @@ func (g Gocron) StartBackend() error {
 		log.Message("Checking for missed jobs.")
 		g.cronStatus()
 	}
+}
+
+// BackendAPI is a web service that exposes the backend to
+// HTTP connections
+func (g Gocron) BackendAPI(backendPort string) {
+	log.Message("starting backend api on port: " + backendPort)
+
+	http.HandleFunc("/healthcheck", g.backEndHealthCheck)
+	http.ListenAndServe(":" + backendPort, nil)
+}
+
+func (g Gocron) backEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
+	r := strings.Split(req.RemoteAddr, ":")[0]
+	log.Message("healthcheck from: " + r)
 }
 
 // GetSummary prints a summary to standard out
