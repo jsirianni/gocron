@@ -17,3 +17,5 @@ services:
         env_file:
           - docker.env
         entrypoint: /usr/local/bin/gocron backend
+        ports:
+            - "3000:3000"
