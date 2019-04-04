@@ -3,15 +3,10 @@ import (
 	"os"
 	"time"
 	"errors"
-	"net/http"
-	"strings"
-	"encoding/json"
 
 	"gocron/util/log"
 	"gocron/util/slack"
-	"gocron/util/httphelper"
 
-	"github.com/gorilla/mux"
 )
 
 
@@ -26,8 +21,8 @@ func (g Gocron) StartBackend(backendPort string) error {
 		os.Exit(1)
 	}
 
-	// start the backend api on a new thread
-	go g.BackendAPI(backendPort)
+	// start the api on a new thread
+	go g.Api(backendPort)
 
 	// backend server is just a never ending loop that checks for missed
 	// jobs at the set interval
@@ -36,95 +31,6 @@ func (g Gocron) StartBackend(backendPort string) error {
 		log.Message("Checking for missed jobs.")
 		g.cronStatus()
 	}
-}
-
-// BackendAPI is a web service that exposes the backend to
-// HTTP connections
-func (g Gocron) BackendAPI(backendPort string) {
-	log.Message("starting backend api on port: " + backendPort)
-	r := mux.NewRouter()
-    r.HandleFunc("/healthcheck", g.backEndHealthCheck)
-    r.HandleFunc("/version", g.backendVersionAPI)
-    r.HandleFunc("/crons", g.getCronsAPI)
-	http.ListenAndServe(":" + backendPort, r)
-}
-
-func (g Gocron) backEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
-	r := strings.Split(req.RemoteAddr, ":")[0]
-	log.Message("healthcheck from: " + r)
-	err := g.testDatabaseConnection()
-	if err != nil {
-		log.Error(err)
-		httphelper.ReturnServerError(resp, "a connection to the database could not be validated", true)
-	} else {
-		httphelper.ReturnOk(resp)
-	}
-}
-
-func (g Gocron) backendVersionAPI(resp http.ResponseWriter, req *http.Request) {
-	var b BackendVersion
-	var err error
-	b.Version = Version
-	b.Database.Type = "postgres"
-	b.Database.Version, err = g.getDatabaseVersion()
-	if err != nil {
-		log.Error(err)
-		httphelper.ReturnServerError(resp, err.Error(), true)
-	} else {
-		resp.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(resp).Encode(b)
-		httphelper.ReturnOk(resp)
-	}
-}
-
-func (g Gocron) getCronsAPI(resp http.ResponseWriter, req *http.Request) {
-	b, err := g.queryAllCrons()
-	if err != nil {
-		log.Error(err)
-		httphelper.ReturnServerError(resp, "", true)
-	} else {
-		resp.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(resp).Encode(b)
-		httphelper.ReturnOk(resp)
-	}
-}
-
-
-// GetSummary prints a summary to standard out
-func (g Gocron) GetSummary() {
-	message := "gocron summary - missed jobs:\n"
-
-	rows, err := queryDatabase(g, missedJobs)
-	defer rows.Close()
-	if err != nil {
-		log.Error(err)
-		log.Error(errors.New("Failed to perform query while attempting to build a summary: " + missedJobs))
-		return
-	}
-
-	for rows.Next() {
-		var cron Cron
-		rows.Scan(&cron.Cronname,
-			&cron.Account,
-			&cron.Email,
-			&cron.Ipaddress,
-			&cron.Frequency,
-			&cron.Lastruntime,
-			&cron.Alerted,
-			&cron.Site)
-
-		message = message + "Name: " + cron.Cronname  + "| Account: " + cron.Account + "\n"
-	}
-
-
-	// Send slack alert
-	err = g.slackAlert("gocron alert summary", message)
-	if err != nil {
-		log.Message("GOCRON: Failed to build alert summary.")
-	} else {
-		log.Message(message)
-	}
-
 }
 
 
