@@ -85,7 +85,7 @@ func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 			httphelper.ReturnCreated(resp)
 
 		} else {
-			httphelper.ReturnServerError(resp)
+			httphelper.ReturnServerError(resp, "failed to update the database")
 		}
 
 	} else {
