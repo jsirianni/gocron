@@ -51,8 +51,9 @@ func (g Gocron) backEndHealthCheck(resp http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		log.Error(err)
 		httphelper.ReturnServerError(resp, "a connection to the database could not be validated")
+	} else {
+		httphelper.ReturnOk(resp)
 	}
-	httphelper.ReturnOk(resp)
 }
 
 // GetSummary prints a summary to standard out
