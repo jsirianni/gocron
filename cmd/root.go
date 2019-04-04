@@ -2,6 +2,7 @@ package cmd
 import (
 	"os"
 	"strconv"
+	"errors"
 
 	"gocron/libgocron"
 	"gocron/util/log"
@@ -52,8 +53,7 @@ func initConfig() {
 
 	gocron.Interval, err = strconv.Atoi(os.Getenv("GC_INTERVAL"))
 	if err != nil {
-		log.Error(err)
-		os.Exit(1)
+		log.Error(errors.New("error parsing GC_INTERVAL: " + err.Error()))
 	}
 
 	err = gocron.Validate()
