@@ -16,10 +16,14 @@ func ReturnCreated(resp http.ResponseWriter) {
 
 
 // Return a 500 Server Error
-func ReturnServerError(resp http.ResponseWriter, message string) {
+func ReturnServerError(resp http.ResponseWriter, message string, json bool) {
 	resp.WriteHeader(http.StatusInternalServerError)
     if len(message) != 0 {
-        resp.Write([]byte(message))
+        if json == true {
+            resp.Write([]byte("{\"error\":\"" + message + "\"}"))
+        } else {
+            resp.Write([]byte(message))      
+        }
     }
 }
 
