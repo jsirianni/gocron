@@ -107,6 +107,18 @@ else
    exit 1
 fi
 
+# validate backend crons api
+echo "checking backend /crons endpoint"
+curl -s localhost:3000/crons | jq . || exit 1
+STATUS_CODE=`curl -sL -w "%{http_code}\\n" "localhost:3000/version" -o /dev/null`
+if [ "$STATUS_CODE" = "200" ];
+then
+    echo "PASS: backend /crons"
+else
+   echo "FAIL: backend /crons returned ${STATUS_CODE}, expected 200" ;
+   exit 1
+fi
+
 
 # # # # # # #
 # Test logs by parsing their contents

@@ -10,6 +10,8 @@ import (
 	"gocron/util/log"
 	"gocron/util/slack"
 	"gocron/util/httphelper"
+
+	//"github.com/gorilla/mux"
 )
 
 
@@ -40,10 +42,13 @@ func (g Gocron) StartBackend(backendPort string) error {
 // HTTP connections
 func (g Gocron) BackendAPI(backendPort string) {
 	log.Message("starting backend api on port: " + backendPort)
-
 	http.HandleFunc("/healthcheck", g.backEndHealthCheck)
 	http.HandleFunc("/version", g.backendVersionAPI)
-	http.HandleFunc("/crons", g.getCrons)
+    http.HandleFunc("/crons", g.getCronsAPI)
+	//r := mux.NewRouter()
+    //r.HandleFunc("/healthcheck", g.backEndHealthCheck)
+    //r.HandleFunc("/version", g.backendVersionAPI)
+    //r.HandleFunc("/crons", g.getCrons)
 	http.ListenAndServe(":" + backendPort, nil)
 }
 
@@ -75,16 +80,8 @@ func (g Gocron) backendVersionAPI(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (g Gocron) getCrons(resp http.ResponseWriter, req *http.Request) {
-	v := strings.Split(string(req.URL.Path), "/")
-	var b []byte
-	var err  error
-	if len(v) == 1 {
-		b, err = g.queryAllCrons("")
-	} else if len(v) == 2 {
-		b, err = g.queryAllCrons(v[1])
-	}
-
+func (g Gocron) getCronsAPI(resp http.ResponseWriter, req *http.Request) {
+	b, err := g.queryAllCrons()
 	if err != nil {
 		log.Error(err)
 		httphelper.ReturnServerError(resp, "", true)
@@ -93,7 +90,6 @@ func (g Gocron) getCrons(resp http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(resp).Encode(b)
 		httphelper.ReturnOk(resp)
 	}
-
 }
 
 

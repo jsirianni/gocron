@@ -3,7 +3,6 @@ import (
     "os"
     "strconv"
     "errors"
-    "encoding/json"
 
     "gocron/util/log"
 
@@ -101,68 +100,61 @@ func (g Gocron) getDatabaseVersion() (string, error) {
 }
 
 // returns all crons
-func (g Gocron) queryAllCrons(account string) ([]byte, error) {
-    if len(account) == 0 {
-        var a AllCrons
-        query := "SELECT * FROM gocron;"
+func (g Gocron) queryAllCrons() (AllCrons, error) {
+    var a AllCrons
+    query := "SELECT * FROM gocron;"
 
-        rows, err := queryDatabase(g, query)
-        if err != nil {
-            return nil, err
-        }
-
-        for rows.Next() {
-            var c Cron
-            rows.Scan(&c.Cronname,
-                &c.Account,
-                &c.Email,
-                &c.Ipaddress,
-                &c.Frequency,
-                &c.Lastruntime,
-                &c.Alerted,
-                &c.Site)
-            a.Crons = append(a.Crons, c)
-        }
-        a.Count = len(a.Crons)
-
-        b, err := json.Marshal(a)
-        if err != nil {
-            return nil, err
-        }
-        return b, nil
-
-    } else {
-        var a AccountCrons
-        query := "SELECT * FROM gocron WHERE account = '" + account + "';"
-        if len(account) == 0 {
-            return nil, errors.New("call to getCronsByAccount contained an empty account")
-        }
-
-        rows, err := queryDatabase(g, query)
-        if err != nil {
-            return nil, err
-        }
-
-        for rows.Next() {
-            var c Cron
-            rows.Scan(&c.Cronname,
-                &c.Account,
-                &c.Email,
-                &c.Ipaddress,
-                &c.Frequency,
-                &c.Lastruntime,
-                &c.Alerted,
-                &c.Site)
-            a.Crons = append(a.Crons, c)
-        }
-
-        a.Account = account
-        a.Count = len(a.Crons)
-
-        b, err := json.Marshal(a)
-        if err != nil {
-            return nil, err
-        }
-        return b, nil
+    rows, err := queryDatabase(g, query)
+    if err != nil {
+        return a, err
     }
+
+    for rows.Next() {
+        var c Cron
+        rows.Scan(&c.Cronname,
+            &c.Account,
+            &c.Email,
+            &c.Ipaddress,
+            &c.Frequency,
+            &c.Lastruntime,
+            &c.Alerted,
+            &c.Site)
+        a.Crons = append(a.Crons, c)
+    }
+
+    a.Count = len(a.Crons)
+
+    return a, nil
+}
+
+// returns an array of Cron structs for a specific account
+func (g Gocron) queryCronsByAccount(account string) (AccountCrons, error) {
+    var a AccountCrons
+    query := "SELECT * FROM gocron WHERE account = '" + account + "';"
+    if len(account) == 0 {
+        return a, errors.New("call to getCronsByAccount contained an empty account")
+    }
+
+    rows, err := queryDatabase(g, query)
+    if err != nil {
+        return a, err
+    }
+
+    for rows.Next() {
+        var c Cron
+        rows.Scan(&c.Cronname,
+            &c.Account,
+            &c.Email,
+            &c.Ipaddress,
+            &c.Frequency,
+            &c.Lastruntime,
+            &c.Alerted,
+            &c.Site)
+        a.Crons = append(a.Crons, c)
+    }
+
+    a.Account = account
+    a.Count = len(a.Crons)
+
+    return a, nil
 }
