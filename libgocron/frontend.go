@@ -14,12 +14,8 @@ import (
 
 // StartFrontend starts the gocron frontend server
 func (g Gocron) StartFrontend(frontendPort string) {
-
-	//if v == true {
-	//	CronLog("verbose mode enabled")
 	log.Message("gocron-front version: " + Version)
 	log.Message("starting web server on port: " + frontendPort)
-	//}
 
 	http.HandleFunc("/", g.incomingCron)
 	http.HandleFunc("/healthcheck", frontEndHealthCheck)
@@ -30,9 +26,7 @@ func (g Gocron) StartFrontend(frontendPort string) {
 // return http status 200 if connection to database is healthy
 func frontEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
     r := strings.Split(req.RemoteAddr, ":")[0]
-	//if verbose == true {
 	log.Message("healthcheck from: " + r)
-	//}
 	returnOk(resp)
 }
 
