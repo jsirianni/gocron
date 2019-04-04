@@ -11,7 +11,7 @@ import (
 	"gocron/util/slack"
 	"gocron/util/httphelper"
 
-	//"github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 )
 
 
@@ -42,14 +42,11 @@ func (g Gocron) StartBackend(backendPort string) error {
 // HTTP connections
 func (g Gocron) BackendAPI(backendPort string) {
 	log.Message("starting backend api on port: " + backendPort)
-	http.HandleFunc("/healthcheck", g.backEndHealthCheck)
-	http.HandleFunc("/version", g.backendVersionAPI)
-    http.HandleFunc("/crons", g.getCronsAPI)
-	//r := mux.NewRouter()
-    //r.HandleFunc("/healthcheck", g.backEndHealthCheck)
-    //r.HandleFunc("/version", g.backendVersionAPI)
-    //r.HandleFunc("/crons", g.getCrons)
-	http.ListenAndServe(":" + backendPort, nil)
+	r := mux.NewRouter()
+    r.HandleFunc("/healthcheck", g.backEndHealthCheck)
+    r.HandleFunc("/version", g.backendVersionAPI)
+    r.HandleFunc("/crons", g.getCronsAPI)
+	http.ListenAndServe(":" + backendPort, r)
 }
 
 func (g Gocron) backEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
