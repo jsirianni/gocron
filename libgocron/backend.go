@@ -47,6 +47,11 @@ func (g Gocron) BackendAPI(backendPort string) {
 func (g Gocron) backEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
 	r := strings.Split(req.RemoteAddr, ":")[0]
 	log.Message("healthcheck from: " + r)
+	err := g.testDatabaseConnection()
+	if err != nil {
+		log.Error(err)
+		httphelper.ReturnServerError(resp, "a connection to the database could not be validated")
+	}
 	httphelper.ReturnOk(resp)
 }
 

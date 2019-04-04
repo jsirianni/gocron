@@ -14,7 +14,14 @@ import (
 
 const missedJobs = "SELECT * FROM gocron WHERE (extract(epoch from now()) - lastruntime) > frequency;"
 const revivedJobs = "SELECT * FROM gocron WHERE alerted = true AND (extract(epoch from now()) - lastruntime) < frequency;"
+const testConnection = "SELECT max(table_catalog) as x from information_schema.tables;"
 
+// Function ensures a connection to the database. Errors
+// should be logged by the caller.
+func (g Gocron) testDatabaseConnection() error {
+    _, err := queryDatabase(g, testConnection)
+    return err
+}
 
 // Function handles database queries
 func queryDatabase(g Gocron, query string) (*sql.Rows, error) {
