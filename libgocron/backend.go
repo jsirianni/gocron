@@ -43,6 +43,7 @@ func (g Gocron) BackendAPI(backendPort string) {
 
 	http.HandleFunc("/healthcheck", g.backEndHealthCheck)
 	http.HandleFunc("/version", g.backendVersionAPI)
+	http.HandleFunc("/crons", g.getCrons)
 	http.ListenAndServe(":" + backendPort, nil)
 }
 
@@ -73,6 +74,28 @@ func (g Gocron) backendVersionAPI(resp http.ResponseWriter, req *http.Request) {
 		httphelper.ReturnOk(resp)
 	}
 }
+
+func (g Gocron) getCrons(resp http.ResponseWriter, req *http.Request) {
+	v := strings.Split(string(req.URL.Path), "/")
+	var b []byte
+	var err  error
+	if len(v) == 1 {
+		b, err = g.queryAllCrons("")
+	} else if len(v) == 2 {
+		b, err = g.queryAllCrons(v[1])
+	}
+
+	if err != nil {
+		log.Error(err)
+		httphelper.ReturnServerError(resp, "", true)
+	} else {
+		resp.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(resp).Encode(b)
+		httphelper.ReturnOk(resp)
+	}
+
+}
+
 
 // GetSummary prints a summary to standard out
 func (g Gocron) GetSummary() {
