@@ -9,6 +9,7 @@ import (
 	"errors"
 
 	"gocron/util/log"
+	"gocron/util/httphelper"
 )
 
 
@@ -27,7 +28,7 @@ func (g Gocron) StartFrontend(frontendPort string) {
 func frontEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
     r := strings.Split(req.RemoteAddr, ":")[0]
 	log.Message("healthcheck from: " + r)
-	returnOk(resp)
+	httphelper.ReturnOk(resp)
 }
 
 
@@ -75,44 +76,16 @@ func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 
 	if c.ValidateParams() == true {
 		if g.updateDatabase(c) == true {
-			returnCreated(resp)
+			httphelper.ReturnCreated(resp)
 
 		} else {
-			returnServerError(resp)
+			httphelper.ReturnServerError(resp)
 		}
 
 	} else {
-		returnNotFound(resp)
+		httphelper.ReturnNotFound(resp)
 		log.Message(method+" from "+c.Ipaddress+" not valid. Dropping.")
 	}
-}
-
-
-// Return 200 OK
-func returnOk(resp http.ResponseWriter) {
-	resp.Header().Set("Content-Type", "plain/text")
-	resp.WriteHeader(http.StatusOK)
-}
-
-
-// Return a 201 Created
-func returnCreated(resp http.ResponseWriter) {
-	resp.Header().Set("Content-Type", "plain/text")
-	resp.WriteHeader(http.StatusCreated)
-}
-
-
-// Return a 500 Server Error
-func returnServerError(resp http.ResponseWriter) {
-	resp.Header().Set("Content-Type", "plain/text")
-	resp.WriteHeader(http.StatusInternalServerError)
-	resp.Write([]byte("Internal Server Error"))
-}
-
-
-// Return 404 Not Found
-func returnNotFound(resp http.ResponseWriter) {
-	resp.WriteHeader(http.StatusNotFound)
 }
 
 

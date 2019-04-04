@@ -8,6 +8,7 @@ import (
 
 	"gocron/util/log"
 	"gocron/util/slack"
+	"gocron/util/httphelper"
 )
 
 
@@ -46,6 +47,7 @@ func (g Gocron) BackendAPI(backendPort string) {
 func (g Gocron) backEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
 	r := strings.Split(req.RemoteAddr, ":")[0]
 	log.Message("healthcheck from: " + r)
+	httphelper.ReturnOk(resp)
 }
 
 // GetSummary prints a summary to standard out
