@@ -50,16 +50,6 @@ func (g Gocron) incomingCron(resp http.ResponseWriter, req *http.Request) {
 		c.Lastruntime = currentTime
 		c.Ipaddress = socket[0]
 
-		// If x = 1, set c.Site to true
-		// NOTE: Depricating the site feature. It was never implemented and is causing
-		// technical debt
-		/*x, err := strconv.Atoi(req.URL.Query().Get("site"))
-		if err == nil && x == 1 {
-			c.Site = true
-		} else {
-			c.Site = false
-		}*/
-
 	case "POST":
 		method = "POST"
 
