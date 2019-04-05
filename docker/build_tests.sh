@@ -57,6 +57,10 @@ fi
 # sleep 8 seconds to allow alert to be sent
 sleep 8
 
+# check for missed jobs
+echo "checking for missed jobs via api"
+curl -s localhost:3000/crons/alerted | jq . || exit 1
+
 # test for 201 status code when sending a valid GET
 # test for "back online" alert
 echo "testing for 201 response from frontend"
