@@ -123,6 +123,9 @@ else
    exit 1
 fi
 
+echo "checking /crons/{account} endpoint"
+curl -s localhost:3000/crons/myaccount | jq . || exit 1
+
 
 # # # # # # #
 # Test logs by parsing their contents

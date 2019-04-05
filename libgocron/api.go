@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 	"encoding/json"
+	"database/sql"
 
 	"gocron/util/log"
 	"gocron/util/httphelper"
@@ -19,6 +20,7 @@ func (g Gocron) Api(backendPort string) {
     r.HandleFunc("/healthcheck", g.healthcheckAPI)
     r.HandleFunc("/version", g.versionAPI)
     r.HandleFunc("/crons", g.getCronsAPI)
+	r.HandleFunc("/crons/{account}", g.getCronsByAccountAPI)
 	r.HandleFunc("/crons/alerted", g.getCronsAlertedAPI)
 	http.ListenAndServe(":" + backendPort, r)
 }
@@ -64,18 +66,7 @@ func (g Gocron) getCronsAPI(resp http.ResponseWriter, req *http.Request) {
         return
     }
 
-    for rows.Next() {
-        var c Cron
-        rows.Scan(&c.Cronname,
-            &c.Account,
-            &c.Email,
-            &c.Ipaddress,
-            &c.Frequency,
-            &c.Lastruntime,
-            &c.Alerted,
-            &c.Site)
-        a.Crons = append(a.Crons, c)
-    }
+    a.Crons = getCronsFromRows(rows)
     a.Count = len(a.Crons)
 
 	resp.Header().Set("Content-Type", "application/json")
@@ -83,6 +74,29 @@ func (g Gocron) getCronsAPI(resp http.ResponseWriter, req *http.Request) {
 	httphelper.ReturnOk(resp)
 }
 
+func (g Gocron) getCronsByAccountAPI(resp http.ResponseWriter, req *http.Request) {
+	var a AccountCrons
+	a.Account = getAccountFromRequest(req)
+
+    rows, err := queryDatabase(g, "SELECT * FROM gocron WHERE account = '" + a.Account + "';")
+    if err != nil {
+        log.Error(err)
+		httphelper.ReturnServerError(resp, "", true)
+        return
+    }
+
+	a.Crons = getCronsFromRows(rows)
+    a.Count = len(a.Crons)
+
+	if a.Count < 1 {
+		httphelper.ReturnNotFound(resp)
+		return
+	}
+
+	resp.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(resp).Encode(a)
+	httphelper.ReturnOk(resp)
+}
 
 func (g Gocron) getCronsAlertedAPI(resp http.ResponseWriter, req *http.Request) {
 	var a AllCrons
@@ -96,9 +110,24 @@ func (g Gocron) getCronsAlertedAPI(resp http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	for rows.Next() {
+	a.Crons = getCronsFromRows(rows)
+	a.Count = len(a.Crons)
+
+	resp.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(resp).Encode(a)
+	httphelper.ReturnOk(resp)
+}
+
+func getAccountFromRequest(req *http.Request) string {
+   vars := mux.Vars(req)
+   return  vars["account"]
+}
+
+func getCronsFromRows(r *sql.Rows) []Cron {
+	var crons []Cron
+	for r.Next() {
 		var c Cron
-		rows.Scan(&c.Cronname,
+		r.Scan(&c.Cronname,
 			&c.Account,
 			&c.Email,
 			&c.Ipaddress,
@@ -106,11 +135,7 @@ func (g Gocron) getCronsAlertedAPI(resp http.ResponseWriter, req *http.Request) 
 			&c.Lastruntime,
 			&c.Alerted,
 			&c.Site)
-		a.Crons = append(a.Crons, c)
+		crons = append(crons, c)
 	}
-	a.Count = len(a.Crons)
-
-	resp.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(resp).Encode(a)
-	httphelper.ReturnOk(resp)
+	return crons
 }
