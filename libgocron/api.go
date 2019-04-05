@@ -28,7 +28,7 @@ func (g Gocron) Api(backendPort string) {
 	r.HandleFunc("/cron", g.getCronsAPI).Methods("GET")
 
 	// expvar runtime  metrics
-	r.Handle("/debug/vars", http.DefaultServeMux).Methods("GET")
+	r.Handle("/debug/vars", http.DefaultServeMux)
 
 	http.ListenAndServe(":" + backendPort, r)
 }
