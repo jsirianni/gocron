@@ -17,8 +17,6 @@ var apiCmd = &cobra.Command{
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.AddCommand(apiCmd)
-    rootCmd.PersistentFlags().StringVar(&apiPort, "port", "3000", "API listening port (defaults to 3000)")
-
 }
 
 

@@ -37,7 +37,6 @@ func Execute() {
 
 
 func init() {
-	//cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&apiPort, "port", "3000", "API listening port (defaults to 3000)")
 
 }
