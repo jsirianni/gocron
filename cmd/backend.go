@@ -15,6 +15,7 @@ var backendCmd = &cobra.Command{
 
 
 func init() {
+	cobra.OnInitialize(initConfig)
 	rootCmd.AddCommand(backendCmd)
 }
 

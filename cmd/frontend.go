@@ -16,6 +16,7 @@ var frontendCmd = &cobra.Command{
 
 
 func init() {
+	cobra.OnInitialize(initConfig)
 	rootCmd.AddCommand(frontendCmd)
 	frontendCmd.Flags().StringVar(&frontendPort, "port", "8080", "Listening port (defaults to 8080)")
 }
