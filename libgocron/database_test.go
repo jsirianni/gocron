@@ -38,3 +38,11 @@ func TesttestDatabaseConnection(t *testing.T) {
         t.Errorf("Expected testDatabaseConnection() to return an error, due to no database to connect to")
     }
 }
+
+func TestgetDatabaseVersion(t *testing.T) {
+    g := getTestConfig()
+
+    if _, err := g.getDatabaseVersion(); err == nil {
+        t.Errorf("Expected getDatabaseVersion() to return an error, due to no database to connect to")
+    }
+}

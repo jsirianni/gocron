@@ -3,17 +3,15 @@ import (
 	"os"
 	"time"
 	"errors"
-	"net/http"
-	"strings"
 
 	"gocron/util/log"
 	"gocron/util/slack"
-	"gocron/util/httphelper"
+
 )
 
 
 // StartBackend calls checkCronStatus() on a set interval
-func (g Gocron) StartBackend(backendPort string) error {
+func (g Gocron) StartBackend() error {
 	log.Message("gocron-back version: " + Version)
 
 	// create the gocron table, if not exists
@@ -23,9 +21,6 @@ func (g Gocron) StartBackend(backendPort string) error {
 		os.Exit(1)
 	}
 
-	// start the backend api on a new thread
-	go g.BackendAPI(backendPort)
-
 	// backend server is just a never ending loop that checks for missed
 	// jobs at the set interval
 	for {
@@ -33,64 +28,6 @@ func (g Gocron) StartBackend(backendPort string) error {
 		log.Message("Checking for missed jobs.")
 		g.cronStatus()
 	}
-}
-
-// BackendAPI is a web service that exposes the backend to
-// HTTP connections
-func (g Gocron) BackendAPI(backendPort string) {
-	log.Message("starting backend api on port: " + backendPort)
-
-	http.HandleFunc("/healthcheck", g.backEndHealthCheck)
-	http.ListenAndServe(":" + backendPort, nil)
-}
-
-func (g Gocron) backEndHealthCheck(resp http.ResponseWriter, req *http.Request) {
-	r := strings.Split(req.RemoteAddr, ":")[0]
-	log.Message("healthcheck from: " + r)
-	err := g.testDatabaseConnection()
-	if err != nil {
-		log.Error(err)
-		httphelper.ReturnServerError(resp, "a connection to the database could not be validated")
-	} else {
-		httphelper.ReturnOk(resp)
-	}
-}
-
-// GetSummary prints a summary to standard out
-func (g Gocron) GetSummary() {
-	message := "gocron summary - missed jobs:\n"
-
-	rows, err := queryDatabase(g, missedJobs)
-	defer rows.Close()
-	if err != nil {
-		log.Error(err)
-		log.Error(errors.New("Failed to perform query while attempting to build a summary: " + missedJobs))
-		return
-	}
-
-	for rows.Next() {
-		var cron Cron
-		rows.Scan(&cron.Cronname,
-			&cron.Account,
-			&cron.Email,
-			&cron.Ipaddress,
-			&cron.Frequency,
-			&cron.Lastruntime,
-			&cron.Alerted,
-			&cron.Site)
-
-		message = message + "Name: " + cron.Cronname  + "| Account: " + cron.Account + "\n"
-	}
-
-
-	// Send slack alert
-	err = g.slackAlert("gocron alert summary", message)
-	if err != nil {
-		log.Message("GOCRON: Failed to build alert summary.")
-	} else {
-		log.Message(message)
-	}
-
 }
 
 

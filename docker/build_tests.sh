@@ -57,6 +57,10 @@ fi
 # sleep 8 seconds to allow alert to be sent
 sleep 8
 
+# check for missed jobs
+echo "checking for missed jobs via api"
+curl -s localhost:3000/cron/missed | jq . || exit 1
+
 # test for 201 status code when sending a valid GET
 # test for "back online" alert
 echo "testing for 201 response from frontend"
@@ -88,11 +92,40 @@ fi
 STATUS_CODE=`curl -sL -w "%{http_code}\\n" "localhost:3000/healthcheck" -o /dev/null`
 if [ "$STATUS_CODE" = "200" ];
 then
-   echo "PASS: frontend returned 200" ;
+   echo "PASS: backend returned 200" ;
 else
-   echo "FAIL: frontend returned ${STATUS_CODE}, expected 200" ;
+   echo "FAIL: backend returned ${STATUS_CODE}, expected 200" ;
    exit 1
 fi
+
+# validate backend version api works and is valid json
+echo "checking backend /version endpoint"
+STATUS_CODE=`curl -sL -w "%{http_code}\\n" "localhost:3000/version" -o /dev/null`
+if [ "$STATUS_CODE" = "200" ];
+then
+    curl -s localhost:3000/version | jq '.version' || exit 1
+    curl -s localhost:3000/version | jq '.database' || exit 1
+    echo "PASS: backend /version"
+else
+   echo "FAIL: backend /version returned ${STATUS_CODE}, expected 200" ;
+   exit 1
+fi
+
+# validate backend crons api
+echo "checking backend /cron endpoint"
+curl -s localhost:3000/cron | jq . || exit 1
+STATUS_CODE=`curl -sL -w "%{http_code}\\n" "localhost:3000/version" -o /dev/null`
+if [ "$STATUS_CODE" = "200" ];
+then
+    echo "PASS: backend /cron"
+else
+   echo "FAIL: backend /cron returned ${STATUS_CODE}, expected 200" ;
+   exit 1
+fi
+
+echo "checking /cron/{account} endpoint"
+curl -s localhost:3000/cron/myaccount | jq . || exit 1
+
 
 # # # # # # #
 # Test logs by parsing their contents
