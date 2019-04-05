@@ -26,6 +26,6 @@ services:
             replicas: 2
         env_file:
           - docker.env
-        entrypoint: /usr/local/bin/gocron api
-        #ports:
-        #    - "3000:3000"
+        entrypoint: /usr/local/bin/gocron api --port 3001
+        ports:
+            - "3001:3001"
