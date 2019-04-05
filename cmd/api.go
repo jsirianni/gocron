@@ -9,7 +9,7 @@ var apiCmd = &cobra.Command{
 	Use:   "api",
 	Short: "Start the gocron REST API",
 	Run: func(cmd *cobra.Command, args []string) {
-		startBackend()
+		startAPI()
 	},
 }
 
@@ -20,6 +20,6 @@ func init() {
 }
 
 
-func startapi() {
+func startAPI() {
 	gocron.Api(apiPort)
 }
