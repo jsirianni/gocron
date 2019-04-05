@@ -5,6 +5,7 @@ import (
 	"strings"
 	"encoding/json"
 	"database/sql"
+	_ "expvar" // expvar will expose metrics without being called
 
 	"gocron/util/log"
 	"gocron/util/httphelper"
@@ -16,14 +17,18 @@ import (
 // Api runs gocron's rest api
 func (g Gocron) Api(backendPort string) {
 	log.Message("starting backend api on port: " + backendPort)
-	
+
 	r := mux.NewRouter()
 
+	// mux routes for gocron rest api
 	r.HandleFunc("/healthcheck", g.healthcheckAPI).Methods("GET")
     r.HandleFunc("/version", g.versionAPI).Methods("GET")
-	r.HandleFunc("/crons/missed", g.getCronsMissedAPI).Methods("GET")
-	r.HandleFunc("/crons/{account}", g.getCronsByAccountAPI).Methods("GET")
-	r.HandleFunc("/crons", g.getCronsAPI).Methods("GET")
+	r.HandleFunc("/cron/missed", g.getCronsMissedAPI).Methods("GET")
+	r.HandleFunc("/cron/{account}", g.getCronsByAccountAPI).Methods("GET")
+	r.HandleFunc("/cron", g.getCronsAPI).Methods("GET")
+
+	// expvar runtime  metrics
+	r.Handle("/debug/vars", http.DefaultServeMux).Methods("GET")
 
 	http.ListenAndServe(":" + backendPort, r)
 }

@@ -59,7 +59,7 @@ sleep 8
 
 # check for missed jobs
 echo "checking for missed jobs via api"
-curl -s localhost:3000/crons/missed | jq . || exit 1
+curl -s localhost:3000/cron/missed | jq . || exit 1
 
 # test for 201 status code when sending a valid GET
 # test for "back online" alert
@@ -112,19 +112,19 @@ else
 fi
 
 # validate backend crons api
-echo "checking backend /crons endpoint"
-curl -s localhost:3000/crons | jq . || exit 1
+echo "checking backend /cron endpoint"
+curl -s localhost:3000/cron | jq . || exit 1
 STATUS_CODE=`curl -sL -w "%{http_code}\\n" "localhost:3000/version" -o /dev/null`
 if [ "$STATUS_CODE" = "200" ];
 then
-    echo "PASS: backend /crons"
+    echo "PASS: backend /cron"
 else
-   echo "FAIL: backend /crons returned ${STATUS_CODE}, expected 200" ;
+   echo "FAIL: backend /cron returned ${STATUS_CODE}, expected 200" ;
    exit 1
 fi
 
-echo "checking /crons/{account} endpoint"
-curl -s localhost:3000/crons/myaccount | jq . || exit 1
+echo "checking /cron/{account} endpoint"
+curl -s localhost:3000/cron/myaccount | jq . || exit 1
 
 
 # # # # # # #
