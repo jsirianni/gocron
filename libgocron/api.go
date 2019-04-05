@@ -16,7 +16,7 @@ import (
 
 // Api runs gocron's rest api
 func (g Gocron) Api(port string) {
-	log.Message("starting backend api on port: " + port)
+	log.Message("starting gocron rest api on port: " + port)
 
 	r := mux.NewRouter()
 
