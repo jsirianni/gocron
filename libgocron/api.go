@@ -15,8 +15,8 @@ import (
 
 
 // Api runs gocron's rest api
-func (g Gocron) Api(backendPort string) {
-	log.Message("starting backend api on port: " + backendPort)
+func (g Gocron) Api(port string) {
+	log.Message("starting backend api on port: " + port)
 
 	r := mux.NewRouter()
 
@@ -30,7 +30,7 @@ func (g Gocron) Api(backendPort string) {
 	// expvar runtime  metrics
 	r.Handle("/debug/vars", http.DefaultServeMux)
 
-	http.ListenAndServe(":" + backendPort, r)
+	http.ListenAndServe(":" + port, r)
 }
 
 
