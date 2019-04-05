@@ -17,11 +17,11 @@ import (
 func (g Gocron) Api(backendPort string) {
 	log.Message("starting backend api on port: " + backendPort)
 	r := mux.NewRouter()
-    r.HandleFunc("/healthcheck", g.healthcheckAPI)
-    r.HandleFunc("/version", g.versionAPI)
-    r.HandleFunc("/crons", g.getCronsAPI)
-	r.HandleFunc("/crons/{account}", g.getCronsByAccountAPI)
-	r.HandleFunc("/crons/alerted", g.getCronsAlertedAPI)
+    r.HandleFunc("/healthcheck", g.healthcheckAPI).Methods("GET")
+    r.HandleFunc("/version", g.versionAPI).Methods("GET")
+	r.HandleFunc("/crons/missed", g.getCronsMissedAPI).Methods("GET")
+	r.HandleFunc("/crons/{account}", g.getCronsByAccountAPI).Methods("GET")
+	r.HandleFunc("/crons", g.getCronsAPI).Methods("GET")
 	http.ListenAndServe(":" + backendPort, r)
 }
 
@@ -98,7 +98,7 @@ func (g Gocron) getCronsByAccountAPI(resp http.ResponseWriter, req *http.Request
 	httphelper.ReturnOk(resp)
 }
 
-func (g Gocron) getCronsAlertedAPI(resp http.ResponseWriter, req *http.Request) {
+func (g Gocron) getCronsMissedAPI(resp http.ResponseWriter, req *http.Request) {
 	var a AllCrons
 
 	rows, err := queryDatabase(g, missedJobs)
