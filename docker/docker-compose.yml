@@ -19,3 +19,13 @@ services:
         entrypoint: /usr/local/bin/gocron backend
         ports:
             - "3000:3000"
+
+    gocron-api:
+        image: gocron:latest
+        deploy:
+            replicas: 2
+        env_file:
+          - docker.env
+        entrypoint: /usr/local/bin/gocron api
+        #ports:
+        #    - "3000:3000"
