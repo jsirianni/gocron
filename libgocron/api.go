@@ -16,12 +16,15 @@ import (
 // Api runs gocron's rest api
 func (g Gocron) Api(backendPort string) {
 	log.Message("starting backend api on port: " + backendPort)
+	
 	r := mux.NewRouter()
-    r.HandleFunc("/healthcheck", g.healthcheckAPI).Methods("GET")
+
+	r.HandleFunc("/healthcheck", g.healthcheckAPI).Methods("GET")
     r.HandleFunc("/version", g.versionAPI).Methods("GET")
 	r.HandleFunc("/crons/missed", g.getCronsMissedAPI).Methods("GET")
 	r.HandleFunc("/crons/{account}", g.getCronsByAccountAPI).Methods("GET")
 	r.HandleFunc("/crons", g.getCronsAPI).Methods("GET")
+
 	http.ListenAndServe(":" + backendPort, r)
 }
 
