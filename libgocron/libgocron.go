@@ -6,7 +6,7 @@ import (
 )
 
 // Version holds the current version of gocron
-const Version string = "6.2.0"
+const Version string = "6.2.1"
 
 // AllCrons defines all crons in the database
 type AllCrons struct {

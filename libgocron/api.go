@@ -35,6 +35,7 @@ func (g Gocron) Api(port string) {
 
 
 func (g Gocron) healthcheckAPI(resp http.ResponseWriter, req *http.Request) {
+	log.APILog(req)
 	r := strings.Split(req.RemoteAddr, ":")[0]
 	log.Message("healthcheck from: " + r)
 	err := g.testDatabaseConnection()
@@ -48,6 +49,7 @@ func (g Gocron) healthcheckAPI(resp http.ResponseWriter, req *http.Request) {
 
 
 func (g Gocron) versionAPI(resp http.ResponseWriter, req *http.Request) {
+	log.APILog(req)
 	var b BackendVersion
 	var err error
 	b.Version = Version
@@ -65,6 +67,7 @@ func (g Gocron) versionAPI(resp http.ResponseWriter, req *http.Request) {
 
 
 func (g Gocron) getCronsAPI(resp http.ResponseWriter, req *http.Request) {
+	log.APILog(req)
     var a AllCrons
 
     rows, err := queryDatabase(g, "SELECT * FROM gocron;")
@@ -83,6 +86,7 @@ func (g Gocron) getCronsAPI(resp http.ResponseWriter, req *http.Request) {
 }
 
 func (g Gocron) getCronsByAccountAPI(resp http.ResponseWriter, req *http.Request) {
+	log.APILog(req)
 	var a AccountCrons
 	a.Account = getAccountFromRequest(req)
 
@@ -107,6 +111,7 @@ func (g Gocron) getCronsByAccountAPI(resp http.ResponseWriter, req *http.Request
 }
 
 func (g Gocron) getCronsMissedAPI(resp http.ResponseWriter, req *http.Request) {
+	log.APILog(req)
 	var a AllCrons
 
 	rows, err := queryDatabase(g, missedJobs)
