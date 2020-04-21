@@ -1,3 +1,9 @@
+# Deprecated
+
+This project was a great learning experience, but is no longer being maintaind. Please consider using Relay, a stateless alert forwarding system with a pluggable interface for message queuing and alerting.
+
+https://github.com/jsirianni/relay
+
 # gocron
 Service that monitors the status of your cron jobs. The goal of this service is to
 receive an alert when a cronjob does not run after a predetermined amount of time.
